@@ -1,0 +1,59 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="untree_co-section">
+  <div class="container">
+    {% if product %}
+      <div class="row">
+        <div class="col-lg-6">
+          <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/product-1.png' }}" class="img-fluid product-thumbnail" alt="{{ product.name }}">
+        </div>
+        <div class="col-lg-6">
+          <h2 class="product-title">{{ product.name }}</h2>
+          <p>{{ product.description }}</p>
+          <p><strong>Category:</strong> {{ product.category_name }}</p>
+          <p><strong>Subcategory:</strong> {{ product.sub_category_name }}</p>
+          <form method="POST" action="{{ url_for('user.cart') }}">
+            <div class="mb-3">
+              <label for="product_size_id" class="form-label">Size</label>
+              <select name="product_size_id" id="product_size_id" class="form-select" required onchange="updatePrice()">
+                {% for size in sizes %}
+                  <option value="{{ size.id }}" {% if not size.stock_count %}disabled{% endif %} data-price="{{ size.offer_prize or size.size_price or 0 }}">
+                    {{ size.size }} 
+                    {% if size.stock_count %} ({{ size.stock_count }} in stock) {% else %} (Out of stock) {% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Price</label>
+              <p id="selected-price" class="form-control-plaintext">$0.00</p>
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Quantity</label>
+              <input type="number" name="quantity" id="quantity" class="form-control" min="1" value="1" required>
+            </div>
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <button type="submit" class="btn btn-primary" {% if not sizes or not sizes[0].stock_count %}disabled{% endif %}>Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <p>Product not found.</p>
+    {% endif %}
+  </div>
+</div>
+<script>
+function updatePrice() {
+  const select = document.getElementById('product_size_id');
+  const priceElement = document.getElementById('selected-price');
+  const selectedOption = select.options[select.selectedIndex];
+  const price = selectedOption.getAttribute('data-price');
+  priceElement.textContent = `$${price || '0.00'}`;
+}
+// Update price on page load with the first option
+document.addEventListener('DOMContentLoaded', function() {
+  updatePrice();
+});
+</script>
+{% endblock %}

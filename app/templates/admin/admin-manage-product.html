@@ -1,0 +1,416 @@
+{% extends "admin/admin-base.html" %}
+{% block content %}
+<!-- Main Content -->
+<div class="main-content">
+    <section class="section">
+        <div class="section-header">
+            <h1 class="text-primary">Manage Products</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="#" class="text-muted">Dashboard</a></div>
+                <div class="breadcrumb-item text-dark">Manage Products</div>
+            </div>
+        </div>
+
+        <div class="section-body">
+            <h2 class="section-title text-dark">Manage Existing Products</h2>
+            <p class="section-lead text-muted">
+                View, edit, or delete existing products with ease.
+            </p>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Existing Products</h4>
+                        </div>
+                        <div class="card-body">
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-4" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            {% if products %}
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th class="text-center">ID</th>
+                                            <th>Name</th>
+                                            <th>Image</th>
+                                            <th>Category</th>
+                                            <th>Subcategory</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                        <tr class="align-middle">
+                                            <td class="text-center">{{ product.id }}</td>
+                                            <td>{{ product.name }}</td>
+                                            <td>
+                                                {% if product.images_list %}
+                                                    <img src="{{ url_for('static', filename=product.images_list[0]) }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-width: 80px; max-height: 80px;">
+                                                {% else %}
+                                                    <span class="text-muted">No image</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ product.category_name }}</td>
+                                            <td>{{ product.sub_category_name }}</td>
+                                            <td><span class="badge badge-{{ 'success' if product.status == 'active' else 'danger' }}">{{ product.status }}</span></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-primary btn-sm edit-product-btn" 
+                                                            data-product-id="{{ product.id }}"
+                                                            data-name="{{ product.name|safe }}"
+                                                            data-description="{{ product.description|safe }}"
+                                                            data-style="{{ product.style|safe }}"
+                                                            data-category-id="{{ product.category_id }}"
+                                                            data-sub-category-id="{{ product.sub_category_id }}"
+                                                            data-status="{{ product.status }}"
+                                                            data-sizes='{{ product_sizes | selectattr("product_id", "equalto", product.id) | list | tojson | default("[]") | safe }}'>
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <a href="{{ url_for('admin.delete_product', id=product.id) }}" 
+                                                       class="btn btn-danger btn-sm" 
+                                                       onclick="return confirm('Are you sure you want to delete this product?')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </a>
+                                                    <button class="btn btn-info btn-sm" 
+                                                            data-toggle="modal" 
+                                                            data-target="#detailsModal{{ product.id }}"
+                                                            title="More Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                    <a href="{{ url_for('admin.admin_stock', product_id=product.id) }}" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-warehouse"></i> Manage Stock
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info text-center py-4">
+                                <i class="fas fa-exclamation-circle"></i> No products found.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Edit Product</h4>
+                            <button class="btn btn-light btn-sm" type="button" data-toggle="collapse" data-target="#editFormCollapse" aria-expanded="false" aria-controls="editFormCollapse">
+                                <i class="fas fa-chevron-down"></i> Toggle Form
+                            </button>
+                        </div>
+                        <div class="collapse" id="editFormCollapse">
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('admin.admin_manage_product') }}" enctype="multipart/form-data" id="edit_form">
+                                    <input type="hidden" name="product_id" id="edit_product_id" value="">
+                                    <div class="row">
+                                        <!-- Left Column: Product Details (Column 1) -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="edit_name" class="text-dark">Product Name</label>
+                                                <input type="text" class="form-control border-primary" id="edit_name" name="name" placeholder="Enter product name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit_description" class="text-dark">Description</label>
+                                                <textarea class="form-control border-primary" id="edit_description" name="description" placeholder="Enter product description" rows="3" required></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit_style" class="text-dark">Style</label>
+                                                <input type="text" class="form-control border-primary" id="edit_style" name="style" placeholder="Enter product style" required>
+                                            </div>
+                                        </div>
+                                        <!-- Right Column: Product Details (Column 2) -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="edit_images" class="text-dark">Images</label>
+                                                <input type="file" class="form-control-file" id="edit_images" name="images" multiple accept="image/*">
+                                                <small class="form-text text-muted">Select new images to replace existing ones. Leave empty to keep current images.</small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit_category_id" class="text-dark">Category</label>
+                                                <select class="form-control border-primary" id="edit_category_id" name="category_id" required>
+                                                    <option value="">Select a category</option>
+                                                    {% for category in categories %}
+                                                        <option value="{{ category.id }}">{{ category.category_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit_sub_category_id" class="text-dark">Subcategory</label>
+                                                <select class="form-control border-primary" id="edit_sub_category_id" name="sub_category_id" required>
+                                                    <option value="">Select a subcategory</option>
+                                                    {% for subcategory in subcategories %}
+                                                        <option value="{{ subcategory.id }}">{{ subcategory.sub_category_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="edit_status" class="text-dark">Status</label>
+                                                <select class="form-control border-primary" id="edit_status" name="status" required>
+                                                    <option value="active">Active</option>
+                                                    <option value="inactive">Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Size Section Below -->
+                                    <div class="mt-4">
+                                        <h6 class="text-dark">Product Sizes</h6>
+                                        <div id="size_rows" class="mb-3">
+                                            <!-- Size rows will be dynamically populated by JavaScript -->
+                                        </div>
+                                        <button type="button" class="btn btn-info btn-sm" onclick="addSizeRow()">Add Size</button>
+                                    </div>
+                                    <div class="card-footer text-right mt-4">
+                                        <button class="btn btn-primary mr-2" type="submit">Update Product and Sizes</button>
+                                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modal for Product Details -->
+{% for product in products %}
+<div class="modal fade" id="detailsModal{{ product.id }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ product.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="detailsModalLabel{{ product.id }}">Details for {{ product.name }}</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-dark">Product Sizes</h6>
+                {% set sizes = product_sizes | selectattr('product_id', 'equalto', product.id) | list %}
+                {% if sizes %}
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Size</th>
+                            <th>Prize</th>
+                            <th>Offer Prize</th>
+                            <th>Discount (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for size in sizes %}
+                        <tr>
+                            <td>{{ size.size }}</td>
+                            <td>{{ size.prize }}</td>
+                            <td>{{ size.offer_prize or 'N/A' }}</td>
+                            <td>{{ size.discount or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No sizes available.</p>
+                {% endif %}
+                
+                <h6 class="mt-4 text-dark">Stock Information</h6>
+                {% set size_ids = sizes | map(attribute='id') | list %}
+                {% set relevant_stocks = stocks | selectattr('product_size_id', 'in', size_ids) | list %}
+                {% if relevant_stocks %}
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Size</th>
+                            <th>Stock Count</th>
+                            <th>Purchase Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in relevant_stocks %}
+                        {% set size = product_sizes | selectattr('id', 'equalto', stock.product_size_id) | first %}
+                        <tr>
+                            <td>{{ size.size if size else 'N/A' }}</td>
+                            <td>{{ stock.stock_count }}</td>
+                            <td>{{ stock.purchase_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No stock information available.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.querySelectorAll('.edit-product-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        const name = this.getAttribute('data-name');
+        const description = this.getAttribute('data-description');
+        const style = this.getAttribute('data-style');
+        const categoryId = this.getAttribute('data-category-id');
+        const subCategoryId = this.getAttribute('data-sub-category-id');
+        const status = this.getAttribute('data-status');
+        const sizesJson = this.getAttribute('data-sizes');
+        editProduct(productId, name, description, style, categoryId, subCategoryId, status, sizesJson);
+        console.log('Editing product:', productId, 'with sizes:', sizesJson);
+        $('#editFormCollapse').collapse('show'); // Automatically expand the form
+    });
+});
+
+function editProduct(productId, name, description, style, categoryId, subCategoryId, status, sizesJson) {
+    document.getElementById('edit_product_id').value = productId;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_style').value = style;
+    document.getElementById('edit_category_id').value = categoryId;
+    document.getElementById('edit_sub_category_id').value = subCategoryId;
+    document.getElementById('edit_status').value = status;
+
+    const sizeRows = document.getElementById('size_rows');
+    sizeRows.innerHTML = ''; // Clear existing rows
+    let sizes;
+    try {
+        sizes = JSON.parse(sizesJson);
+        console.log('Parsed sizes:', sizes);
+    } catch (e) {
+        console.error('Error parsing sizes JSON:', e);
+        sizes = [];
+    }
+    sizes.forEach(size => {
+        addSizeRow(size);
+    });
+}
+
+function addSizeRow(size = null) {
+    const sizeRows = document.getElementById('size_rows');
+    const row = document.createElement('div');
+    row.className = 'row mb-3';
+    const sizeId = size ? size.id : Date.now(); // Use timestamp for new rows
+    row.innerHTML = `
+        <div class="col-md-3">
+            <label class="text-dark">Size (cm)</label>
+            <input type="number" class="form-control size-input border-primary" name="sizes[${sizeId}][size]" value="${size ? size.size.replace(' cm', '') : ''}" step="0.1" required>
+            <input type="hidden" name="sizes[${sizeId}][id]" value="${size ? size.id : ''}">
+        </div>
+        <div class="col-md-3">
+            <label class="text-dark">Prize</label>
+            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][prize]" value="${size ? size.prize : ''}" step="0.01" required>
+        </div>
+        <div class="col-md-3">
+            <label class="text-dark">Discount (%)</label>
+            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][discount]" value="${size ? size.discount || '' : ''}" step="0.01">
+        </div>
+        <div class="col-md-2">
+            <label class="text-dark">Offer Price</label>
+            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][offer_prize]" value="${size ? size.offer_prize || '' : ''}" step="0.01" readonly>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-danger btn-sm mt-4" onclick="this.parentElement.parentElement.remove()">Remove</button>
+        </div>
+    `;
+    sizeRows.appendChild(row);
+
+    // Calculate offer price dynamically
+    const prizeInput = row.querySelector(`input[name="sizes[${sizeId}][prize]"]`);
+    const discountInput = row.querySelector(`input[name="sizes[${sizeId}][discount]"]`);
+    const offerPriceInput = row.querySelector(`input[name="sizes[${sizeId}][offer_prize]"]`);
+
+    function calculateOfferPrice() {
+        const prize = parseFloat(prizeInput.value) || 0;
+        const discount = parseFloat(discountInput.value) || 0;
+        offerPriceInput.value = (prize - (prize * discount / 100)).toFixed(2);
+    }
+
+    prizeInput.addEventListener('input', calculateOfferPrice);
+    discountInput.addEventListener('input', calculateOfferPrice);
+    if (size) calculateOfferPrice(); // Initial calculation for existing sizes
+}
+
+function resetForm() {
+    document.getElementById('edit_product_id').value = '';
+    document.getElementById('edit_name').value = '';
+    document.getElementById('edit_description').value = '';
+    document.getElementById('edit_style').value = '';
+    document.getElementById('edit_images').value = '';
+    document.getElementById('edit_category_id').value = '';
+    document.getElementById('edit_sub_category_id').value = '';
+    document.getElementById('edit_status').value = 'active';
+    document.getElementById('size_rows').innerHTML = '';
+    $('#editFormCollapse').collapse('hide'); // Collapse the form on reset
+}
+
+// Submit handler to log form data
+document.getElementById('edit_form').addEventListener('submit', function(e) {
+    const sizeInputs = document.querySelectorAll('.size-input');
+    const sizesData = [];
+    sizeInputs.forEach(input => {
+        const row = input.closest('.row');
+        const sizeId = input.name.match(/\d+/)[0];
+        const size = input.value;
+        const prize = row.querySelector(`input[name="sizes[${sizeId}][prize]"]`).value;
+        const discount = row.querySelector(`input[name="sizes[${sizeId}][discount]"]`).value || '0';
+        const offerPrize = row.querySelector(`input[name="sizes[${sizeId}][offer_prize]"]`).value;
+        const id = row.querySelector(`input[name="sizes[${sizeId}][id]"]`).value;
+        sizesData.push({ id, size, prize, discount, offer_prize: offerPrize });
+    });
+    console.log('Submitting sizes data:', JSON.stringify(sizesData));
+});
+</script>
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+    .btn-group .btn {
+        margin-right: 5px;
+    }
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    .form-control.border-primary:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    }
+    @media (max-width: 768px) {
+        .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .btn-group .btn {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+{% endblock %}
