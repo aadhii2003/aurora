@@ -1,0 +1,35 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="untree_co-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 text-center">
+        <span class="display-1 d-block">🎉</span>
+        <h2 class="mb-4">Thank You! Your Order is Confirmed.</h2>
+        <p>Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
+        <p>A summary has been sent to your email (if provided). You can also view your order details in your order history.</p>
+        <p>
+          <a href="{{ url_for('shop') }}" class="btn btn-outline-primary me-2">Continue Shopping</a>
+          <a href="{{ url_for('user.order_history') }}" class="btn btn-primary">View Order History</a>
+        </p>
+
+        <div class="card text-start mt-5">
+            <div class="card-header">Order Summary</div>
+            <div class="card-body">
+                <p><strong>Total Amount:</strong> ${{ '%.2f'|format(order.taxed_subtotal) }}</p>
+                <p><strong>Shipping To:</strong> {{ order.shipping_address }}</p>
+                <h6 class="mt-3">Items:</h6>
+                <ul class="list-group list-group-flush">
+                {% for item in order_items %}
+                    <li class="list-group-item">{{ item.product_name }} (x{{ item.quantity }})</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

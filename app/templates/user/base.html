@@ -1,10 +1,3 @@
-<!-- /*
-* Bootstrap 5
-* Template Name: Furni
-* Template Author: Untree.co
-* Template URI: https://untree.co/
-* License: https://creativecommons.org/licenses/by/3.0/
-*/ -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -13,20 +6,796 @@
   <meta name="author" content="Untree.co">
   <link rel="shortcut icon" href="/static/user/favicon.png">
 
-  <meta name="description" content="" />
-  <meta name="keywords" content="bootstrap, bootstrap4" />
+  <meta name="description" content="AURORA - Discover exquisite gemstones and jewelry, crafted by Earth and perfected by art." />
+  <meta name="keywords" content="gemstones, crystals, jewelry, aurora, diamonds, healing crystals" />
 
   <!-- Bootstrap CSS -->
   <link href="/static/user/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="/static/user/css/tiny-slider.css" rel="stylesheet">
-  <link href="/static/user/css/style.css" rel="stylesheet">
-  <title>Furni - Furniture and Interior Design</title>
+  
+  <title>AURORA - Crafted by Earth, Perfected by Art</title>
 
-  <!-- Scripts -->
-  <script src="/static/user/js/bootstrap.bundle.min.js"></script>
-  <script src="/static/user/js/tiny-slider.js"></script>
-  <script src="/static/user/js/custom.js"></script>
+  <!-- START: Main & Enhanced Styles -->
+  <style>
+    /*
+    * CSS from UntreeStore Template & Custom Enhancements
+    * Author: Untree.co
+    * URI: https://untree.co/
+    */
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+    body {
+      overflow-x: hidden;
+      position: relative;
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
+      line-height: 28px;
+      color: #000000;
+      font-size: 14px;
+      background-color: #eff2f1;
+    }
+
+    a {
+      text-decoration: none;
+      transition: .3s all ease;
+      color: #03422a;
+    }
+    a:hover {
+      color: #2f2f2f;
+      text-decoration: none;
+    }
+    a.more {
+      font-weight: 600;
+    }
+
+    /* --- Navigation Bar --- */
+    .custom-navbar {
+      background: #023522 !important; /* Slightly darker green for distinction */
+      padding-top: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(249, 191, 41, 0.2); /* Subtle gold border for separation */
+    }
+    .custom-navbar .navbar-brand {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .custom-navbar .navbar-brand span {
+      opacity: 1;
+      color: #f9bf29;
+    }
+    .custom-navbar .navbar-toggler {
+      border-color: transparent;
+    }
+    .custom-navbar .navbar-toggler:active, .custom-navbar .navbar-toggler:focus {
+      box-shadow: none;
+      outline: none;
+    }
+    @media (min-width: 992px) {
+      .custom-navbar .custom-navbar-nav li {
+        margin-left: 15px;
+        margin-right: 15px;
+      }
+    }
+    .custom-navbar .custom-navbar-nav li a {
+      font-weight: 500;
+      color: #ffffff !important;
+      opacity: .7;
+      transition: .3s all ease;
+      position: relative;
+      padding-bottom: 8px;
+    }
+    @media (min-width: 992px) {
+      .custom-navbar .custom-navbar-nav li a:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 8px;
+        right: 8px;
+        background: #f9bf29;
+        height: 3px;
+        opacity: 0;
+        visibility: hidden;
+        width: 0;
+        transition: .2s all ease-out;
+      }
+    }
+    .custom-navbar .custom-navbar-nav li a:hover {
+      opacity: 1;
+    }
+    .custom-navbar .custom-navbar-nav li a:hover:before {
+      width: calc(100% - 16px);
+      opacity: 1;
+      visibility: visible;
+    }
+    .custom-navbar .custom-navbar-nav li.active a {
+      opacity: 1;
+    }
+    .custom-navbar .custom-navbar-nav li.active a:before {
+      width: calc(100% - 16px);
+      opacity: 1;
+      visibility: visible;
+    }
+    .custom-navbar .custom-navbar-cta {
+      margin-left: 0 !important;
+      flex-direction: row;
+    }
+    @media (min-width: 768px) {
+      .custom-navbar .custom-navbar-cta {
+        margin-left: 40px !important;
+      }
+    }
+    .custom-navbar .custom-navbar-cta li {
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+    .custom-navbar .custom-navbar-cta li:first-child {
+      margin-right: 20px;
+    }
+    .custom-navbar .custom-navbar-cta .nav-link i,
+    .custom-navbar .custom-navbar-cta .nav-link img {
+      transition: transform 0.3s ease;
+    }
+    .custom-navbar .custom-navbar-cta .nav-link:hover i,
+    .custom-navbar .custom-navbar-cta .nav-link:hover img {
+      transform: scale(1.1);
+    }
+    
+    /* --- Enhanced Hero Slider Section --- */
+    .hero {
+      padding: 0;
+      /* background: #03422a; Fallback for when image is loading */
+    }
+    .hero-slider-container {
+      position: relative;
+    }
+    .hero-slide {
+      height: 90vh;
+      min-height: 700px;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center; /* Vertically center content */
+      justify-content: flex-start; /* Horizontally align to the left */
+      text-align: left; /* Align text to the left */
+      position: relative;
+    }
+    .hero-slide::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to right, rgba(3, 66, 42, 0.8) 0%, rgba(3, 66, 42, 0.1) 100%);
+      z-index: 1;
+    }
+    .hero-slide .container {
+      position: relative;
+      z-index: 2;
+    }
+    .hero-slide .intro-excerpt h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0px 3px 6px rgba(0,0,0,0.5);
+      padding-top: 30px;
+    }
+    .hero-slide .intro-excerpt p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      max-width: 550px;
+      text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+    }
+    #hero-slider-nav {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      transform: translateY(-50%);
+      z-index: 99;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    #hero-slider-nav span {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+      color: #fff;
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+    #hero-slider-nav span:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    #hero-slider-nav .prev {
+      left: 20px;
+    }
+    #hero-slider-nav .next {
+      right: 20px;
+    }
+
+    /* --- General Button Styles --- */
+    .btn {
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 30px;
+      color: #ffffff;
+      background: #2f2f2f;
+      border-color: #2f2f2f;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      color: #ffffff;
+      background: #000;
+      border-color: #000;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn:active, .btn:focus {
+      outline: none !important;
+      box-shadow: none;
+    }
+    .btn.btn-primary {
+        background: #03422a;
+        border-color: #03422a;
+    }
+    .btn.btn-primary:hover {
+        background: #023522;
+        border-color: #023522;
+    }
+    .btn.btn-secondary {
+      color: #2f2f2f;
+      background: #f9bf29;
+      border-color: #f9bf29;
+    }
+    .btn.btn-secondary:hover {
+      background: #f8b810;
+      border-color: #f8b810;
+    }
+    .btn.btn-white-outline {
+      background: transparent;
+      border-width: 2px;
+      border-color: rgba(255, 255, 255, 0.7);
+    }
+    .btn.btn-white-outline:hover {
+      border-color: white;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    /* --- Section Styles --- */
+    .section-title {
+      color: #2f2f2f;
+      font-weight: 700;
+    }
+    .product-section {
+      padding: 7rem 0 2rem; 
+    }
+    .product-section .product-item {
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      position: relative;
+      padding-bottom: 50px;
+      cursor: pointer;
+    }
+    .product-section .product-item .product-thumbnail {
+      margin-bottom: 30px;
+      position: relative;
+      top: 0;
+      transition: .3s all ease;
+      border-radius: 15px;
+    }
+    .product-section .product-item h3 {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .product-section .product-item strong {
+      font-weight: 800 !important;
+      font-size: 18px !important;
+    }
+    .product-section .product-item h3, .product-section .product-item strong {
+      color: #2f2f2f;
+      text-decoration: none;
+    }
+    .product-section .product-item .icon-cross {
+      position: absolute;
+      width: 35px;
+      height: 35px;
+      display: inline-block;
+      background: #2f2f2f;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: -17.5px;
+      border-radius: 50%;
+      opacity: 0;
+      visibility: hidden;
+      transition: .3s all ease;
+    }
+    .product-section .product-item .icon-cross img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .product-section .product-item:before {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: absolute;
+      content: "";
+      background: #dce5e4;
+      height: 0%;
+      z-index: -1;
+      border-radius: 10px;
+      transition: .3s all ease;
+    }
+    .product-section .product-item:hover .product-thumbnail {
+      top: -25px;
+      box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15);
+    }
+    .product-section .product-item:hover .icon-cross {
+      bottom: 0;
+      opacity: 1;
+      visibility: visible;
+    }
+    .product-section .product-item:hover:before {
+      height: 70%;
+    }
+
+    .why-choose-section {
+      padding: 7rem 0;
+      background: #fff;
+    }
+    .why-choose-section .img-wrap {
+      position: relative;
+    }
+    .why-choose-section .img-wrap:before {
+      position: absolute;
+      content: "";
+      width: 255px;
+      height: 217px;
+      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%23F9BF29' fill-opacity='0.2'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+      transform: translate(-40%, -40%);
+      z-index: -1;
+    }
+    .why-choose-section .img-wrap img {
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    .feature {
+      margin-bottom: 30px;
+    }
+    .feature .icon {
+      display: inline-block;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .feature .icon:before {
+      content: "";
+      width: 33px;
+      height: 33px;
+      position: absolute;
+      background: rgba(59, 93, 80, 0.2);
+      border-radius: 50%;
+      right: -8px;
+      bottom: 0;
+    }
+    .feature h3 {
+      font-size: 16px;
+      color: #2f2f2f;
+      font-weight: 600;
+    }
+    .feature p {
+      font-size: 14px;
+      line-height: 22px;
+      color: #6a6a6a;
+    }
+
+    .we-help-section {
+      padding: 7rem 0;
+    }
+    .we-help-section .imgs-grid {
+      display: grid;
+      grid-template-columns: repeat(27, 1fr);
+      position: relative;
+    }
+    .we-help-section .imgs-grid:before {
+      position: absolute;
+      content: "";
+      width: 255px;
+      height: 217px;
+      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%233B5D50' fill-opacity='0.1'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      transform: translate(-40%, -40%);
+      z-index: -1;
+    }
+    .we-help-section .imgs-grid .grid img {
+      border-radius: 20px;
+      max-width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .we-help-section .imgs-grid .grid.grid-1 {
+      grid-column: 1 / span 18;
+      grid-row: 1 / span 27;
+    }
+    .we-help-section .imgs-grid .grid.grid-2 {
+      grid-column: 19 / span 27;
+      grid-row: 1 / span 5;
+      padding-left: 20px;
+    }
+    .we-help-section .imgs-grid .grid.grid-3 {
+      grid-column: 14 / span 16;
+      grid-row: 6 / span 27;
+      padding-top: 20px;
+    }
+
+    .custom-list li {
+      display: block;
+      width: calc(50% - 20px);
+      margin-bottom: 12px;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 20px;
+      float: left;
+    }
+    .custom-list li:before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid #03422a;
+      position: absolute;
+      left: 0;
+      top: 8px;
+    }
+
+    .popular-product {
+      padding: 0 0 7rem 0;
+    }
+    .popular-product .product-item-sm {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: #fff;
+      padding: 15px;
+      border-radius: 15px;
+    }
+    .popular-product .product-item-sm:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+    .popular-product .product-item-sm h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2f2f2f;
+    }
+    .popular-product .product-item-sm .thumbnail {
+      margin-right: 15px;
+      flex: 0 0 100px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    .popular-product .product-item-sm .thumbnail img{
+        width:100%;
+        height:100%;
+        object-fit: cover;
+    }
+
+    .testimonial-section {
+      padding: 3rem 0 7rem 0;
+      background: #f8f9fa;
+    }
+    .testimonial-slider-wrap {
+      position: relative;
+    }
+    .testimonial-slider-wrap .tns-inner {
+      padding-top: 30px;
+    }
+    .testimonial-slider-wrap .item .testimonial-block blockquote {
+      font-size: 16px;
+    }
+    @media (min-width: 768px) {
+      .testimonial-slider-wrap .item .testimonial-block blockquote {
+        line-height: 32px;
+        font-size: 18px;
+      }
+    }
+    .testimonial-slider-wrap .item .testimonial-block .author-info .author-pic {
+      margin-bottom: 20px;
+    }
+    .testimonial-slider-wrap .item .testimonial-block .author-info .author-pic img {
+      max-width: 80px;
+      border-radius: 50%;
+    }
+    .testimonial-slider-wrap .item .testimonial-block .author-info h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2f2f2f;
+      margin-bottom: 0;
+    }
+    .testimonial-slider-wrap #testimonial-nav {
+      position: absolute;
+      top: 50%;
+      z-index: 99;
+      width: 100%;
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .testimonial-slider-wrap #testimonial-nav {
+        display: block;
+      }
+    }
+    .testimonial-slider-wrap #testimonial-nav > span {
+      cursor: pointer;
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      line-height: 58px;
+      border-radius: 50%;
+      background: rgba(59, 93, 80, 0.1);
+      color: #2f2f2f;
+      transition: .3s all ease;
+    }
+    .testimonial-slider-wrap #testimonial-nav > span:hover {
+      background: #03422a;
+      color: #ffffff;
+    }
+    .testimonial-slider-wrap #testimonial-nav .prev {
+      left: -20px;
+    }
+    .testimonial-slider-wrap #testimonial-nav .next {
+      right: -20px;
+    }
+
+    .blog-section {
+      padding: 7rem 0;
+    }
+    .blog-section .post-entry a {
+      text-decoration: none;
+    }
+    .blog-section .post-entry .post-thumbnail {
+      display: block;
+      margin-bottom: 20px;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+    .blog-section .post-entry .post-thumbnail img {
+      transition: .3s all ease;
+    }
+    .blog-section .post-entry .post-content-entry {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    .blog-section .post-entry .post-content-entry h3 {
+      font-size: 16px;
+      margin-bottom: 0;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+    .blog-section .post-entry .post-content-entry .meta {
+      font-size: 14px;
+    }
+    .blog-section .post-entry:hover .post-thumbnail img, .blog-section .post-entry:focus .post-thumbnail img {
+      transform: scale(1.05);
+    }
+    
+    /* --- Footer Section --- */
+    .footer-section {
+      padding: 80px 0;
+      background: #ffffff;
+    }
+    .footer-section .relative {
+      position: relative;
+    }
+    .footer-section .subscription-form {
+      position: relative;
+      z-index: 2;
+    }
+    .footer-section .subscription-form h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #03422a;
+    }
+    .footer-section .subscription-form .form-control {
+      height: 50px;
+      border-radius: 10px;
+    }
+    .footer-section .footer-logo-wrap .footer-logo {
+      font-size: 32px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #03422a;
+    }
+    .footer-section .custom-social li {
+      margin: 2px;
+      display: inline-block;
+    }
+    .footer-section .custom-social li a {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      display: inline-block;
+      background: #dce5e4;
+      color: #03422a;
+      border-radius: 50%;
+    }
+    .footer-section .custom-social li a:hover {
+      background: #03422a;
+      color: #ffffff;
+    }
+    .footer-section .border-top {
+      border-color: #dce5e4;
+    }
+    .footer-section .border-top.copyright {
+      font-size: 14px !important;
+    }
+
+    /* START: Styles for new Stone Categories Section */
+    .stone-category-section {
+      padding: 3rem 0;
+      background-color: #ffffff;
+    }
+    .stone-category-section-greybg {
+      padding: 3rem 0;
+      background-color: #eff2f1;
+    }
+   
+    .stone-category-section .section-heading,
+    .stone-category-section-greybg .section-heading {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #000000;
+      text-align: center;
+      margin-bottom: 3rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    .stone-category-section .section-heading::after,
+    .stone-category-section-greybg .section-heading::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 1px;
+      background-color: #dce5e4;
+    }
+    .stone-item {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .stone-item a {
+      text-decoration: none;
+      color: #6a6a6a;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    .stone-item a:hover {
+      transform: translateY(-5px);
+      color: #03422a;
+    }
+    .stone-item .icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .stone-item .color-icon-wrap {
+      height: 45px;
+      width: 90px;
+    }
+    .stone-item .shape-icon-wrap {
+      height: 70px;
+      width: 70px;
+    }
+    
+    .stone-item .label {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    /* START: Styles for revised Stone Shape Card */
+    .stone-shape-card {
+      padding: 15px;
+      text-align: center;
+      border: 1px solid #dce5e4;
+      border-radius: 15px;
+      background-color: #ffffff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stone-shape-card a {
+      text-decoration: none;
+      color: #6a6a6a;
+      transition: color 0.3s ease;
+    }
+    .stone-shape-card:hover a {
+      color: #03422a;
+    }
+    .stone-shape-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    }
+
+    /* START: FIX for SVG Icon Color */
+    .stone-shape-card .shape-icon-wrap svg {
+      stroke: #2f2f2f; /* Restore original outline color */
+      stroke-width: 1.5;
+      fill: none;      /* Ensure it has no fill color */
+    }
+    /* END: FIX for SVG Icon Color */
+
+    /* END: Styles for new Stone Categories Section */
+
+    /* START: Styles for WhatsApp FAB */
+    .contact-fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .contact-fab-text {
+      background-color: #fff;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      font-weight: 500;
+      margin-right: -20px;
+      transition: all 0.3s ease;
+    }
+    .contact-fab-icon {
+      width: 50px;
+      height: 50px;
+      background-color: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+    .contact-fab-icon .fa-whatsapp {
+      color: #fff;
+      font-size: 28px;
+    }
+    .contact-fab:hover .contact-fab-text {
+      transform: translateX(-5px);
+    }
+    .contact-fab:hover .contact-fab-icon {
+      transform: scale(1.1);
+    }
+    /* END: Styles for WhatsApp FAB */
+  </style>
+  <!-- END: Main & Enhanced Styles -->
 </head>
 
 <body>
@@ -41,22 +810,38 @@
 
       <div class="collapse navbar-collapse" id="navbarsFurni">
         <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-          <li class="nav-item">
+          
+          <!-- UPDATED: Dynamic active class for Home link -->
+          <li class="nav-item {% if request.endpoint == 'user.user_home' %}active{% endif %}">
             <a class="nav-link" href="{{ url_for('user.user_home') }}">Home</a>
           </li>
-          <li><a class="nav-link" href="{{ url_for('user.products') }}">Shop</a></li>
-          <li><a class="nav-link" href="#">About us</a></li>
-          <li><a class="nav-link" href="#">Services</a></li>
-          <li><a class="nav-link" href="#">Blog</a></li>
-          <li><a class="nav-link" href="#">Contact us</a></li>
+          
+          <!-- UPDATED: Dynamic active class for Shop link -->
+          <li class="nav-item {% if request.endpoint == 'user.products' %}active{% endif %}">
+            <a class="nav-link" href="{{ url_for('user.products') }}">Shop</a>
+          </li>
+          
+          <!-- UPDATED: Dynamic active class for About Us link (adjust endpoint name if needed) -->
+          <li class="nav-item {% if request.endpoint == 'user.about_us' %}active{% endif %}">
+            <a class="nav-link" href="#">About us</a>
+          </li>
+
+          <!-- UPDATED: Dynamic active class for Contact Us link (adjust endpoint name if needed) -->
+          <li class="nav-item {% if request.endpoint == 'user.contact_us' %}active{% endif %}">
+            <a class="nav-link" href="#">Contact us</a>
+          </li>
+          
           {% if session['user'] %}
-            <li><a class="nav-link" href="{{ url_for('user.order_history') }}">Order History</a></li>
+            <!-- UPDATED: Dynamic active class for Order History link -->
+            <li class="nav-item {% if request.endpoint == 'user.order_history' %}active{% endif %}">
+              <a class="nav-link" href="{{ url_for('user.order_history') }}">Order History</a>
+            </li>
           {% endif %}
         </ul>
 
         <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
           {% if session['user'] %}
-            <li><a class="nav-link" href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i></a></li>
+            <li><a class="nav-link" href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt fa-lg"></i></a></li>
           {% else %}
             <li><a class="nav-link" href="{{ url_for('user.user_login') }}"><img src="/static/user/images/user.svg"></a></li>
           {% endif %}
@@ -83,29 +868,58 @@
 
   <!-- Main Content -->
   {% block content %}
-    <!-- Start Hero Section -->
+    <!-- START: Hero Section with Slider -->
     <div class="hero">
-      <div class="container">
-        <div class="row justify-content-between">
-          <div class="col-lg-5">
-            <div class="intro-excerpt">
-              <h1>"Crafted by <span class="d-block">Earth Perfected by Art"</span></h1>
-              <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-              <p>
-                <a href="{{ url_for('user.products') }}" class="btn btn-secondary me-2">Shop Now</a>
-                <a href="#" class="btn btn-white-outline">Explore</a>
-              </p>
+      <div class="hero-slider-container">
+        <div class="hero-slider">
+          
+          <!-- Slide 1: Default Banner -->
+          <div class="hero-slide" style="background-image: url('/static/user/images/banner1.jpeg');">
+            <div class="container">
+              <div class="row">
+                <div class="col-lg-7">
+                  <div class="intro-excerpt">
+                    <h1>Crafted by <span class="d-block">Earth, Perfected by Art</span></h1>
+                    <p class="mb-4">Discover unique treasures that tell a story. Each piece is selected for its unparalleled beauty and energetic properties.</p>
+                    <p>
+                      <a href="{{ url_for('user.products') }}" class="btn btn-secondary me-2">Shop Now</a>
+                      <a href="#about-us" class="btn btn-white-outline">About Us</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-lg-7">
-            <div class="hero-img-wrap">
-              <img src="/static/user/images/couch.png" class="img-fluid">
+          
+          <!-- Loop for banners from backend -->
+          {% for banner in banners %}
+          <div class="hero-slide" style="background-image: url('{{ banner.image_url }}');">
+            <div class="container">
+              <div class="row">
+                <div class="col-lg-7">
+                  <div class="intro-excerpt">
+                    <h1>{{ banner.title|safe }}</h1>
+                    <p class="mb-4">{{ banner.content }}</p>
+                    <p>
+                      <a href="{{ url_for('user.products') }}" class="btn btn-secondary me-2">Shop Now</a>
+                      <a href="#about-us" class="btn btn-white-outline">About Us</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Slider Navigation -->
+        <div id="hero-slider-nav">
+          <span class="prev" data-controls="prev"><i class="fa fa-chevron-left"></i></span>
+          <span class="next" data-controls="next"><i class="fa fa-chevron-right"></i></span>
         </div>
       </div>
     </div>
-    <!-- End Hero Section -->
+    <!-- END: Hero Section with Slider -->
 
     <!-- Start Product Section -->
     <div class="product-section">
@@ -113,9 +927,9 @@
         <div class="row">
           <!-- Start Column 1 -->
           <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
-            <h2 class="mb-4 section-title">Crafted with excellent material.</h2>
-            <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-            <p><a href="{{ url_for('user.products') }}" class="btn">Explore</a></p>
+            <h2 class="mb-4 section-title">Crafted with excellence.</h2>
+            <p class="mb-4">Each of our gemstones is sourced with integrity and crafted with precision to bring you pieces of extraordinary quality and lasting value.</p>
+            <p><a href="{{ url_for('user.products') }}" class="btn">Explore Products</a></p>
           </div>
           <!-- End Column 1 -->
 
@@ -126,7 +940,7 @@
                 <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/product-1.png' }}" class="img-fluid product-thumbnail">
                 <h3 class="product-title">{{ product.name }}</h3>
                 <strong class="product-price">
-                  ${{ product.offer_prize or product.prize or 0 }}
+                  ${{ "%.2f"|format(product.offer_prize or product.prize or 0) }}
                 </strong>
                 <span class="icon-cross">
                   <img src="/static/user/images/cross.svg" class="img-fluid">
@@ -139,13 +953,95 @@
     </div>
     <!-- End Product Section -->
 
-    <!-- Start Why Choose Us Section -->
-    <div class="why-choose-section">
+    <!-- START: Natural Stones by Category Section -->
+    <div class="stone-category-section">
       <div class="container">
-        <div class="row justify-content-between">
+
+        <!-- Stones by Color -->
+        <div class="mb-5">
+          <h2 class="section-heading">Natural Stones by Colors</h2>
+          <div class="row justify-content-center">
+            <!-- Programmatically generate these items -->
+            {% set colors = [
+              ("YELLOW", "#F7CA00"), ("RED", "#D22B2B"), ("PINK", "#FFC0CB"), ("PURPLE", "#800080"), 
+              ("VIOLET", "#8A2BE2"), ("BLUE", "#0000FF"), ("ORANGE", "#FFA500"), ("GREY", "#808080"), ("GREEN", "#008000")
+            ] %}
+            {% for name, hex in colors %}
+            <div class="col-4 col-md-2 col-lg-1 stone-item">
+              <a href="#">
+                <div class="icon-wrap color-icon-wrap">
+                  <svg viewBox="0 0 100 50"  style="border-radius: 15px;">
+                    <defs>
+                      <!-- <clipPath id="diamond-clip-{{name}}"><path d="M50,0 L100,25 L50,50 L0,25 Z" /></clipPath> -->
+                    </defs>
+                    <g clip-path="url(#diamond-clip-{{name}})" fill="{{hex}}">
+                      <rect x="0" y="0" width="100" height="80" />
+                      <!-- <rect x="0" y="10.5" width="100" height="8" />
+                      <rect x="0" y="21" width="100" height="8" /><rect x="0" y="31.5" width="100" height="8" />
+                      <rect x="0" y="42" width="100" height="8" /> -->
+                    </g>
+                  </svg>
+                </div>
+                <div class="label">{{ name }}</div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END: Natural Stones by Category Section -->
+
+    <div class="stone-category-section-greybg">
+      <div class="container">
+        <!-- Stones by Shape -->
+        <div>
+          <h2 class="section-heading">Natural Stones by Shapes</h2>
+          <div class="row g-3">
+            {% set shapes = [
+              ("CUSHION", "<path d='M85,15 A30,30 0 0,0 15,15 A30,30 0 0,0 15,85 A30,30 0 0,0 85,85 A30,30 0 0,0 85,15 Z M75,25 L25,75 M75,75 L25,25 M50,18 L18,50 L50,82 L82,50 Z M50,28 L28,50 L50,72 L72,50 Z'/>"),
+              ("PRINCESS", "<path d='M15,15 H85 V85 H15Z M15,15 L85,85 M15,85 L85,15 M35,35 H65 V65 H35Z'/>"),
+              ("OVAL", "<ellipse cx='50' cy='50' rx='35' ry='45'/> <path d='M50,10 L25,50 L50,90 L75,50 Z M50,20 L35,50 L50,80 L65,50 Z M20,40 L80,60 M20,60 L80,40'/>"),
+              ("HEXAGON", "<path d='M25,10 L75,10 L95,50 L75,90 L25,90 L5,50 Z M50,50 L25,10 M50,50 L75,10 M50,50 L95,50 M50,50 L75,90 M50,50 L25,90 M50,50 L5,50'/>"),
+              ("PENTAGON", "<path d='M50,5 L95,40 L75,95 L25,95 L5,40 Z M50,5 L50,45 L25,95 M50,45 L75,95 M50,45 L95,40 M50,45 L5,40'/>"),
+              ("TAPERED", "<path d='M35,10 L65,10 L75,90 L25,90 Z M50,10 V90 M35,10 L25,90 M65,10 L75,90'/>"),
+              ("ROUND", "<circle cx='50' cy='50' r='45'/> <path d='M50,5 L85,15 L95,50 L85,85 L50,95 L15,85 L5,50 L15,15 Z M50,20 L73,30 L80,50 L73,70 L50,80 L27,70 L20,50 L27,30 Z'/>"),
+              ("BAGGUETE", "<path d='M20,15 H80 V85 H20 Z M30,25 H70 V75 H30 Z'/>"),
+              ("OCTAGON", "<path d='M30,10 L70,10 L90,30 L90,70 L70,90 L30,90 L10,70 L10,30 Z M30,30 H70 V70 H30 Z'/>"),
+              ("PEAR", "<path d='M50,5 C 10,20 10,70 50,95 C 90,70 90,20 50,5 Z M50,15 L30,50 L50,85 L70,50 Z M50,25 L40,50 L50,75 L60,50 Z'/>"),
+              ("COFFIN", "<path d='M25,5 L75,5 L95,50 L75,95 L25,95 L5,50 Z M50,5 V95 M25,5 L5,50 L25,95 M75,5 L95,50 L75,95'/>"),
+              ("ASSCHER", "<path d='M30,10 L70,10 L90,30 L90,70 L70,90 L30,90 L10,70 L10,30 Z M20,20 L80,20 L80,80 L20,80 Z M30,30 L70,30 L70,70 L30,70 Z M40,40 L60,40 L60,60 L40,60 Z M10,30 L30,10 M10,70 L30,90 M90,70 L70,90 M90,30 L70,10'/>"),
+              ("MARQUISE", "<path d='M5,50 C 40,5 60,5 95,50 C 60,95 40,95 5,50 Z M50,15 L25,50 L50,85 L75,50 Z'/>"),
+              ("TRILLION", "<path d='M50,5 L95,85 L5,85 Z M50,25 L75,70 L25,70 Z M50,5 L50,50 M50,50 L15,85 M50,50 L85,85'/>"),
+              ("SHIELD", "<path d='M50,5 L95,45 L50,95 L5,45 Z M50,20 L75,45 L50,70 L25,45 Z M50,5 V95'/>"),
+              ("HEART", "<path d='M50,30 A20,20 0 0,1 70,50 L50,90 L30,50 A20,20 0 0,1 50,30 Z M50,40 L60,55 L50,70 L40,55 Z'/>"),
+            ] %}
+            {% for name, path in shapes %}
+            <div class="col-6 col-md-3">
+              <div class="stone-shape-card">
+                <a href="#">
+                  <div class="icon-wrap shape-icon-wrap">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                      {{ path|safe }}
+                    </svg>
+                  </div>
+                  <div class="label">{{ name }}</div>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start Why Choose Us Section (About Us Anchor) -->
+    <div class="why-choose-section" id="about-us">
+      <div class="container">
+        <div class="row justify-content-between align-items-center">
           <div class="col-lg-6">
             <h2 class="section-title">Why Choose Us</h2>
-            <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
+            <p>We are dedicated to providing not just beautiful products, but an exceptional experience from start to finish.</p>
             <div class="row my-5">
               <div class="col-6 col-md-6">
                 <div class="feature">
@@ -153,7 +1049,7 @@
                     <img src="/static/user/images/truck.svg" alt="Image" class="img-fluid">
                   </div>
                   <h3>Fast & Free Shipping</h3>
-                  <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
+                  <p>Enjoy complimentary, insured shipping on every order, delivered swiftly to your door.</p>
                 </div>
               </div>
               <div class="col-6 col-md-6">
@@ -162,7 +1058,7 @@
                     <img src="/static/user/images/bag.svg" alt="Image" class="img-fluid">
                   </div>
                   <h3>Easy to Shop</h3>
-                  <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
+                  <p>Our intuitive website makes finding your perfect piece effortless.</p>
                 </div>
               </div>
               <div class="col-6 col-md-6">
@@ -171,7 +1067,7 @@
                     <img src="/static/user/images/support.svg" alt="Image" class="img-fluid">
                   </div>
                   <h3>24/7 Support</h3>
-                  <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
+                  <p>Our expert team is always available to assist you with any questions.</p>
                 </div>
               </div>
               <div class="col-6 col-md-6">
@@ -179,15 +1075,15 @@
                   <div class="icon">
                     <img src="/static/user/images/return.svg" alt="Image" class="img-fluid">
                   </div>
-                  <h3>Hassle Free Returns</h3>
-                  <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
+                  <h3>Hassle-Free Returns</h3>
+                  <p>Shop with confidence knowing our return process is simple and straightforward.</p>
                 </div>
               </div>
             </div>
           </div>
           <div class="col-lg-5">
             <div class="img-wrap">
-              <img src="/static/user/images/why-choose-us-img.jpg" alt="Image" class="img-fluid">
+              <img src="/static/user/images/greencrytsl.jpeg" alt="Image" class="img-fluid">
             </div>
           </div>
         </div>
@@ -201,21 +1097,21 @@
         <div class="row justify-content-between">
           <div class="col-lg-7 mb-5 mb-lg-0">
             <div class="imgs-grid">
-              <div class="grid grid-1"><img src="/static/user/images/img-grid-1.jpg" alt="Untree.co"></div>
-              <div class="grid grid-2"><img src="/static/user/images/img-grid-2.jpg" alt="Untree.co"></div>
-              <div class="grid grid-3"><img src="/static/user/images/img-grid-3.jpg" alt="Untree.co"></div>
+              <div class="grid grid-1"><img src="/static/user/images/april.webp" alt="Untree.co"></div>
+              <div class="grid grid-2"><img src="/static/user/images/crystal.jpeg" alt="Untree.co"></div>
+              <div class="grid grid-3"><img src="/static/user/images/greenstone.jpg" alt="Untree.co"></div>
             </div>
           </div>
           <div class="col-lg-5 ps-lg-5">
-            <h2 class="section-title mb-4">We Help You Make Modern Interior Design</h2>
-            <p>Donec facilisis quam ut purus rutrum lobortis. DonecCulpa qui officia deserunt mollit anim id est laborum.</p>
-            <ul class="list-unstyled custom-list my-4">
-              <li>Donec vitae odio quis nisl dapibus malesuada</li>
-              <li>Donec vitae odio quis nisl dapibus malesuada</li>
-              <li>Donec vitae odio quis nisl dapibus malesuada</li>
-              <li>Donec vitae odio quis nisl dapibus malesuada</li>
+            <h2 class="section-title mb-4">We Help You Discover Your Personal Gem</h2>
+            <p>Our mission is to connect you with gemstones that resonate with your spirit and enhance your life's journey. Let us guide you to the stone that's meant for you.</p>
+            <ul class="list-unstyled custom-list my-4 clearfix">
+              <li>Ethically Sourced Materials</li>
+              <li>Certified Authenticity</li>
+              <li>Expert Craftsmanship</li>
+              <li>Personalized Consultations</li>
             </ul>
-            <p><a href="#" class="btn">Explore</a></p>
+            <p><a href="#" class="btn">Learn More</a></p>
           </div>
         </div>
       </div>
@@ -224,48 +1120,50 @@
 
     <!-- Start Popular Product -->
     <div class="popular-product">
-      <div class="container">
-        <div class="row">
-          <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-            <div class="product-item-sm d-flex">
-              <div class="thumbnail">
-                <img src="/static/user/images/product-1.png" alt="Image" class="img-fluid">
-              </div>
-              <div class="pt-3">
-                <h3>Nordic Chair</h3>
-                <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio </p>
-                <p><a href="#">Read More</a></p>
-              </div>
-            </div>
-          </div>
+        <div class="container">
+            <div class="row">
 
-          <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-            <div class="product-item-sm d-flex">
-              <div class="thumbnail">
-                <img src="/static/user/images/product-2.png" alt="Image" class="img-fluid">
-              </div>
-              <div class="pt-3">
-                <h3>Kruzo Aero Chair</h3>
-                <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio </p>
-                <p><a href="#">Read More</a></p>
-              </div>
-            </div>
-          </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+                    <div class="product-item-sm d-flex">
+                        <div class="thumbnail">
+                            <img src="/static/user/images/purpilestone.jpeg" alt="Image" class="img-fluid">
+                        </div>
+                        <div class="pt-3">
+                            <h3>Amethyst Geode</h3>
+                            <p>A stunning piece known for its calming and spiritual properties.</p>
+                            <p><a href="#">Read More</a></p>
+                        </div>
+                    </div>
+                </div>
 
-          <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-            <div class="product-item-sm d-flex">
-              <div class="thumbnail">
-                <img src="/static/user/images/product-3.png" alt="Image" class="img-fluid">
-              </div>
-              <div class="pt-3">
-                <h3>Ergonomic Chair</h3>
-                <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio </p>
-                <p><a href="#">Read More</a></p>
-              </div>
+                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+                    <div class="product-item-sm d-flex">
+                        <div class="thumbnail">
+                            <img src="/static/user/images/daimonds.jpg" alt="Image" class="img-fluid">
+                        </div>
+                        <div class="pt-3">
+                            <h3>Raw Diamond Cluster</h3>
+                            <p>Embrace the natural, untamed beauty of raw diamonds.</p>
+                            <p><a href="#">Read More</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+                    <div class="product-item-sm d-flex">
+                        <div class="thumbnail">
+                            <img src="/static/user/images/crystal.jpeg" alt="Image" class="img-fluid">
+                        </div>
+                        <div class="pt-3">
+                            <h3>Clear Quartz Point</h3>
+                            <p>Amplify energy and intention with this master healer crystal.</p>
+                            <p><a href="#">Read More</a></p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-          </div>
         </div>
-      </div>
     </div>
     <!-- End Popular Product -->
 
@@ -292,55 +1190,20 @@
                     <div class="col-lg-8 mx-auto">
                       <div class="testimonial-block text-center">
                         <blockquote class="mb-5">
-                          <p>“Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.”</p>
+                          <p>“The quality of the amethyst I received was breathtaking. The energy it brings to my home is palpable. AURORA is my go-to for authentic, high-quality crystals. The shipping was incredibly fast and the packaging was beautiful.”</p>
                         </blockquote>
                         <div class="author-info">
                           <div class="author-pic">
                             <img src="/static/user/images/person-1.png" alt="Maria Jones" class="img-fluid">
                           </div>
                           <h3 class="font-weight-bold">Maria Jones</h3>
-                          <span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
+                          <span class="position d-block mb-3">Crystal Enthusiast</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="row justify-content-center">
-                    <div class="col-lg-8 mx-auto">
-                      <div class="testimonial-block text-center">
-                        <blockquote class="mb-5">
-                          <p>“Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.”</p>
-                        </blockquote>
-                        <div class="author-info">
-                          <div class="author-pic">
-                            <img src="/static/user/images/person-1.png" alt="Maria Jones" class="img-fluid">
-                          </div>
-                          <h3 class="font-weight-bold">Maria Jones</h3>
-                          <span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="item">
-                  <div class="row justify-content-center">
-                    <div class="col-lg-8 mx-auto">
-                      <div class="testimonial-block text-center">
-                        <blockquote class="mb-5">
-                          <p>“Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.”</p>
-                        </blockquote>
-                        <div class="author-info">
-                          <div class="author-pic">
-                            <img src="/static/user/images/person-1.png" alt="Maria Jones" class="img-fluid">
-                          </div>
-                          <h3 class="font-weight-bold">Maria Jones</h3>
-                          <span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!-- Add other testimonial items here -->
               </div>
             </div>
           </div>
@@ -354,7 +1217,7 @@
       <div class="container">
         <div class="row mb-5">
           <div class="col-md-6">
-            <h2 class="section-title">Recent Blog</h2>
+            <h2 class="section-title">Recent Insights</h2>
           </div>
           <div class="col-md-6 text-start text-md-end">
             <a href="#" class="more">View All Posts</a>
@@ -363,33 +1226,33 @@
         <div class="row">
           <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
             <div class="post-entry">
-              <a href="#" class="post-thumbnail"><img src="/static/user/images/post-1.jpg" alt="Image" class="img-fluid"></a>
+              <a href="#" class="post-thumbnail"><img src="/static/user/images/gemstones.jpg" alt="Image" class="img-fluid"></a>
               <div class="post-content-entry">
-                <h3><a href="#">First Time Home Owner Ideas</a></h3>
+                <h3><a href="#">Choosing Your First Healing Crystal</a></h3>
                 <div class="meta">
-                  <span>by <a href="#">Kristin Watson</a></span> <span>on <a href="#">Dec 19, 2021</a></span>
+                  <span>by <a href="#">Kristin Watson</a></span> <span>on <a href="#">Dec 19, 2023</a></span>
                 </div>
               </div>
             </div>
           </div>
           <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
             <div class="post-entry">
-              <a href="#" class="post-thumbnail"><img src="/static/user/images/post-2.jpg" alt="Image" class="img-fluid"></a>
+              <a href="#" class="post-thumbnail"><img src="/static/user/images/greenstone.jpg" alt="Image" class="img-fluid"></a>
               <div class="post-content-entry">
-                <h3><a href="#">How To Keep Your Furniture Clean</a></h3>
+                <h3><a href="#">How To Cleanse and Charge Your Gems</a></h3>
                 <div class="meta">
-                  <span>by <a href="#">Robert Fox</a></span> <span>on <a href="#">Dec 15, 2021</a></span>
+                  <span>by <a href="#">Robert Fox</a></span> <span>on <a href="#">Dec 15, 2023</a></span>
                 </div>
               </div>
             </div>
           </div>
           <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
             <div class="post-entry">
-              <a href="#" class="post-thumbnail"><img src="/static/user/images/post-3.jpg" alt="Image" class="img-fluid"></a>
+              <a href="#" class="post-thumbnail"><img src="/static/user/images/april.webp" alt="Image" class="img-fluid"></a>
               <div class="post-content-entry">
-                <h3><a href="#">Small Space Furniture Apartment Ideas</a></h3>
+                <h3><a href="#">The Meaning Behind Birthstones</a></h3>
                 <div class="meta">
-                  <span>by <a href="#">Kristin Watson</a></span> <span>on <a href="#">Dec 12, 2021</a></span>
+                  <span>by <a href="#">Kristin Watson</a></span> <span>on <a href="#">Dec 12, 2023</a></span>
                 </div>
               </div>
             </div>
@@ -397,47 +1260,23 @@
         </div>
       </div>
     </div>
+    
     <!-- End Blog Section -->
   {% endblock %}
 
   <!-- Start Footer Section -->
   <footer class="footer-section">
     <div class="container relative">
-      <div class="sofa-img">
-        <img src="/static/user/images/sofa.png" alt="Image" class="img-fluid">
-      </div>
-      <div class="row">
-        <div class="col-lg-8">
-          <div class="subscription-form">
-            <h3 class="d-flex align-items-center">
-              <span class="me-1"><img src="/static/user/images/envelope-outline.svg" alt="Image" class="img-fluid"></span>
-              <span>Subscribe to Newsletter</span>
-            </h3>
-            <form action="#" class="row g-3">
-              <div class="col-auto">
-                <input type="text" class="form-control" placeholder="Enter your name">
-              </div>
-              <div class="col-auto">
-                <input type="email" class="form-control" placeholder="Enter your email">
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-primary">
-                  <span class="fa fa-paper-plane"></span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+      
       <div class="row g-5 mb-5">
         <div class="col-lg-4">
-          <div class="mb-4 footer-logo-wrap"><a href="{{ url_for('user.user_home') }}" class="footer-logo">Furni<span>.</span></a></div>
-          <p class="mb-4">Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit.</p>
+          <div class="mb-4 footer-logo-wrap"><a href="{{ url_for('user.user_home') }}" class="footer-logo">AURORA<span>.</span></a></div>
+          <p class="mb-4">Connecting you with the Earth's most beautiful creations. Discover jewelry and gemstones that inspire and empower.</p>
           <ul class="list-unstyled custom-social">
-            <li><a href="#"><span class="fa fa-brands fa-facebook-f"></span></a></li>
-            <li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
-            <li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
-            <li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
+            <li><a href="#"><span class="fa-brands fa-facebook-f"></span></a></li>
+            <li><a href="#"><span class="fa-brands fa-twitter"></span></a></li>
+            <li><a href="#"><span class="fa-brands fa-instagram"></span></a></li>
+            <li><a href="#"><span class="fa-brands fa-linkedin"></span></a></li>
           </ul>
         </div>
         <div class="col-lg-8">
@@ -445,8 +1284,6 @@
             <div class="col-6 col-sm-6 col-md-3">
               <ul class="list-unstyled">
                 <li><a href="#">About us</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Blog</a></li>
                 <li><a href="#">Contact us</a></li>
               </ul>
             </div>
@@ -461,25 +1298,50 @@
               <ul class="list-unstyled">
                 <li><a href="#">Jobs</a></li>
                 <li><a href="#">Our team</a></li>
-                <li><a href="#">Leadership</a></li>
                 <li><a href="#">Privacy Policy</a></li>
               </ul>
             </div>
             <div class="col-6 col-sm-6 col-md-3">
               <ul class="list-unstyled">
-                <li><a href="#">Nordic Chair</a></li>
-                <li><a href="#">Kruzo Aero</a></li>
-                <li><a href="#">Ergonomic Chair</a></li>
+                <li><a href="#">Amethyst</a></li>
+                <li><a href="#">Quartz</a></li>
+                <li><a href="#">Diamonds</a></li>
               </ul>
             </div>
           </div>
         </div>
       </div>
-      <div class="border-top copyright">
-        <div class="row pt-4">
+
+      <!-- Subscription Form -->
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+          <div class="subscription-form text-center">
+            <h3 class="d-block d-lg-flex align-items-center justify-content-center mb-3">
+              <span class="me-2 d-inline-block mb-2 mb-lg-0"><img src="/static/user/images/envelope-outline.svg" alt="Image" class="img-fluid"></span>
+              <span>Subscribe to our Newsletter</span>
+            </h3>
+            <form action="#" class="row g-2 justify-content-center">
+              <div class="col-md-5">
+                <input type="text" class="form-control" placeholder="Enter your name">
+              </div>
+              <div class="col-md-5">
+                <input type="email" class="form-control" placeholder="Enter your email">
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                  <span class="fa fa-paper-plane"></span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-top copyright pt-4 mt-5">
+        <div class="row">
           <div class="col-lg-6">
             <p class="mb-2 text-center text-lg-start">
-              Copyright ©<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. — Designed with love by <a href="https://untree.co">Untree.co</a> Distributed By <a href="https://themewagon.com">ThemeWagon</a>
+              Copyright ©<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. — Designed by <a href="https://untree.co">Untree.co</a> & Enhanced.
             </p>
           </div>
           <div class="col-lg-6 text-center text-lg-end">
@@ -493,5 +1355,68 @@
     </div>
   </footer>
   <!-- End Footer Section -->
+
+  <!-- START: WhatsApp Contact Button -->
+  <!-- IMPORTANT: Replace YOUR_PHONE_NUMBER_HERE with your WhatsApp number e.g., 919876543210 -->
+  <a href="https://wa.me/YOUR_PHONE_NUMBER_HERE" target="_blank" class="contact-fab">
+    <span class="contact-fab-text">Contact us</span>
+    <span class="contact-fab-icon">
+        <i class="fab fa-whatsapp"></i>
+    </span>
+  </a>
+  <!-- END: WhatsApp Contact Button -->
+
+  <!-- Scripts -->
+  <script src="/static/user/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/user/js/tiny-slider.js"></script>
+  
+  <!-- START: Slider Initialization Script -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Hero Slider
+        if (document.querySelector('.hero-slider')) {
+          var heroSlider = tns({
+            container: '.hero-slider',
+            items: 1,
+            slideBy: 'page',
+            autoplay: true,
+            autoplayButtonOutput: false,
+            controls: true,
+            nav: false, // Disables the dots
+            controlsContainer: "#hero-slider-nav",
+            speed: 800,
+            autoplayTimeout: 5000,
+          });
+        }
+        
+        // Initialize Testimonial Slider
+        if (document.querySelector('.testimonial-slider')) {
+            var testimonialSlider = tns({
+                container: '.testimonial-slider',
+                items: 1,
+                axis: "horizontal",
+                controlsContainer: "#testimonial-nav",
+                nav: true,
+                autoplay: true,
+                autoplayButtonOutput: false,
+                responsive: {
+                    0: {
+                        items: 1,
+                        nav: true
+                    },
+                    768: {
+                        items: 1,
+                        nav: true
+                    },
+                    992: {
+                        items: 1,
+                        nav: true
+                    }
+                }
+            });
+        }
+      });
+  </script>
+  <!-- END: Slider Initialization Script -->
 </body>
 </html>

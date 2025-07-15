@@ -1,0 +1,203 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<style>
+  /* --- CSS for Tracking Timeline --- */
+  .tracking-timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+  }
+
+  /* The vertical line */
+  .tracking-timeline::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 6px;
+    width: 2px;
+    background: #e0e0e0;
+    transition: background 0.3s ease;
+  }
+
+  .tracking-timeline .timeline-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 30px;
+  }
+
+  /* The status dot */
+  .tracking-timeline .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: #ced4da; /* Default grey dot */
+    border: 2px solid #fff;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Current/Active status (blue dot) */
+  .tracking-timeline .timeline-item.active::before {
+    background-color: #0d6efd; /* Bootstrap Primary */
+  }
+
+  /* Completed status (green dot) */
+  .tracking-timeline .timeline-item.completed::before {
+    background-color: #198754; /* Bootstrap Success */
+  }
+
+  .timeline-item-content .status {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .timeline-item-content .date {
+    color: #6c757d;
+    font-size: 0.9em;
+  }
+
+  /* When the whole order is delivered, turn the line green */
+  .order-delivered .tracking-timeline::before {
+    background: #198754;
+  }
+
+</style>
+
+<div class="untree_co-section">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <h2 class="mb-0">Order Details</h2>
+        <p class="text-muted">Review your order and track its progress.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    {% if order %}
+    <div class="row">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <!-- Tracking Information Card -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4>Order Tracking</h4>
+          </div>
+          <div class="card-body">
+            {% if tracking_info %}
+              {# Check if the latest status is 'Delivered' to apply a global style #}
+              {% set is_delivered = tracking_info[0].status|lower == 'delivered' %}
+              <div class="{% if is_delivered %}order-delivered{% endif %}">
+                <ul class="tracking-timeline">
+                  {% for tracking_event in tracking_info %}
+                    {# The 'active' class is for the latest status if not yet delivered #}
+                    {% set is_active = loop.first and not is_delivered %}
+                    <li class="timeline-item {% if is_delivered %}completed{% elif is_active %}active{% else %}completed{% endif %}">
+                      <div class="timeline-item-content">
+                        <div class="status">{{ tracking_event.status }}</div>
+                        <div class="date">{{ tracking_event.date.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% else %}
+              <p class="text-muted">Tracking information is not yet available for this order.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Order Items Card -->
+        <div class="card">
+          <div class="card-header">
+            <h4>Items in Your Order</h4>
+          </div>
+          <div class="card-body">
+            {% for item in order_items %}
+              <div class="d-flex align-items-center mb-3">
+                {% set image_path = item.images_list[0] if item.images_list else 'user/images/product-1.png' %}
+                <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid rounded me-3" style="width: 80px; height: 80px; object-fit: contain;">
+                <div class="flex-grow-1">
+                  <h6 class="mb-0">{{ item.product_name }}</h6>
+                  <small class="text-muted">Size: {{ item.product_size }} | Qty: {{ item.quantity }}</small>
+                </div>
+                <div class="text-end">
+                  <strong>${{ '%.2f'|format(item.total_prize) }}</strong>
+                </div>
+              </div>
+              {% if not loop.last %}<hr>{% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4>Order Summary</h4>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Order ID</span>
+              <strong>#{{ order.id }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Order Status</span>
+                <span class="badge bg-secondary text-capitalize">{{ order.status }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>Order Total</span>
+              <strong>${{ '%.2f'|format(order.taxed_subtotal) }}</strong>
+            </li>
+          </ul>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4>Shipping Address</h4>
+          </div>
+          <div class="card-body">
+            <p class="mb-1"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
+            <p class="mb-0 text-muted">{{ order.shipping_address|replace(',', '<br>')|safe }}</p>
+          </div>
+        </div>
+        
+        <!-- Payment Screenshot Card (Corrected) -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Payment Screenshot</h4>
+            </div>
+            <div class="card-body text-center">
+                {% if order.payment_image %}
+                    <!-- The fix is here: using order.payment_image directly -->
+                    <a href="{{ order.payment_image }}" target="_blank" title="Click to view full size">
+                        <img src="{{ order.payment_image }}" class="img-fluid rounded" alt="Payment Screenshot">
+                    </a>
+                {% else %}
+                    <p class="text-muted mb-0">No screenshot was uploaded.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+      </div>
+    </div>
+    {% else %}
+      <div class="text-center py-5">
+        <h4>Order Not Found</h4>
+        <p>The order you are looking for does not exist or you do not have permission to view it.</p>
+        <a href="{{ url_for('user.order_history') }}" class="btn btn-primary">Back to Order History</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -55,7 +55,6 @@ class Database(object):
                 conn.close()
 
     def execute(self, req_query, params=None):
-        """ Execute a single request (Update/Delete) """
         conn = None
         cursor = None
         try:
@@ -63,9 +62,11 @@ class Database(object):
             cursor = conn.cursor()
             cursor.execute(req_query, params)
             conn.commit()
+            print(f"Commit successful for query: {req_query} with params: {params}")  # Debugging
         except pymysql.Error as error:
             if conn is not None:
                 conn.rollback()
+                print(f"Rollback due to error: {error} for query: {req_query} with params: {params}")  # Debugging
             return error
         finally:
             if cursor is not None:

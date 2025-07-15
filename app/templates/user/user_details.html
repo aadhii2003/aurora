@@ -1,0 +1,212 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="untree_co-section">
+  <div class="container">
+    <h2>Your Details</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if user and user.first_name and user.shipping_address %}
+      <!-- Display existing user details -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Your Information</h5>
+          <p><strong>First Name:</strong> {{ user.first_name }}</p>
+          <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+          <p><strong>Shipping Address:</strong> {{ user.shipping_address }}</p>
+          <p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="#edit-form" class="btn btn-primary" onclick="document.getElementById('edit-form').style.display='block';">Edit Details</a>
+            <form method="POST" action="{{ url_for('user.delete_user_details') }}" onsubmit="return confirm('Are you sure you want to delete your details?');">
+              <button type="submit" class="btn btn-danger">Delete Details</button>
+            </form>
+            <a href="{{ url_for('user.place_order') }}" class="btn btn-success">Review and Place Order</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Show message if no details exist -->
+      <div class="alert alert-info">
+        Please update your shipping details to proceed.
+      </div>
+    {% endif %}
+
+    <!-- Form for adding/editing details -->
+    <div id="edit-form" style="{% if user and user.first_name and user.shipping_address %}display: none;{% else %}display: block;{% endif %}">
+      <h3>{% if user and user.first_name %}Edit Your Details{% else %}Add Your Details{% endif %}</h3>
+      <form method="POST" action="{{ url_for('user.user_details') }}">
+        <div class="mb-3">
+          <label for="first_name" class="form-label">First Name</label>
+          <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required>
+        </div>
+        <div class="mb-3">
+          <label for="last_name" class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required>
+        </div>
+        <div class="mb-3">
+          <label for="shipping_address" class="form-label">Shipping Address</label>
+          <textarea class="form-control" id="shipping_address" name="shipping_address" required>{{ user.shipping_address or '' }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label for="phone_number" class="form-label">Phone Number</label>
+          <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{% if user and user.first_name %}Update{% else %}Save and Proceed{% endif %}</button>
+      </form>
+    </div>
+
+    <!-- Custom CSS for Mobile Responsiveness -->
+    <style>
+      /* General styling */
+      h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+      }
+
+      .card {
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.3rem;
+      }
+
+      .card-body p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .alert {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        font-size: 0.9rem;
+      }
+
+      .form-control {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+
+      .btn {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+      }
+
+      .d-flex {
+        gap: 10px;
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 767.98px) {
+        h2 {
+          font-size: 1.5rem;
+          text-align: center;
+        }
+
+        h3 {
+          font-size: 1.3rem;
+          text-align: center;
+        }
+
+        .card-title {
+          font-size: 1.2rem;
+          text-align: center;
+        }
+
+        .card-body p {
+          font-size: 0.85rem;
+          text-align: center;
+        }
+
+        .alert {
+          font-size: 0.85rem;
+        }
+
+        .form-label {
+          font-size: 0.85rem;
+        }
+
+        .form-control {
+          font-size: 0.85rem;
+          padding: 6px;
+        }
+
+        .btn {
+          width: 100%;
+          font-size: 0.85rem;
+          padding: 6px 12px;
+          margin-bottom: 10px;
+        }
+
+        .d-flex {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .card-body {
+          padding: 15px;
+        }
+      }
+
+      @media (max-width: 575.98px) {
+        h2 {
+          font-size: 1.3rem;
+        }
+
+        h3 {
+          font-size: 1.2rem;
+        }
+
+        .card-title {
+          font-size: 1.1rem;
+        }
+
+        .card-body p {
+          font-size: 0.8rem;
+        }
+
+        .alert {
+          font-size: 0.8rem;
+        }
+
+        .form-label {
+          font-size: 0.8rem;
+        }
+
+        .form-control {
+          font-size: 0.8rem;
+          padding: 5px;
+        }
+
+        .btn {
+          font-size: 0.8rem;
+          padding: 5px 10px;
+        }
+
+        .card-body {
+          padding: 10px;
+        }
+      }
+    </style>
+  </div>
+</div>
+{% endblock %}

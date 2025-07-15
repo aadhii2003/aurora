@@ -1,59 +1,281 @@
 {% extends "user/base.html" %}
 
 {% block content %}
+<!-- Add CSS for the image zoom library and custom styles -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drift-zoom@1.3.1/dist/drift-basic.min.css">
+<!-- Bootstrap JS for Tabs (if not already in base.html) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+  /* --- General Page & Gallery Styles --- */
+  .untree_co-section { padding-top: 50px; padding-bottom: 50px; }
+  .product-gallery { display: flex; gap: 15px; }
+  .thumbnails-col { flex: 0 0 80px; display: flex; flex-direction: column; gap: 10px; }
+  .thumbnail-img { width: 100%; border: 2px solid #eee; cursor: pointer; transition: border-color 0.3s; }
+  .thumbnail-img:hover, .thumbnail-img.active { border-color: #3b5d50; }
+  .main-image-container { flex: 1; border: 1px solid #ddd; position: relative; overflow: hidden; }
+  .main-product-image { width: 100%; height: auto; display: block; }
+
+  /* --- Improved Product Details Styling --- */
+  .product-details .product-title { font-size: 2.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .product-details .price { font-size: 2.1rem; color: #c7a17a; font-weight: bold; margin-bottom: 25px; }
+  .breadcrumb-item a { color: #888; text-decoration: none; }
+  .breadcrumb-item.active { color: #222; }
+
+  /* Key Features Section */
+  .product-key-features {
+    list-style: none; padding: 0; margin: 20px 0;
+    border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0;
+  }
+  .key-feature-item { padding: 5px 0; display: flex; font-size: 0.95rem; }
+  .key-feature-item strong { color: #333; font-weight: 500; width: 100px; }
+  .key-feature-item span { color: #666; }
+
+  /* Attributes table for dynamic content (Weight/Size) */
+  .product-attributes-table { margin: 25px 0; font-size: 1rem; width: 100%; }
+  .product-attributes-table th { width: 100px; color: #6c757d; font-weight: 400; text-align: left; padding-right: 15px; vertical-align: top; }
+  .product-attributes-table td { padding: 8px 0; font-weight: 500; color: #212529; }
+  .color-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle; margin-right: 8px; }
+  
+  /* Tab Section Styles */
+  .product-info-tabs { margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; }
+  .product-info-tabs .nav-tabs { border-bottom: 2px solid #dee2e6; }
+  .product-info-tabs .nav-link { color: #3b5d50; font-weight: 500; border: 0; border-bottom: 2px solid transparent; }
+  .product-info-tabs .nav-link.active, .product-info-tabs .nav-link:hover { color: #2f4a40; border-color: #3b5d50; background-color: transparent; }
+  .product-info-tabs .tab-content { padding: 30px 5px; font-size: 1rem; color: #555; line-height: 1.7; }
+  .additional-info-table { width: 100%; border-collapse: collapse; }
+  .additional-info-table th { width: 150px; font-weight: 500; color: #333; }
+  .additional-info-table td, .additional-info-table th { padding: 12px 5px; text-align: left; border-bottom: 1px solid #eee; }
+  .additional-info-table tbody tr:nth-child(odd) { background-color: #f8f9fa; }
+
+  /* WhatsApp Button */
+  .whatsapp-fab { position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-decoration: none; }
+  .whatsapp-fab:hover { color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+</style>
+
 <div class="untree_co-section">
   <div class="container">
     {% if product %}
       <div class="row">
-        <div class="col-lg-6">
-          <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/product-1.png' }}" class="img-fluid product-thumbnail" alt="{{ product.name }}">
+        <!-- Left Column: Image Gallery -->
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="product-gallery">
+            <div class="thumbnails-col">
+              {% if product.images_list %}
+                {% for image_url in product.images_list %}
+                <img src="/static/{{ image_url }}" alt="Thumbnail {{ loop.index }}" class="thumbnail-img {% if loop.first %}active{% endif %}" onclick="changeImage(this, '/static/{{ image_url }}')">
+                {% endfor %}
+              {% else %}
+                <img src="/static/user/images/default-product.png" alt="Default Thumbnail" class="thumbnail-img active">
+              {% endif %}
+            </div>
+            <div class="main-image-container">
+              <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}"
+                   class="main-product-image"
+                   data-zoom="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}"
+                   alt="{{ product.name }}">
+            </div>
+          </div>
         </div>
-        <div class="col-lg-6">
-          <h2 class="product-title">{{ product.name }}</h2>
-          <p>{{ product.description }}</p>
-          <p><strong>Category:</strong> {{ product.category_name }}</p>
-          <p><strong>Subcategory:</strong> {{ product.sub_category_name }}</p>
+
+        <!-- Right Column: Product Details -->
+        <div class="col-lg-6 product-details">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 mb-2">
+              <li class="breadcrumb-item"><a href="{{ url_for('user.user_home') }}">Home</a></li>
+              <li class="breadcrumb-item"><a href="#">{{ product.category_name }}</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+            </ol>
+          </nav>
+
+          <h1 class="product-title">{{ product.name }}</h1>
+          <p class="price" id="display-price">$0.00</p>
+          
           <form method="POST" action="{{ url_for('user.cart') }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+
+            <table class="product-attributes-table">
+              <tbody>
+                <tr>
+                  <th>Weight:</th>
+                  <td><span id="display-weight">N/A</span> <span id="display-weight-unit" class="text-muted ms-1"></span></td>
+                </tr>
+                <tr>
+                  <th>Size:</th>
+                  <td><span id="display-size">N/A</span></td>
+                </tr>
+                {% if product.shape_name %}
+                <tr>
+                  <th>Shape:</th>
+                  <td>{{ product.shape_name }}</td>
+                </tr>
+                {% endif %}
+                {% if product.color_name %}
+                <tr>
+                  <th>Color:</th>
+                  <td>
+                    {% if product.color_hex_code %}
+                    <span class="color-swatch" style="background-color: {{ product.color_hex_code }};"></span>
+                    {% endif %}
+                    {{ product.color_name }}
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+
+            {% if sizes %}
             <div class="mb-3">
-              <label for="product_size_id" class="form-label">Size</label>
-              <select name="product_size_id" id="product_size_id" class="form-select" required onchange="updatePrice()">
+              <label for="product_size_id" class="form-label"><strong>Select Option:</strong></label>
+              <select name="product_size_id" id="product_size_id" class="form-select" required onchange="updateProductDetails()">
                 {% for size in sizes %}
-                  <option value="{{ size.id }}" {% if not size.stock_count %}disabled{% endif %} data-price="{{ size.offer_prize or size.size_price or 0 }}">
-                    {{ size.size }} 
-                    {% if size.stock_count %} ({{ size.stock_count }} in stock) {% else %} (Out of stock) {% endif %}
+                  {% set available_stock = (size.stock_count or 0) - (size.purchase_count or 0) %}
+                  {% set is_out_of_stock = size.stock_count is none or available_stock <= 0 %}
+                  <option
+                    value="{{ size.id }}"
+                    data-price="{{ size.offer_prize or size.size_price or '0.00' }}"
+                    data-weight="{{ size.weight or 'N/A' }}"
+                    data-size="{{ size.size or 'N/A' }}"
+                    data-weight-unit="{{ size.weight_unit_name or '' }}" {# MODIFIED: Use correct alias #}
+                    {% if is_out_of_stock %}disabled{% endif %}>
+                      {{ size.size or 'Default' }} {% if is_out_of_stock %}(Out of Stock){% else %}({{ available_stock }} left){% endif %}
                   </option>
                 {% endfor %}
               </select>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Price</label>
-              <p id="selected-price" class="form-control-plaintext">$0.00</p>
+            {% else %}
+               <input type="hidden" name="product_size_id" value="0">
+            {% endif %}
+
+            <div class="d-flex align-items-center my-4">
+              <label for="quantity" class="form-label me-3 mb-0"><strong>Quantity:</strong></label>
+              <input type="number" name="quantity" id="quantity" class="form-control" style="max-width: 80px;" min="1" value="1" required>
             </div>
-            <div class="mb-3">
-              <label for="quantity" class="form-label">Quantity</label>
-              <input type="number" name="quantity" id="quantity" class="form-control" min="1" value="1" required>
-            </div>
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <button type="submit" class="btn btn-primary" {% if not sizes or not sizes[0].stock_count %}disabled{% endif %}>Add to Cart</button>
+            
+            <button type="submit" id="add-to-cart-btn" class="btn btn-primary btn-lg w-100">Add to Cart</button>
+            <p id="stock-message" class="text-danger mt-2" style="display: none;">This option is out of stock.</p>
           </form>
+
         </div>
       </div>
+
+      <!-- TABS FOR DESCRIPTION AND ADDITIONAL DETAILS -->
+      <div class="row">
+        <div class="col-12">
+            <div class="product-info-tabs">
+                <ul class="nav nav-tabs" id="productTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-pane" type="button" role="tab" aria-controls="description-pane" aria-selected="true">Description</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="additional-info-tab" data-bs-toggle="tab" data-bs-target="#additional-info-pane" type="button" role="tab" aria-controls="additional-info-pane" aria-selected="false">Additional Information</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="productTabContent">
+                    <div class="tab-pane fade show active" id="description-pane" role="tabpanel" aria-labelledby="description-tab">
+                        <p>{{ product.description|safe }}</p>
+                    </div>
+                    <div class="tab-pane fade" id="additional-info-pane" role="tabpanel" aria-labelledby="additional-info-tab">
+                        <table class="additional-info-table">
+                            <tbody>
+                                {% if product.sku %}<tr><th>SKU</th><td>{{ product.sku }}</td></tr>{% endif %}
+                                {% if product.dimensions %}<tr><th>Dimensions</th><td>{{ product.dimensions }}</td></tr>{% endif %}
+                                {% if product.cut %}<tr><th>Cut</th><td>{{ product.cut }}</td></tr>{% endif %}
+                                {% if product.clarity %}<tr><th>Clarity</th><td>{{ product.clarity }}</td></tr>{% endif %}
+                                {% if product.origin %}<tr><th>Origin</th><td>{{ product.origin }}</td></tr>{% endif %}
+                                {% if product.treatment %}<tr><th>Treatment</th><td>{{ product.treatment }}</td></tr>{% endif %}
+                                {% if product.certification %}<tr><th>Certification</th><td>{{ product.certification }}</td></tr>{% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
     {% else %}
-      <p>Product not found.</p>
+      <div class="alert alert-warning">Product not found.</div>
     {% endif %}
   </div>
 </div>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/YOUR_PHONE_NUMBER" class="whatsapp-fab" target="_blank" title="Contact us on WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.89 7.89 0 0 0 13.6 2.326zM7.994 14.521a6.57 6.57 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-0.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/drift-zoom@1.3.1/dist/Drift.min.js"></script>
 <script>
-function updatePrice() {
-  const select = document.getElementById('product_size_id');
-  const priceElement = document.getElementById('selected-price');
-  const selectedOption = select.options[select.selectedIndex];
-  const price = selectedOption.getAttribute('data-price');
-  priceElement.textContent = `$${price || '0.00'}`;
-}
-// Update price on page load with the first option
-document.addEventListener('DOMContentLoaded', function() {
-  updatePrice();
-});
+  // --- IMAGE GALLERY & ZOOM LOGIC ---
+  let drift;
+  const mainImageEl = document.querySelector('.main-product-image');
+  if (mainImageEl) {
+    drift = new Drift(mainImageEl, { inlinePane: true, hoverBoundingBox: true, zoomFactor: 2 });
+  }
+  function changeImage(thumbnailElement, newImageSrc) {
+    const mainImage = document.querySelector('.main-product-image');
+    mainImage.src = newImageSrc;
+    mainImage.setAttribute('data-zoom', newImageSrc);
+    document.querySelectorAll('.thumbnail-img').forEach(img => img.classList.remove('active'));
+    thumbnailElement.classList.add('active');
+  }
+
+  // --- DYNAMIC PRODUCT DETAILS LOGIC ---
+  function updateProductDetails() {
+    const select = document.getElementById('product_size_id');
+    const priceEl = document.getElementById('display-price');
+    const weightEl = document.getElementById('display-weight');
+    const weightUnitEl = document.getElementById('display-weight-unit');
+    const sizeEl = document.getElementById('display-size');
+    const addToCartButton = document.getElementById('add-to-cart-btn');
+    const stockMessage = document.getElementById('stock-message');
+  
+    if (!select || select.selectedIndex < 0) {
+      priceEl.textContent = 'N/A';
+      weightEl.textContent = 'N/A';
+      weightUnitEl.textContent = '';
+      sizeEl.textContent = 'N/A';
+      if(addToCartButton) addToCartButton.disabled = true;
+      return;
+    }
+    const selectedOption = select.options[select.selectedIndex];
+    
+    // Update displayed details
+    const price = parseFloat(selectedOption.getAttribute('data-price') || 0).toFixed(2);
+    priceEl.textContent = `$${price}`;
+    weightEl.textContent = selectedOption.getAttribute('data-weight');
+    weightUnitEl.textContent = selectedOption.getAttribute('data-weight-unit');
+
+    // MODIFIED: Append 'cm' to the size if it exists
+    const sizeValue = selectedOption.getAttribute('data-size');
+    sizeEl.textContent = (sizeValue && sizeValue !== 'N/A') ? `${sizeValue} cm` : 'N/A';
+    
+    // Handle stock status
+    if (selectedOption.disabled) {
+      addToCartButton.disabled = true;
+      stockMessage.style.display = 'block';
+    } else {
+      addToCartButton.disabled = false;
+      stockMessage.style.display = 'none';
+    }
+  }
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', function() {
+    const sizeSelector = document.getElementById('product_size_id');
+    if (sizeSelector && sizeSelector.options.length > 0) {
+        const firstAvailableOption = Array.from(sizeSelector.options).find(opt => !opt.disabled);
+        if (firstAvailableOption) {
+            sizeSelector.value = firstAvailableOption.value;
+        } else {
+            sizeSelector.selectedIndex = 0;
+        }
+        updateProductDetails();
+    } else {
+        // Fallback for products without any size options
+        const priceEl = document.getElementById('display-price');
+        priceEl.textContent = `$${parseFloat({{ product.price or 0 }}).toFixed(2)}`;
+    }
+  });
 </script>
 {% endblock %}
