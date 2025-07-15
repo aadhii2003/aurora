@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 09, 2025 at 10:38 AM
+-- Generation Time: Jul 15, 2025 at 11:59 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -20,6 +20,72 @@ SET time_zone = "+00:00";
 --
 -- Database: `db_aurora`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_color`
+--
+
+CREATE TABLE `master_color` (
+  `id` int(11) NOT NULL,
+  `color_name` varchar(100) NOT NULL,
+  `color_hex_code` varchar(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_color`
+--
+
+INSERT INTO `master_color` (`id`, `color_name`, `color_hex_code`) VALUES
+(1, 'Red', '#BE2D25'),
+(2, 'Green', '#38BE25'),
+(5, 'white', '#FFFFFF'),
+(6, 'silver', '#E0E0E0'),
+(7, 'violet', '#AB47BC'),
+(8, 'yellow', '#FDD835'),
+(9, 'Blue', '#03A9F4'),
+(10, 'pink', '#F938FC');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_shape`
+--
+
+CREATE TABLE `master_shape` (
+  `id` int(11) NOT NULL,
+  `shape_name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_shape`
+--
+
+INSERT INTO `master_shape` (`id`, `shape_name`) VALUES
+(1, 'Oval'),
+(2, 'sprial'),
+(5, 'heart'),
+(6, 'Pear');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_weight_unit`
+--
+
+CREATE TABLE `master_weight_unit` (
+  `id` int(11) NOT NULL,
+  `unit_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_weight_unit`
+--
+
+INSERT INTO `master_weight_unit` (`id`, `unit_name`) VALUES
+(1, 'gm'),
+(2, 'mg');
 
 -- --------------------------------------------------------
 
@@ -42,7 +108,8 @@ CREATE TABLE `tbl_banner` (
 --
 
 INSERT INTO `tbl_banner` (`id`, `title`, `content`, `image_url`, `is_active`, `sort_order`, `created_at`) VALUES
-(1, 'New Offers', 'the dream come with u form us ', '/static/uploads/banners/c07232b00b5843b0ae7ac2c6bce338c8_greenstone.jpg', 1, 1, '2025-07-09 07:33:21');
+(2, 'Crafted by\nEarth, Perfected by Art', 'Discover unique treasures that tell a story. Each piece is selected for its unparalleled beauty and energetic properties.', '/static/uploads/banners/d1bb880f62ec4f37ad8fd284c9335863_freepik__the-style-is-candid-image-photography-with-natural__38869.jpeg', 1, 2, '2025-07-10 09:34:57'),
+(4, 'New Offers', 'new offer / ', '/static/uploads/banners/a75fd0f698b445c3a7fe1f5179ec25e2_freepik__the-style-is-candid-image-photography-with-natural__38868.jpeg', 1, 0, '2025-07-14 12:50:58');
 
 -- --------------------------------------------------------
 
@@ -67,8 +134,7 @@ CREATE TABLE `tbl_cart` (
 --
 
 INSERT INTO `tbl_cart` (`id`, `login_id`, `product_id`, `product_size_id`, `quantity`, `created_at`, `updated_at`, `prize`, `order_status`) VALUES
-(23, 3, 2, 10, 1, '2025-07-09 06:12:48', '2025-07-09 06:12:48', 99999999.99, 'pending'),
-(24, 3, 4, 3, 1, '2025-07-09 06:23:18', '2025-07-09 06:23:18', 22222.00, 'pending');
+(37, 3, 19, 11, 1, '2025-07-14 12:58:57', '2025-07-14 12:58:57', 65545.00, 'pending');
 
 -- --------------------------------------------------------
 
@@ -130,19 +196,21 @@ CREATE TABLE `tbl_product` (
   `category_id` int(11) NOT NULL,
   `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `updated_by` int(11) DEFAULT NULL
+  `updated_by` int(11) DEFAULT NULL,
+  `color_id` int(11) DEFAULT NULL,
+  `shape_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_product`
 --
 
-INSERT INTO `tbl_product` (`id`, `name`, `description`, `style`, `images`, `sub_category_id`, `status`, `category_id`, `created_on`, `updated_on`, `updated_by`) VALUES
-(2, 'ruby', 'RUBY GEM', 'redish', '[\"admin/img/40b1909f9ca840f9a08c1f9c54369685_rubey1.jpeg\"]', 1, 'active', 1, '2025-07-01 07:04:43', '2025-07-01 09:43:42', 1),
-(4, 'Greenruby', 'mamamam', 'gemstone', '[\"admin/img/0e398ac906734bd0928f54e5d97f7fe8_greenruby.jpg\"]', 1, 'active', 3, '2025-07-01 07:13:44', '2025-07-01 07:13:44', 1),
-(5, 'pearl', 'stylish', 'sssss', '[\"admin/img/40ff124e6632458bb60e00605236cbd5_pearl.jpg\"]', 1, 'active', 3, '2025-07-01 09:30:40', '2025-07-01 10:25:22', 1),
-(8, 'december stone', 'mxskmxks', 'redish', '[\"admin/img/accd9ff8122a418cb195e17d232cbc55_greenstone.jpg\"]', 3, 'active', 3, '2025-07-03 09:02:59', '2025-07-03 09:06:41', 1),
-(17, 'April Daimond', 'aaaaaqwswxexedc', 'Crystal', '[\"admin/img/cde0d5c70f5b4eed8a6a6cf62c719a47_april.webp\"]', 2, 'active', 1, '2025-07-03 09:28:49', '2025-07-03 09:28:49', 1);
+INSERT INTO `tbl_product` (`id`, `name`, `description`, `style`, `images`, `sub_category_id`, `status`, `category_id`, `created_on`, `updated_on`, `updated_by`, `color_id`, `shape_id`) VALUES
+(19, 'Neon-Red Spinel', 'Cushion Cut, Vivid Hot‑Pink Rare & Untreated Gemstone', 'neon', '[\"admin/img/027eec41e5cd4d8ebd04fe80671b5aba_0.95.webp\", \"admin/img/80ce68db38514bcf93a63c027f35446a_0.95-3.webp\", \"admin/img/d973f3fecc1e4a5e94ac8c0607520e45_0.95-4.webp\"]', 2, 'active', 1, '2025-07-09 10:17:31', '2025-07-11 09:58:57', 1, 1, 2),
+(20, '0.95 ct Neon-Red Spinel – Natural Burmese Oval-Cushion Brilliant', '0.95 ct Neon-Red Spinel – Natural Burmese Oval-Cushion Brilliant', 'redish', '[\"admin/img/a3aca582dd1440d893caaa00c49cbefc_1.02.webp\", \"admin/img/d2a48b7174a444399f1196cbfa45efbe_1.02-3.webp\", \"admin/img/d15f6a6bf700446fbcf102bd2b644798_1.02-4.webp\"]', 2, 'active', 2, '2025-07-11 11:38:06', '2025-07-11 11:38:06', 1, 7, 2),
+(22, '1.95ct Steel-Colored Heart-Shaped Tanzania Spinel | Rare & Untreated Gemstone', '1.95ct Steel-Colored Heart-Shaped Tanzania Spinel | Rare & Untreated Gemstone', 'Crystal', '[\"admin/img/e2a2dd9d6be24b97a527b950de46bdcf_1.95-2-1.webp\", \"admin/img/29d4e9f4e3dc4eefa6455ecbface9932_1.95-1-1.webp\", \"admin/img/09d4d9315cbb4d699fd857ce368ba738_1.95-4-1.webp\"]', 3, 'active', 3, '2025-07-12 08:58:23', '2025-07-12 08:58:23', 1, 6, 5),
+(23, '1.09 ct Burmese Unheated Spinel – Candy-Pink Cushion', '1.09 ct Burmese Unheated Spinel – Candy-Pink Cushion', 'pinky', '[\"admin/img/449b42b0345349679425b46084ed06f4_1.09-1.webp\", \"admin/img/ec68b1a8e81d49a49d89ae31281318ce_1.09-3.webp\", \"admin/img/007b1c4a376443b5965b600212dbb743_1.09-4.webp\"]', 2, 'active', 1, '2025-07-14 06:40:18', '2025-07-14 06:40:18', 1, 10, 2),
+(24, '1.09 ct Burmese Unheated Spinel – Candy-Pink Cushion', 'grgsg', 'pinky', '[\"admin/img/58e4b72209b647f5a4ae4cac64a27f0e_bgrcry.png\", \"admin/img/8dd6f1f35b4e44c78e4730540be3487c_4bf085c8-bdc4-4a85-915a-afb70882ca01.jpeg\", \"admin/img/d6c05016974544a4a79d462bf862b202_bgrcry.png\"]', 3, 'active', 2, '2025-07-14 12:46:35', '2025-07-14 12:46:35', 1, 2, 6);
 
 -- --------------------------------------------------------
 
@@ -159,23 +227,22 @@ CREATE TABLE `tbl_product_size` (
   `discount` decimal(5,2) DEFAULT NULL,
   `created_on` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_on` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `updated_by` int(11) DEFAULT NULL
+  `updated_by` int(11) DEFAULT NULL,
+  `weight` decimal(10,2) DEFAULT 0.00,
+  `weight_unit_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_product_size`
 --
 
-INSERT INTO `tbl_product_size` (`id`, `product_id`, `size`, `prize`, `offer_prize`, `discount`, `created_on`, `updated_on`, `updated_by`) VALUES
-(2, 5, '11.5 cm', 17777.00, 15999.30, 10.00, '2025-07-01 09:55:32', '2025-07-01 10:36:25', 1),
-(3, 4, '12 cm', 22222.00, 19555.36, 12.00, '2025-07-01 10:32:54', '2025-07-01 10:32:54', 1),
-(4, 5, '13.5 cm', 33222.00, 32889.78, 1.00, '2025-07-01 10:36:43', '2025-07-01 10:36:43', 1),
-(5, 2, '12 cm', 2222333.00, 2200109.67, 1.00, '2025-07-03 08:41:46', '2025-07-03 08:41:46', 1),
-(6, 2, '7.7 cm', 145567.00, 132465.97, 9.00, '2025-07-03 08:55:56', '2025-07-03 08:55:56', 1),
-(7, 17, '5.4 cm', 123424.00, 120955.52, 2.00, '2025-07-03 09:39:32', '2025-07-03 09:39:32', 1),
-(8, 8, '12.4 cm', 234455.00, 232110.45, 1.00, '2025-07-08 07:21:27', '2025-07-08 07:21:27', 1),
-(9, 8, '11 cm', 124522.00, 109579.36, 12.00, '2025-07-08 07:21:43', '2025-07-08 07:21:43', 1),
-(10, 2, '45 cm', 99999999.99, 99999999.99, 0.00, '2025-07-08 10:14:21', '2025-07-08 10:14:21', 1);
+INSERT INTO `tbl_product_size` (`id`, `product_id`, `size`, `prize`, `offer_prize`, `discount`, `created_on`, `updated_on`, `updated_by`, `weight`, `weight_unit_id`) VALUES
+(11, 19, '10.9', 65545.00, 60301.40, 8.00, '2025-07-09 10:41:08', '2025-07-09 10:41:08', 1, 9.90, 1),
+(12, 20, '0.95', 34756.00, 34408.44, 1.00, '2025-07-11 11:42:15', '2025-07-11 11:42:15', 1, 2.40, 2),
+(14, 19, '10.3', 56786.00, 49971.68, 12.00, '2025-07-12 05:05:05', '2025-07-12 05:05:05', 1, 2000.00, 2),
+(15, 22, '12.2', 34543.00, 33852.14, 2.00, '2025-07-12 09:04:18', '2025-07-12 09:04:18', 1, 2000.00, 2),
+(16, 23, '1.09', 23456.00, 22986.88, 2.00, '2025-07-14 07:07:43', '2025-07-14 07:07:43', 1, 2.50, 1),
+(17, 23, '1.9', 122232.00, 121009.68, 1.00, '2025-07-14 12:48:50', '2025-07-14 12:48:50', 1, 2.60, 1);
 
 -- --------------------------------------------------------
 
@@ -199,16 +266,10 @@ CREATE TABLE `tbl_purchase_child` (
 --
 
 INSERT INTO `tbl_purchase_child` (`id`, `purchase_id`, `product_size_id`, `quantity`, `unit_prize`, `total_prize`, `tax`, `taxed_prize`) VALUES
-(2, 6, 4, 2, 33222.00, 66444.00, 0.00, 66444.00),
-(3, 6, 3, 2, 22222.00, 44444.00, 0.00, 44444.00),
-(4, 6, 5, 1, 2222333.00, 2222333.00, 0.00, 2222333.00),
-(5, 7, 3, 2, 22222.00, 44444.00, 0.00, 44444.00),
-(7, 9, 4, 1, 33222.00, 33222.00, 0.00, 33222.00),
-(11, 13, 3, 1, 22222.00, 22222.00, 0.00, 22222.00),
-(12, 14, 9, 1, 124522.00, 124522.00, 0.00, 124522.00),
-(13, 14, 10, 1, 99999999.99, 99999999.99, 0.00, 99999999.99),
-(14, 15, 10, 1, 99999999.99, 99999999.99, 0.00, 99999999.99),
-(15, 16, 3, 1, 22222.00, 22222.00, 0.00, 22222.00);
+(17, 18, 15, 1, 34543.00, 34543.00, 0.00, 34543.00),
+(18, 19, 16, 1, 23456.00, 23456.00, 0.00, 23456.00),
+(19, 20, 11, 1, 65545.00, 65545.00, 0.00, 65545.00),
+(20, 20, 12, 1, 34756.00, 34756.00, 0.00, 34756.00);
 
 -- --------------------------------------------------------
 
@@ -225,21 +286,18 @@ CREATE TABLE `tbl_purchase_master` (
   `taxed_subtotal` decimal(10,2) NOT NULL,
   `status` enum('open','close') NOT NULL DEFAULT 'open',
   `payment_image` varchar(255) DEFAULT NULL,
-  `payment_verify` enum('open','true','false') NOT NULL DEFAULT 'open'
+  `payment_verify` enum('open','true','false') NOT NULL DEFAULT 'open',
+  `purchase_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_purchase_master`
 --
 
-INSERT INTO `tbl_purchase_master` (`id`, `user_id`, `shipping_address`, `sub_total`, `tax`, `taxed_subtotal`, `status`, `payment_image`, `payment_verify`) VALUES
-(6, 1, 'santhosh bhavan muttar p.o alappuzha\r\nmuttar', 2333221.00, 0.00, 2333221.00, '', 'uploads/2_6_Screenshot_2023-11-09_142845.png', 'open'),
-(7, 1, 'santhosh bhavan muttar p.o alappuzha\r\nmuttar', 44444.00, 0.00, 44444.00, '', 'uploads/2_7_Screenshot_2023-11-09_142836.png', 'open'),
-(9, 4, 'santhosh bhavan muttar p.o alappuzha\r\nmuttar', 33222.00, 0.00, 33222.00, '', 'uploads/3_9_distribution_form.jpg', 'true'),
-(13, 4, 'abdulkkkshjmcmjm\r\nkkaii', 22222.00, 0.00, 22222.00, '', '/static/uploads/3_13_WhatsApp_Image_2025-06-26_at_20.38.54_642a9313.jpg', 'false'),
-(14, 4, 'abdulkkkshjmcmjm\r\nkkaii', 99999999.99, 0.00, 99999999.99, '', '/static/uploads/3_14_image.jpg', 'true'),
-(15, 4, 'abdulkkkshjmcmjm\r\nkkaii', 99999999.99, 0.00, 99999999.99, '', '/static/uploads/3_15_distribution_form.jpg', 'true'),
-(16, 4, 'abdulkkkshjmcmjm\r\nkkaii', 22222.00, 0.00, 22222.00, '', '/static/uploads/3_16_demo_resume.jpeg', 'open');
+INSERT INTO `tbl_purchase_master` (`id`, `user_id`, `shipping_address`, `sub_total`, `tax`, `taxed_subtotal`, `status`, `payment_image`, `payment_verify`, `purchase_date`) VALUES
+(18, 4, 'abdulkkkshjmcmjm\r\nkkaii', 34543.00, 0.00, 34543.00, '', '/static/uploads/3_18_Screenshot_2023-11-09_142836.png', 'open', '2025-07-12 15:44:24'),
+(19, 4, 'abdulkkkshjmcmjm\r\nkkaii', 23456.00, 0.00, 23456.00, '', '/static/uploads/3_19_image_1.jpg', 'true', '2025-07-14 13:12:33'),
+(20, 4, 'abdulkkkshjmcmjm\r\nkkaii', 100301.00, 0.00, 100301.00, '', '/static/uploads/3_20_image_1.jpg', 'true', '2025-07-14 18:11:17');
 
 -- --------------------------------------------------------
 
@@ -262,12 +320,10 @@ CREATE TABLE `tbl_stock` (
 --
 
 INSERT INTO `tbl_stock` (`id`, `product_size_id`, `stock_count`, `purchase_count`, `created_on`, `updated_on`, `updated_by`) VALUES
-(1, 4, 5, 4, '2025-07-01 10:40:07', '2025-07-08 09:46:47', 1),
-(2, 3, 13, 10, '2025-07-01 10:55:25', '2025-07-09 05:33:31', 1),
-(5, 9, 21, 2, '2025-07-08 07:21:56', '2025-07-08 10:16:51', 1),
-(6, 8, 11, 1, '2025-07-08 07:22:11', '2025-07-08 07:22:11', 1),
-(7, 4, 10, 0, '2025-07-08 07:44:48', '2025-07-08 09:46:47', 1),
-(9, 10, 3, 2, '2025-07-08 10:14:21', '2025-07-08 10:50:01', 1);
+(11, 11, 9, 1, '2025-07-10 07:06:14', '2025-07-14 12:41:17', 1),
+(12, 12, 7, 1, '2025-07-11 11:44:45', '2025-07-14 12:49:51', 1),
+(14, 15, 1, 1, '2025-07-12 09:04:53', '2025-07-12 10:14:24', 1),
+(15, 16, 0, 1, '2025-07-14 07:07:55', '2025-07-14 07:42:33', 1);
 
 -- --------------------------------------------------------
 
@@ -308,11 +364,9 @@ CREATE TABLE `tbl_tracking` (
 --
 
 INSERT INTO `tbl_tracking` (`id`, `purchase_id`, `status`, `date`) VALUES
-(1, 9, '', '2025-07-08 05:26:46'),
-(4, 13, '', '2025-07-08 07:53:34'),
-(5, 14, '', '2025-07-08 10:16:51'),
-(6, 15, '', '2025-07-08 10:50:01'),
-(7, 16, '', '2025-07-09 05:33:31');
+(9, 18, '', '2025-07-12 10:14:24'),
+(10, 19, '', '2025-07-14 07:42:33'),
+(11, 20, '', '2025-07-14 12:41:17');
 
 -- --------------------------------------------------------
 
@@ -340,6 +394,24 @@ INSERT INTO `tbl_user` (`id`, `login_id`, `first_name`, `last_name`, `shipping_a
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `master_color`
+--
+ALTER TABLE `master_color`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `master_shape`
+--
+ALTER TABLE `master_shape`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `master_weight_unit`
+--
+ALTER TABLE `master_weight_unit`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `tbl_banner`
@@ -374,7 +446,9 @@ ALTER TABLE `tbl_product`
   ADD PRIMARY KEY (`id`),
   ADD KEY `sub_category_id` (`sub_category_id`),
   ADD KEY `category_id` (`category_id`),
-  ADD KEY `updated_by` (`updated_by`);
+  ADD KEY `updated_by` (`updated_by`),
+  ADD KEY `color_id` (`color_id`),
+  ADD KEY `shape_id` (`shape_id`);
 
 --
 -- Indexes for table `tbl_product_size`
@@ -382,7 +456,8 @@ ALTER TABLE `tbl_product`
 ALTER TABLE `tbl_product_size`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `product_id` (`product_id`,`size`),
-  ADD KEY `updated_by` (`updated_by`);
+  ADD KEY `updated_by` (`updated_by`),
+  ADD KEY `weight_unit_id` (`weight_unit_id`);
 
 --
 -- Indexes for table `tbl_purchase_child`
@@ -433,16 +508,34 @@ ALTER TABLE `tbl_user`
 --
 
 --
+-- AUTO_INCREMENT for table `master_color`
+--
+ALTER TABLE `master_color`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `master_shape`
+--
+ALTER TABLE `master_shape`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `master_weight_unit`
+--
+ALTER TABLE `master_weight_unit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `tbl_banner`
 --
 ALTER TABLE `tbl_banner`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tbl_cart`
 --
 ALTER TABLE `tbl_cart`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `tbl_category`
@@ -460,31 +553,31 @@ ALTER TABLE `tbl_login`
 -- AUTO_INCREMENT for table `tbl_product`
 --
 ALTER TABLE `tbl_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `tbl_product_size`
 --
 ALTER TABLE `tbl_product_size`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `tbl_purchase_child`
 --
 ALTER TABLE `tbl_purchase_child`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `tbl_purchase_master`
 --
 ALTER TABLE `tbl_purchase_master`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `tbl_stock`
 --
 ALTER TABLE `tbl_stock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tbl_subcategory`
@@ -496,7 +589,7 @@ ALTER TABLE `tbl_subcategory`
 -- AUTO_INCREMENT for table `tbl_tracking`
 --
 ALTER TABLE `tbl_tracking`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `tbl_user`
@@ -514,14 +607,17 @@ ALTER TABLE `tbl_user`
 ALTER TABLE `tbl_product`
   ADD CONSTRAINT `tbl_product_ibfk_1` FOREIGN KEY (`sub_category_id`) REFERENCES `tbl_subcategory` (`id`),
   ADD CONSTRAINT `tbl_product_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `tbl_category` (`id`),
-  ADD CONSTRAINT `tbl_product_ibfk_3` FOREIGN KEY (`updated_by`) REFERENCES `tbl_login` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `tbl_product_ibfk_3` FOREIGN KEY (`updated_by`) REFERENCES `tbl_login` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `tbl_product_ibfk_4` FOREIGN KEY (`color_id`) REFERENCES `master_color` (`id`),
+  ADD CONSTRAINT `tbl_product_ibfk_5` FOREIGN KEY (`shape_id`) REFERENCES `master_shape` (`id`);
 
 --
 -- Constraints for table `tbl_product_size`
 --
 ALTER TABLE `tbl_product_size`
   ADD CONSTRAINT `tbl_product_size_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `tbl_product` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `tbl_product_size_ibfk_2` FOREIGN KEY (`updated_by`) REFERENCES `tbl_login` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `tbl_product_size_ibfk_2` FOREIGN KEY (`updated_by`) REFERENCES `tbl_login` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `tbl_product_size_ibfk_3` FOREIGN KEY (`weight_unit_id`) REFERENCES `master_weight_unit` (`id`);
 
 --
 -- Constraints for table `tbl_purchase_child`
