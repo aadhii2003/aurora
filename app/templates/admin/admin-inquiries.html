@@ -1,0 +1,72 @@
+{% extends "admin/admin-base.html" %}
+
+{% block content %}
+<div class="main-content">
+  <section class="section">
+    <div class="section-header">
+      <h1>User Inquiries & Subscriptions</h1>
+    </div>
+
+    <div class="section-body">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4>All Submissions</h4>
+            </div>
+            <div class="card-body">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                  {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+              <div class="table-responsive">
+                <table class="table table-striped" id="table-1">
+                  <thead>
+                    <tr>
+                      <th class="text-center">#</th>
+                      <th>Type</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Message</th>
+                      <th>Date Received</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if inquiries %}
+                      {% for item in inquiries %}
+                      <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                          {% if item.type == 'Subscription' %}
+                            <div class="badge badge-info">Subscription</div>
+                          {% elif item.type == 'Contact' %}
+                            <div class="badge badge-primary">Contact Inquiry</div>
+                          {% else %}
+                            <div class="badge badge-secondary">{{ item.type }}</div>
+                          {% endif %}
+                        </td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.email }}</td>
+                        <td style="white-space: pre-wrap; word-break: break-word;">{{ item.message or 'N/A' }}</td>
+                        <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                      </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                        <td colspan="6" class="text-center">No inquiries found.</td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

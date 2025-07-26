@@ -3,13 +3,20 @@
 {% block content %}
 <div class="main-content">
   <section class="section">
-    <!-- Page Header -->
+    <!-- Page Header (Dynamically changes based on view) -->
     <div class="section-header">
-      <h1>Update Product Stock</h1>
+      <h1>{% if selected_product_id %}Update Product Stock{% else %}Select Product to Update Stock{% endif %}</h1>
       <div class="section-header-breadcrumb">
         <div class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Dashboard</a></div>
         <div class="breadcrumb-item"><a href="{{ url_for('admin.admin_manage_product') }}">Products</a></div>
-        <div class="breadcrumb-item">Update Stock</div>
+        {% if selected_product_id %}
+            <!-- If viewing a product, link back to the list view -->
+            <div class="breadcrumb-item"><a href="{{ url_for('admin.admin_update_stock') }}">Select Product</a></div>
+            <div class="breadcrumb-item">Update Stock</div>
+        {% else %}
+            <!-- If on the list view, this is the final item -->
+            <div class="breadcrumb-item">Select Product</div>
+        {% endif %}
       </div>
     </div>
 
@@ -17,39 +24,26 @@
       <div class="row">
         <div class="col-12">
           <div class="card">
-            <div class="card-header">
-              <h4>Manage Stock Levels</h4>
-              <div class="card-header-form">
-                <form method="GET" action="{{ url_for('admin.admin_update_stock') }}">
-                  <div class="input-group">
-                    <select class="form-control" name="product_id" onchange="this.form.submit()" style="min-width: 250px;">
-                      <option value="">-- Choose a Product to Load --</option>
-                      {% for product in products %}
-                        <option value="{{ product.id }}" {% if selected_product_id and product.id|string == selected_product_id %}selected{% endif %}>
-                          {{ product.name }}
-                        </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </form>
+            
+            <!-- This is the main conditional block that switches between the two views -->
+            {% if selected_product_id %}
+              
+              <!-- ===== VIEW 1: A PRODUCT IS SELECTED (Stock Details) ===== -->
+              <div class="card-header">
+                <h4>Manage Stock for: <strong>{{ product_sizes[0].name if product_sizes else 'Selected Product' }}</strong></h4>
               </div>
-            </div>
+              <div class="card-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} alert-dismissible show fade">
+                        {{ message }}
+                        <button class="close" data-dismiss="alert"><span>×</span></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
 
-            <div class="card-body">
-              <!-- This section shows the success/error messages after page reload -->
-              {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                  {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible show fade">
-                      {{ message }}
-                      <button class="close" data-dismiss="alert"><span>×</span></button>
-                    </div>
-                  {% endfor %}
-                {% endif %}
-              {% endwith %}
-
-              {% if selected_product_id %}
-                <h5 class="mb-3">Showing stock for: <strong>{{ product_sizes[0].name if product_sizes else 'Selected Product' }}</strong></h5>
                 {% if product_sizes %}
                   <div class="table-responsive">
                     <table class="table table-striped table-md">
@@ -75,13 +69,10 @@
                               </div>
                             </td>
                             <td>
-                              <!-- Each row is now its own form -->
                               <form method="POST" action="{{ url_for('admin.admin_update_stock') }}">
                                 <div class="input-group">
-                                  <!-- Hidden inputs to send necessary data -->
                                   <input type="hidden" name="product_size_id" value="{{ size.id }}">
                                   <input type="hidden" name="product_id_for_redirect" value="{{ selected_product_id }}">
-
                                   <input type="number" class="form-control" name="quantity_to_add" min="1" placeholder="e.g., 50" required>
                                   <div class="input-group-append">
                                     <button type="submit" class="btn btn-success">Add</button>
@@ -97,14 +88,50 @@
                 {% else %}
                   <div class="alert alert-warning m-0">No sizes found for this product.</div>
                 {% endif %}
-              {% else %}
-                <div class="empty-state">
-                  <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
-                  <h2>No product selected</h2>
-                  <p class="lead">Please choose a product from the dropdown above.</p>
-                </div>
-              {% endif %}
-            </div>
+              </div>
+
+            {% else %}
+
+              <!-- ===== VIEW 2: NO PRODUCT IS SELECTED (Product List) ===== -->
+              <div class="card-header">
+                <h4>Choose a Product</h4>
+              </div>
+              <div class="card-body">
+                {% if products %}
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Product Name</th>
+                          <th class="text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for product in products %}
+                          <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><strong>{{ product.name }}</strong></td>
+                            <td class="text-center">
+                              <!-- This link reloads this same page but adds the product_id to the URL -->
+                              <a href="{{ url_for('admin.admin_update_stock', product_id=product.id) }}" class="btn btn-primary">
+                                <i class="fas fa-boxes"></i> Manage Stock
+                              </a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <div class="alert alert-info">
+                    No products found. Please <a href="{{ url_for('admin.admin_add_product') }}">add a product</a> first.
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+            <!-- End of the main conditional block -->
+
           </div>
         </div>
       </div>

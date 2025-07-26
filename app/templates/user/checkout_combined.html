@@ -1,0 +1,210 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="untree_co-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="h3 mb-3 text-light">Complete Your Order</h2>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="row">
+          <div class="col-md-12">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="row">
+      <!-- Left Column: Shipping Details Form -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header py-3">
+            <h4 class="mb-0">Shipping Information</h4>
+          </div>
+          <div class="card-body p-4">
+            <form method="POST" action="{{ url_for('user.checkout') }}">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="first_name" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="last_name" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="shipping_address" class="form-label">Address</label>
+                <textarea class="form-control" id="shipping_address" name="shipping_address" rows="2" required>{{ user.shipping_address or '' }}</textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="city" class="form-label">City</label>
+                  <input type="text" class="form-control" id="city" name="city" value="{{ user.city or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="state" class="form-label">State / Province</label>
+                  <input type="text" class="form-control" id="state" name="state" value="{{ user.state or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="pincode" class="form-label">Pincode / Zip</label>
+                  <input type="text" class="form-control" id="pincode" name="pincode" value="{{ user.pincode or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="country" class="form-label">Country</label>
+                  <input type="text" class="form-control" id="country" name="country" value="{{ user.country or '' }}" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="phone_number" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" required>
+              </div>
+              <button type="submit" class="btn btn-secondary mt-2">
+                {% if user.first_name %}
+                  <i class="fas fa-save me-1"></i> Update Details
+                {% else %}
+                  <i class="fas fa-save me-1"></i> Save Details
+                {% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm order-summary-sticky-wrapper">
+          <div class="card-header py-3">
+            <h4 class="mb-0">Order Summary</h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-borderless align-middle summary-table">
+                <tbody>
+                  {% for item in cart_items %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <img src="{{ url_for('static', filename=item.images_list[0]) if item.images_list else url_for('static', filename='user/images/product-1.png') }}" class="img-fluid rounded me-3" alt="{{ item.product_name }}">
+                          <div>
+                            <h5 class="mb-1 fw-bold">{{ item.product_name }}</h5>
+                            <p class="mb-0">Qty: {{ item.quantity }} | Size: {{ item.size }}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-end fw-bold">${{ '%.2f'|format(item.size_price * item.quantity) }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="d-flex justify-content-between align-items-center fw-bold px-0 mb-3">
+              <span class="h5">Total</span>
+              <span class="h5">${{ '%.2f'|format(total_amount) }}</span>
+            </div>
+
+            <div class="card secure-block border-0 p-3 text-center mb-4">
+              <p class="mb-2 fw-bold"><i class="bi bi-shield-lock-fill me-1"></i> Secure Checkout</p>
+            </div>
+            
+            <!-- Final Action Button -->
+            {% if user.first_name and user.shipping_address %}
+              <a href="{{ url_for('user.place_order') }}" class="btn btn-primary btn-lg w-100">
+                Proceed to Payment
+              </a>
+              <p class="text-muted small text-center mt-2">Your shipping details are confirmed.</p>
+            {% else %}
+              <button class="btn btn-primary btn-lg w-100" disabled>
+                Proceed to Payment
+              </button>
+              <p class="text-muted small text-center mt-2">Please save your shipping details to enable this button.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- START: Re-integrated Custom CSS for Cosmic Glow Theme -->
+<style>
+  /* ---
+  * CHECKOUT PAGE THEME: Cosmic Glow Integration
+  --- */
+
+  /* General styling */
+  h2.h3, h4, h5, h6 { color: #F1F5F9; }
+  .text-muted { color: #94A3B8 !important; }
+
+  .card {
+    border-radius: 8px; margin-bottom: 20px;
+    background-color: #1E293B; /* Dark Matter Panel */
+    border: 1px solid #334155; /* Neutral Dark Border */
+  }
+  .card-header { background-color: transparent; border-bottom: 1px solid #334155; }
+
+  /* Form Styling */
+  .form-label { color: #cbd5e1; font-weight: 500; }
+  .form-control {
+    background-color: #334155; color: #F1F5F9;
+    border: 1px solid #475569; padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+  }
+  .form-control:focus {
+    background-color: #334155; color: #F1F5F9;
+    border-color: #3B82F6; box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+  }
+
+  /* Summary Table Styling */
+  .summary-table { color: #E2E8F0; }
+  .summary-table td { padding: 1.25rem 0; vertical-align: middle; border-bottom: 1px solid #334155; }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+  .summary-table p { font-size: 0.85rem; color: #94A3B8; }
+  .summary-table .fw-bold { color: #F1F5F9; }
+
+  hr { border-top-color: #334155; }
+  
+  /* Secure Checkout Block */
+  .secure-block {
+    background-color: #0F172A; /* Main body bg */
+    border: 1px dashed #334155; color: #94A3B8;
+  }
+  .secure-block .bi { color: #00D9C0; }
+
+  /* Buttons */
+  .btn-primary[disabled] {
+    background-color: #334155;
+    border-color: #475569;
+    cursor: not-allowed;
+  }
+
+  /* Sticky Wrapper for Order Summary */
+  .order-summary-sticky-wrapper {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 20px; /* Adjust this value as needed */
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 991.98px) {
+    .order-summary-sticky-wrapper {
+      position: static; /* Un-stick on smaller screens */
+    }
+  }
+</style>
+<!-- END: Custom CSS -->
+{% endblock %}

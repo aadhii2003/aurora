@@ -3,210 +3,263 @@
 {% block content %}
 <div class="untree_co-section">
   <div class="container">
-    <h2>Your Details</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
 
-    {% if user and user.first_name and user.shipping_address %}
-      <!-- Display existing user details -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Your Information</h5>
-          <p><strong>First Name:</strong> {{ user.first_name }}</p>
-          <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-          <p><strong>Shipping Address:</strong> {{ user.shipping_address }}</p>
-          <p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
-          <div class="d-flex flex-wrap gap-2">
-            <a href="#edit-form" class="btn btn-primary" onclick="document.getElementById('edit-form').style.display='block';">Edit Details</a>
-            <form method="POST" action="{{ url_for('user.delete_user_details') }}" onsubmit="return confirm('Are you sure you want to delete your details?');">
-              <button type="submit" class="btn btn-danger">Delete Details</button>
+        <div class="text-center mb-4">
+          <h2 class="text-light">Your Details</h2>
+          <p class="text-muted">Please review your information to proceed with your order.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if user and user.first_name and user.shipping_address %}
+          <!-- START: Expanded E-commerce Details Display -->
+          <div class="card details-summary-card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h4 class="card-title text-light mb-1">Shipping Details</h4>
+                  <p class="text-muted small">This is the address your order will be shipped to.</p>
+                </div>
+                <a href="#edit-form" class="btn btn-outline-secondary btn-sm flex-shrink-0" onclick="document.getElementById('edit-form').style.display='block'; this.closest('.card').style.display='none';">
+                  <i class="fas fa-pen me-1"></i> Change
+                </a>
+              </div>
+
+              <!-- Individual detail items for a complete view -->
+              <div class="details-grid">
+                <div class="details-item">
+                  <span class="details-label">First Name</span>
+                  <span class="details-value">{{ user.first_name }}</span>
+                </div>
+                <div class="details-item">
+                  <span class="details-label">Last Name</span>
+                  <span class="details-value">{{ user.last_name }}</span>
+                </div>
+                <div class="details-item full-span">
+                  <span class="details-label">Address</span>
+                  <span class="details-value">{{ user.shipping_address }}</span>
+                </div>
+                <div class="details-item">
+                  <span class="details-label">City</span>
+                  <span class="details-value">{{ user.city or '' }}</span>
+                </div>
+                 <div class="details-item">
+                  <span class="details-label">State / Province</span>
+                  <span class="details-value">{{ user.state or '' }}</span>
+                </div>
+                <div class="details-item">
+                  <span class="details-label">Pincode / Zip</span>
+                  <span class="details-value">{{ user.pincode or '' }}</span>
+                </div>
+                <div class="details-item">
+                  <span class="details-label">Country</span>
+                  <span class="details-value">{{ user.country or '' }}</span>
+                </div>
+                 <div class="details-item full-span">
+                  <span class="details-label">Phone Number</span>
+                  <span class="details-value">{{ user.phone_number }}</span>
+                </div>
+              </div>
+
+              <!-- ACTION BUTTON -->
+              <div class="mt-4 pt-3 border-top border-secondary-subtle">
+                <a href="{{ url_for('user.place_order') }}" class="btn btn-primary btn-lg w-100">
+                  Proceed with this Address
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- END: Expanded E-commerce Details Display -->
+        {% else %}
+          <!-- Show message if no details exist -->
+          <div class="alert alert-info">
+            Please add your shipping details to proceed.
+          </div>
+        {% endif %}
+
+        <!-- Form for adding/editing details (Unchanged from previous version) -->
+        <div id="edit-form" class="card" style="{% if user and user.first_name and user.shipping_address %}display: none;{% else %}display: block;{% endif %}">
+          <div class="card-body p-4 p-md-5">
+            <h3 class="mb-4">{% if user and user.first_name %}Edit Your Details{% else %}Add Your Details{% endif %}</h3>
+            <form method="POST" action="{{ url_for('user.user_details') }}">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="first_name" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="last_name" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="shipping_address" class="form-label">Address</label>
+                <textarea class="form-control" id="shipping_address" name="shipping_address" rows="2" required>{{ user.shipping_address or '' }}</textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="city" class="form-label">City</label>
+                  <input type="text" class="form-control" id="city" name="city" value="{{ user.city or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="country" class="form-label">Country</label>
+                  <input type="text" class="form-control" id="country" name="country" value="{{ user.country or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="state" class="form-label">State</label>
+                  <input type="text" class="form-control" id="state" name="state" value="{{ user.state or '' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="pincode" class="form-label">Pincode</label>
+                  <input type="text" class="form-control" id="pincode" name="pincode" value="{{ user.pincode or '' }}" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="phone_number" class="form-label">Phone</label>
+                <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg mt-3">
+                {% if user and user.first_name %}
+                  <i class="fas fa-save me-1"></i> Update
+                {% else %}
+                  Save and Proceed <i class="fas fa-arrow-right ms-1"></i>
+                {% endif %}
+              </button>
             </form>
-            <a href="{{ url_for('user.place_order') }}" class="btn btn-success">Review and Place Order</a>
           </div>
         </div>
-      </div>
-    {% else %}
-      <!-- Show message if no details exist -->
-      <div class="alert alert-info">
-        Please update your shipping details to proceed.
-      </div>
-    {% endif %}
 
-    <!-- Form for adding/editing details -->
-    <div id="edit-form" style="{% if user and user.first_name and user.shipping_address %}display: none;{% else %}display: block;{% endif %}">
-      <h3>{% if user and user.first_name %}Edit Your Details{% else %}Add Your Details{% endif %}</h3>
-      <form method="POST" action="{{ url_for('user.user_details') }}">
-        <div class="mb-3">
-          <label for="first_name" class="form-label">First Name</label>
-          <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required>
-        </div>
-        <div class="mb-3">
-          <label for="last_name" class="form-label">Last Name</label>
-          <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required>
-        </div>
-        <div class="mb-3">
-          <label for="shipping_address" class="form-label">Shipping Address</label>
-          <textarea class="form-control" id="shipping_address" name="shipping_address" required>{{ user.shipping_address or '' }}</textarea>
-        </div>
-        <div class="mb-3">
-          <label for="phone_number" class="form-label">Phone Number</label>
-          <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" required>
-        </div>
-        <button type="submit" class="btn btn-primary">{% if user and user.first_name %}Update{% else %}Save and Proceed{% endif %}</button>
-      </form>
+      </div>
     </div>
-
-    <!-- Custom CSS for Mobile Responsiveness -->
-    <style>
-      /* General styling */
-      h2 {
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-      }
-
-      h3 {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-      }
-
-      .card {
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
-
-      .card-title {
-        font-size: 1.3rem;
-      }
-
-      .card-body p {
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-      }
-
-      .alert {
-        font-size: 0.9rem;
-        margin-bottom: 20px;
-      }
-
-      .form-label {
-        font-size: 0.9rem;
-      }
-
-      .form-control {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-
-      .btn {
-        font-size: 0.9rem;
-        padding: 8px 15px;
-      }
-
-      .d-flex {
-        gap: 10px;
-      }
-
-      /* Mobile responsiveness */
-      @media (max-width: 767.98px) {
-        h2 {
-          font-size: 1.5rem;
-          text-align: center;
-        }
-
-        h3 {
-          font-size: 1.3rem;
-          text-align: center;
-        }
-
-        .card-title {
-          font-size: 1.2rem;
-          text-align: center;
-        }
-
-        .card-body p {
-          font-size: 0.85rem;
-          text-align: center;
-        }
-
-        .alert {
-          font-size: 0.85rem;
-        }
-
-        .form-label {
-          font-size: 0.85rem;
-        }
-
-        .form-control {
-          font-size: 0.85rem;
-          padding: 6px;
-        }
-
-        .btn {
-          width: 100%;
-          font-size: 0.85rem;
-          padding: 6px 12px;
-          margin-bottom: 10px;
-        }
-
-        .d-flex {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 10px;
-        }
-
-        .card-body {
-          padding: 15px;
-        }
-      }
-
-      @media (max-width: 575.98px) {
-        h2 {
-          font-size: 1.3rem;
-        }
-
-        h3 {
-          font-size: 1.2rem;
-        }
-
-        .card-title {
-          font-size: 1.1rem;
-        }
-
-        .card-body p {
-          font-size: 0.8rem;
-        }
-
-        .alert {
-          font-size: 0.8rem;
-        }
-
-        .form-label {
-          font-size: 0.8rem;
-        }
-
-        .form-control {
-          font-size: 0.8rem;
-          padding: 5px;
-        }
-
-        .btn {
-          font-size: 0.8rem;
-          padding: 5px 10px;
-        }
-
-        .card-body {
-          padding: 10px;
-        }
-      }
-    </style>
   </div>
 </div>
+
+<!-- START: Custom CSS for User Details Page on E-commerce Theme -->
+<style>
+  /* ---
+  * USER DETAILS THEME: E-commerce Professional Design
+  --- */
+
+  h2, h3, h4, .lead {
+      color: #F1F5F9;
+  }
+  .text-muted {
+      color: #94A3B8 !important;
+  }
+
+  /* Card Styling for User Details Summary */
+  .details-summary-card {
+      background-color: #1E293B; /* Dark slate background */
+      border: 1px solid #334155; /* Slightly lighter border */
+      border-radius: 0.75rem; /* More rounded corners */
+      padding: 1rem;
+  }
+  .details-summary-card .card-title {
+      font-weight: 600;
+  }
+
+  /* Grid Layout for Details */
+  .details-grid {
+      border-top: 1px solid #334155;
+      padding-top: 1.25rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem 1.5rem; /* row-gap column-gap */
+  }
+  .details-item {
+      display: flex;
+      flex-direction: column;
+  }
+  .details-item.full-span {
+      grid-column: 1 / -1; /* Span across all columns */
+  }
+  .details-label {
+      font-size: 0.8rem;
+      color: #94A3B8; /* Muted text color */
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+  }
+  .details-value {
+      font-size: 1rem;
+      color: #F1F5F9; /* Main text color */
+      font-weight: 500;
+      line-height: 1.4;
+  }
+  /* Responsive adjustment for smaller screens */
+  @media (max-width: 576px) {
+    .details-grid {
+      grid-template-columns: 1fr; /* Stack items vertically */
+      gap: 1rem;
+    }
+  }
+
+  /* Form Styling */
+  #edit-form.card {
+    background-color: #1E293B;
+    border: 1px solid #2A3447;
+  }
+  .form-label {
+      color: #cbd5e1;
+      font-weight: 500;
+  }
+  .form-control {
+      background-color: #334155;
+      color: #F1F5F9;
+      border: 1px solid #475569;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.25rem;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  }
+  .form-control:focus {
+      background-color: #334155;
+      color: #F1F5F9;
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+  }
+  .form-control::placeholder {
+      color: #94A3B8;
+  }
+
+  /* Alert Styling */
+  .alert.alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+
+  /* Button Styling */
+  .btn-outline-secondary {
+    color: #94A3B8;
+    border-color: #475569;
+  }
+  .btn-outline-secondary:hover {
+    background-color: #334155;
+    color: #fff;
+  }
+  .btn-primary {
+    background-color: #3B82F6;
+    border-color: #3B82F6;
+  }
+  .btn-primary:hover {
+    background-color: #2563EB;
+    border-color: #2563EB;
+  }
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+</style>
+<!-- END: Custom CSS -->
 {% endblock %}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Ecommerce Dashboard &mdash; AURORA</title>
+  <title>Ecommerce Dashboard — AURORA</title>
 
   <!-- General CSS Files -->
   <link rel="stylesheet" href="/static/admin/modules/bootstrap/css/bootstrap.min.css">
@@ -41,27 +41,55 @@
           </ul>
         </form>
         <ul class="navbar-nav navbar-right">
-          <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="far fa-envelope"></i></a>
-            <div class="dropdown-menu dropdown-list dropdown-menu-right">
-              <div class="dropdown-header">Messages
-                <div class="float-right">
-                  <a href="#">Mark All As Read</a>
-                </div>
+          
+          <!-- MODIFIED NOTIFICATION DROPDOWN START -->
+          <li class="dropdown dropdown-list-toggle">
+              <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle {% if unread_count > 0 %}beep{% endif %}">
+                  <i class="far fa-envelope"></i>
+                  {% if unread_count > 0 %}<span class="badge badge-light" style="position: absolute; top: 10px; right: 0px; font-size: 10px;">{{ unread_count }}</span>{% endif %}
+              </a>
+              <div class="dropdown-menu dropdown-list dropdown-menu-right">
+                  <div class="dropdown-header">Messages
+                      {% if unread_count > 0 %}
+                          <div class="float-right">
+                              <a href="{{ url_for('admin.mark_all_as_read') }}">Mark All As Read</a>
+                          </div>
+                      {% endif %}
+                  </div>
+                  <div class="dropdown-list-content dropdown-list-message">
+                      {% if unread_notifications %}
+                          {% for notification in unread_notifications %}
+                          <a href="{{ notification.link_url or '#' }}" class="dropdown-item dropdown-item-unread">
+                              <div class="dropdown-item-avatar">
+                                  <!-- A simple bell icon for notifications -->
+                                  <i class="fas fa-bell text-primary" style="font-size: 28px; padding: 5px;"></i>
+                              </div>
+                              <div class="dropdown-item-desc">
+                                  <p>{{ notification.message }}</p>
+                                  <div class="time">{{ notification.created_at.strftime('%b %d, %Y %I:%M %p') }}</div>
+                              </div>
+                          </a>
+                          {% endfor %}
+                      {% else %}
+                          <div class="text-center p-4">
+                              <p class="text-muted">No new messages.</p>
+                          </div>
+                      {% endif %}
+                  </div>
+                  <div class="dropdown-footer text-center">
+                      <!-- This can be a future feature to see all historical notifications -->
+                      <a href="#">View All <i class="fas fa-chevron-right"></i></a>
+                  </div>
               </div>
-              <div class="dropdown-footer text-center">
-                <a href="#">View All <i class="fas fa-chevron-right"></i></a>
-              </div>
-            </div>
           </li>
+          <!-- MODIFIED NOTIFICATION DROPDOWN END -->
+
           <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
             <img alt="image" src="/static/admin/img/avatar/avatar-1.png" class="rounded-circle mr-1">
             <div class="d-sm-none d-lg-inline-block">Hi,Welcome Admin</div></a>
             <div class="dropdown-menu dropdown-menu-right">
               <a href="features-profile.html" class="dropdown-item has-icon">
                 <i class="far fa-user"></i> Profile
-              </a>
-              <a href="features-settings.html" class="dropdown-item has-icon">
-                <i class="fas fa-cog"></i> Settings
               </a>
               <div class="dropdown-divider"></div>
               <a href="#" class="dropdown-item has-icon text-danger">
@@ -87,7 +115,6 @@
             <li>
               <a href="/admin/admin-subcategory" class="nav-link"><i class="fas fa-columns"></i> <span>Subcategories</span></a>
             </li>
-            <!-- In admin-base.html, inside the sidebar menu -->
             <li class="{{ 'active' if 'color-shape-weight' in request.path else '' }}">
                 <a class="nav-link" href="{{ url_for('admin.admin_color_shape_weight') }}"><i class="fas fa-cogs"></i> <span>Manage Masters</span></a>
             </li>
@@ -96,27 +123,37 @@
               <ul class="dropdown-menu">
                 <li><a href ="/admin/admin-manage-product" class="nav-link">Manage Products</a></li> 
                 <li><a href="/admin/admin-product" class="nav-link beep beep-sidebar">Add Product</a></li>
-                <li><a href="/admin/admin-product-size" class="nav-link beep beep-sidebar">Add Product Size</a>
-                <!-- Example: In your admin navigation menu -->
-                  <a href="{{ url_for('admin.admin_update_stock') }}" class="nav-item nav-link">
+                <li><a href="/admin/admin-product-size" class="nav-link beep beep-sidebar">Add Product Size</a></li>
+                <li><a href="{{ url_for('admin.admin_update_stock') }}" class="nav-item nav-link">
                       <i class="fa fa-cubes me-2"></i>Update Stock
-                  </a></li></ul>
-                <li>  
+                  </a></li>
+              </ul>
+            </li>
+            <li>  
               <a href="/admin/admin-orders" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> <span>Manage Orders</span></a>
-                <li>
+            </li>
+            <li>  
+              <a href="/admin/admin-carts" class="nav-link"><i class="fas fa-shopping-cart"></i> <span>Approve carts ({{ pending_items|length }})</span></a>
+            </li>
+            <li>
               <a href="{{ url_for('admin.manage_banners') }}" class="nav-link"><i class="fas fa-images"></i> <span>Banners</span></a>
             </li>
-              <li> 
+            <li> 
               <a href="/admin/admin-users" class="nav-link "><i class="fas fa-th"></i> <span>Users</span></a>
             </li>
+            <li> 
+              <a href="{{ url_for('admin.admin_inquiries') }}" class="nav-link"><i class="fas fa-question-circle"></i> <span>Inquiries</span></a>
+            </li>
+          </ul>
+        </aside>
       </div>
 
       {% block content %}
       {% endblock %}
 
-        <footer class="main-footer">
+      <footer class="main-footer">
         <div class="footer-left">
-          Copyright &copy; 2018 <div class="bullet"></div> Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
+          Copyright © 2018 <div class="bullet"></div> Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
         </div>
         <div class="footer-right">
           

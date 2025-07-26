@@ -1,5 +1,15 @@
 {% extends "admin/admin-base.html" %}
 {% block content %}
+
+<!-- A hidden template for the weight unit dropdown. -->
+<!-- This makes the list of units available to our JavaScript without cluttering the script itself. -->
+<template id="weight-unit-options-template">
+    <option value="">-- Select --</option>
+    {% for unit in weight_units %}
+        <option value="{{ unit.id }}">{{ unit.unit_name }}</option>
+    {% endfor %}
+</template>
+
 <!-- Main Content -->
 <div class="main-content">
     <section class="section">
@@ -14,7 +24,6 @@
         <div class="section-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="section-title text-dark">Product Actions</h2>
-                <!-- ### NEW BUTTON ADDED HERE ### -->
                 <div>
                     <a href="{{ url_for('admin.admin_product') }}" class="btn btn-primary mr-2"><i class="fas fa-plus"></i> Add New Product</a>
                     <a href="{{ url_for('admin.admin_product_size') }}" class="btn btn-info mr-2"><i class="fas fa-ruler-combined"></i> Add Product Size</a>
@@ -37,9 +46,7 @@
                                     {% for category, message in messages %}
                                         <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-4" role="alert">
                                             {{ message }}
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">×</span>
-                                            </button>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                                         </div>
                                     {% endfor %}
                                 {% endif %}
@@ -75,6 +82,7 @@
                                             <td><span class="badge badge-{{ 'success' if product.status == 'active' else 'danger' }}">{{ product.status }}</span></td>
                                             <td class="text-center">
                                                 <div class="btn-group">
+                                                    <!-- The data-sizes attribute will now automatically include the weight data from the database -->
                                                     <button class="btn btn-primary btn-sm edit-product-btn" 
                                                             data-product-id="{{ product.id }}"
                                                             data-name="{{ product.name|safe }}"
@@ -91,12 +99,7 @@
                                                        onclick="return confirm('Are you sure you want to delete this product and all its sizes/stock?')">
                                                         <i class="fas fa-trash"></i> Delete
                                                     </a>
-                                                    <button class="btn btn-info btn-sm" 
-                                                            data-toggle="modal" 
-                                                            data-target="#detailsModal{{ product.id }}"
-                                                            title="More Details">
-                                                        <i class="fas fa-info-circle"></i>
-                                                    </button>
+                                                    <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#detailsModal{{ product.id }}" title="More Details"><i class="fas fa-info-circle"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -105,9 +108,7 @@
                                 </table>
                             </div>
                             {% else %}
-                            <div class="alert alert-info text-center py-4">
-                                <i class="fas fa-exclamation-circle"></i> No products found. Click "Add New Product" to get started.
-                            </div>
+                            <div class="alert alert-info text-center py-4"><i class="fas fa-exclamation-circle"></i> No products found. Click "Add New Product" to get started.</div>
                             {% endif %}
                         </div>
                     </div>
@@ -115,23 +116,19 @@
                 <div class="col-12">
                     <div class="card shadow-sm">
                         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0">Edit Product Details & Sizes</h4>
-                            <button class="btn btn-light btn-sm" type="button" data-toggle="collapse" data-target="#editFormCollapse" aria-expanded="false" aria-controls="editFormCollapse">
-                                <i class="fas fa-chevron-down"></i> Toggle Form
-                            </button>
+                            <h4 class="mb-0">Edit Product Details, Sizes & Weight</h4>
+                            <button class="btn btn-light btn-sm" type="button" data-toggle="collapse" data-target="#editFormCollapse" aria-expanded="false" aria-controls="editFormCollapse"><i class="fas fa-chevron-down"></i> Toggle Form</button>
                         </div>
                         <div class="collapse" id="editFormCollapse">
                             <div class="card-body">
                                 <form method="POST" action="{{ url_for('admin.admin_manage_product') }}" enctype="multipart/form-data" id="edit_form">
                                     <input type="hidden" name="product_id" id="edit_product_id" value="">
                                     <div class="row">
-                                        <!-- Left Column -->
                                         <div class="col-md-6">
                                             <div class="form-group"><label for="edit_name" class="text-dark">Product Name</label><input type="text" class="form-control border-primary" id="edit_name" name="name" required></div>
                                             <div class="form-group"><label for="edit_description" class="text-dark">Description</label><textarea class="form-control border-primary" id="edit_description" name="description" rows="3" required></textarea></div>
                                             <div class="form-group"><label for="edit_style" class="text-dark">Style</label><input type="text" class="form-control border-primary" id="edit_style" name="style" required></div>
                                         </div>
-                                        <!-- Right Column -->
                                         <div class="col-md-6">
                                             <div class="form-group"><label for="edit_images" class="text-dark">Images</label><input type="file" class="form-control-file" id="edit_images" name="images" multiple accept="image/*"><small class="form-text text-muted">Select new images to replace existing ones.</small></div>
                                             <div class="form-group"><label for="edit_category_id" class="text-dark">Category</label><select class="form-control border-primary" id="edit_category_id" name="category_id" required><option value="">Select a category</option>{% for category in categories %}<option value="{{ category.id }}">{{ category.category_name }}</option>{% endfor %}</select></div>
@@ -139,11 +136,11 @@
                                             <div class="form-group"><label for="edit_status" class="text-dark">Status</label><select class="form-control border-primary" id="edit_status" name="status" required><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                                         </div>
                                     </div>
-                                    <!-- Size Section Below -->
+                                    
                                     <div class="mt-4">
-                                        <h6 class="text-dark">Product Sizes & Stock</h6>
+                                        <h6 class="text-dark">Product Variations (Size, Weight, Price & Stock)</h6>
                                         <div id="size_rows" class="mb-3"></div>
-                                        <button type="button" class="btn btn-info btn-sm" onclick="addSizeRow()"><i class="fas fa-plus"></i> Add New Size</button>
+                                        <button type="button" class="btn btn-info btn-sm" onclick="addSizeRow()"><i class="fas fa-plus"></i> Add New Variation</button>
                                     </div>
                                     <div class="card-footer text-right bg-whitesmoke mt-4">
                                         <button class="btn btn-primary mr-2" type="submit">Save Changes</button>
@@ -159,44 +156,45 @@
     </section>
 </div>
 
-<!-- Modal for Product Details (code remains the same) -->
+<!-- Modal for Product Details (updated to show weight) -->
 {% for product in products %}
 <div class="modal fade" id="detailsModal{{ product.id }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ product.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document"> <!-- Changed to modal-xl for more space -->
         <div class="modal-content shadow">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="detailsModalLabel{{ product.id }}">Details for {{ product.name }}</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
-                <h6 class="text-dark">Product Sizes</h6>
+                <h6 class="text-dark">Product Variations</h6>
                 {% set sizes = product_sizes | selectattr('product_id', 'equalto', product.id) | list %}
                 {% if sizes %}
                 <table class="table table-hover table-bordered">
-                    <thead class="thead-dark"><tr><th>Size</th><th>Prize</th><th>Offer Prize</th><th>Discount (%)</th></tr></thead>
-                    <tbody>{% for size in sizes %}<tr><td>{{ size.size }}</td><td>${{ '%.2f'|format(size.prize) }}</td><td>${{ '%.2f'|format(size.offer_prize) if size.offer_prize else 'N/A' }}</td><td>{{ size.discount or 0 }}%</td></tr>{% endfor %}</tbody>
-                </table>
-                {% else %}<p class="text-muted">No sizes available.</p>{% endif %}
-                
-                <h6 class="mt-4 text-dark">Stock Information</h6>
-                {% set size_ids = sizes | map(attribute='id') | list %}
-                {% set relevant_stocks = stocks | selectattr('product_size_id', 'in', size_ids) | list %}
-                {% if relevant_stocks %}
-                <table class="table table-hover table-bordered">
-                    <thead class="thead-dark"><tr><th>Size</th><th>Stock Count</th><th>Purchase Count</th><th>Available</th></tr></thead>
+                    <thead class="thead-dark"><tr><th>Size</th><th>Weight</th><th>Unit</th><th>Price</th><th>Offer Price</th><th>Stock</th></tr></thead>
                     <tbody>
-                        {% for stock in relevant_stocks %}
-                        {% set size = product_sizes | selectattr('id', 'equalto', stock.product_size_id) | first %}
-                        <tr>
-                            <td>{{ size.size if size else 'N/A' }}</td>
-                            <td>{{ stock.stock_count }}</td>
-                            <td>{{ stock.purchase_count }}</td>
-                            <td><span class="badge badge-{{ 'success' if (stock.stock_count - stock.purchase_count) > 0 else 'danger' }}">{{ stock.stock_count - stock.purchase_count }}</span></td>
-                        </tr>
+                        {% for size in sizes %}
+                            {% set unit = weight_units | selectattr('id', 'equalto', size.weight_unit_id) | first %}
+                            {% set stock = stocks | selectattr('product_size_id', 'equalto', size.id) | first %}
+                            <tr>
+                                <td>{{ size.size }}</td>
+                                <td>{{ size.weight }}</td>
+                                <td>{{ unit.unit_name if unit else 'N/A' }}</td>
+                                <td>${{ '%.2f'|format(size.prize) }}</td>
+                                <td>${{ '%.2f'|format(size.offer_prize) if size.offer_prize else 'N/A' }}</td>
+                                <td>
+                                    {% if stock %}
+                                    <span class="badge badge-{{ 'success' if (stock.stock_count - stock.purchase_count) > 0 else 'danger' }}">
+                                        {{ stock.stock_count - stock.purchase_count }} available
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-warning">No Stock</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% else %}<p class="text-muted">No stock information available.</p>{% endif %}
+                {% else %}<p class="text-muted">No variations available.</p>{% endif %}
             </div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button></div>
         </div>
@@ -204,11 +202,9 @@
 </div>
 {% endfor %}
 
-<!-- ### SCRIPT BLOCK (Unchanged) ### -->
 <script>
 document.querySelectorAll('.edit-product-btn').forEach(button => {
     button.addEventListener('click', function() {
-        // ... (this function's content remains the same) ...
         const productId = this.getAttribute('data-product-id');
         const name = this.getAttribute('data-name');
         const description = this.getAttribute('data-description');
@@ -218,12 +214,11 @@ document.querySelectorAll('.edit-product-btn').forEach(button => {
         const status = this.getAttribute('data-status');
         const sizesJson = this.getAttribute('data-sizes');
         editProduct(productId, name, description, style, categoryId, subCategoryId, status, sizesJson);
-        $('#editFormCollapse').collapse('show'); // Automatically expand the form
+        $('#editFormCollapse').collapse('show');
     });
 });
 
 function editProduct(productId, name, description, style, categoryId, subCategoryId, status, sizesJson) {
-    // ... (this function's content remains the same) ...
     document.getElementById('edit_product_id').value = productId;
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_description').value = description;
@@ -233,58 +228,73 @@ function editProduct(productId, name, description, style, categoryId, subCategor
     document.getElementById('edit_status').value = status;
 
     const sizeRows = document.getElementById('size_rows');
-    sizeRows.innerHTML = ''; // Clear existing rows
+    sizeRows.innerHTML = '';
     let sizes;
-    try { sizes = JSON.parse(sizesJson); } catch (e) { sizes = []; }
-    sizes.forEach(size => {
-        addSizeRow(size); // Pass the existing size object
-    });
+    try { 
+        sizes = JSON.parse(sizesJson); 
+    } catch (e) { 
+        sizes = []; 
+        console.error("Could not parse sizes JSON:", e); 
+    }
+    sizes.forEach(size => { addSizeRow(size); });
 }
 
 function addSizeRow(size = null) {
     const sizeRows = document.getElementById('size_rows');
     const row = document.createElement('div');
-    row.className = 'row mb-3 align-items-end'; // align-items-end helps with button alignment
-    const sizeId = size ? size.id : Date.now(); // Use existing ID or timestamp for new rows
+    row.className = 'row mb-3 p-3 border rounded bg-light align-items-end';
+    const sizeId = size ? size.id : Date.now();
+    const weightUnitTemplate = document.getElementById('weight-unit-options-template').innerHTML;
 
-    // This is the HTML for the "Initial Stock" field, which we only show for NEW sizes.
     const initialStockField = `
-        <div class="col-md-2">
-            <label class="text-dark">Initial Stock</label>
-            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][initial_stock]" value="0" min="0" required>
+        <div class="col-lg-2">
+            <label class="small text-dark">Initial Stock</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][initial_stock]" value="0" min="0" required>
         </div>
     `;
 
-    // We build the row HTML dynamically. Note the adjusted column classes.
     row.innerHTML = `
-        <div class="col-md-2">
-            <label class="text-dark">Size (cm)</label>
-            <input type="number" class="form-control size-input border-primary" name="sizes[${sizeId}][size]" value="${size ? size.size.replace(' cm', '') : ''}" step="0.1" required>
-            <input type="hidden" name="sizes[${sizeId}][id]" value="${size ? size.id : ''}">
+        <input type="hidden" name="sizes[${sizeId}][id]" value="${size ? size.id : ''}">
+        <div class="col-lg-1">
+            <label class="small text-dark">Size (cm)</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][size]" value="${size ? size.size.replace(' cm', '') : ''}" step="0.1" required>
         </div>
-        <div class="col-md-2">
-            <label class="text-dark">Prize</label>
-            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][prize]" value="${size ? size.prize : ''}" step="0.01" required>
+        <div class="col-lg-1">
+            <label class="small text-dark">Weight</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][weight]" value="${size ? size.weight : ''}" step="0.01" required>
         </div>
-        <div class="col-md-2">
-            <label class="text-dark">Discount (%)</label>
-            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][discount]" value="${size ? size.discount || '' : ''}" step="0.01">
+        <div class="col-lg-2">
+            <label class="small text-dark">Unit</label>
+            <select class="form-control form-control-sm border-primary" name="sizes[${sizeId}][weight_unit_id]" required>${weightUnitTemplate}</select>
         </div>
-        <div class="col-md-2">
-            <label class="text-dark">Offer Price</label>
-            <input type="number" class="form-control border-primary" name="sizes[${sizeId}][offer_prize]" value="${size ? size.offer_prize || '' : ''}" step="0.01" readonly>
+        <div class="col-lg-2">
+            <label class="small text-dark">Price</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][prize]" value="${size ? size.prize : ''}" step="0.01" required>
+        </div>
+        <div class="col-lg-1">
+            <label class="small text-dark">Disc. %</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][discount]" value="${size ? size.discount || '' : ''}" step="0.01">
+        </div>
+        <div class="col-lg-2">
+            <label class="small text-dark">Offer Price</label>
+            <input type="number" class="form-control form-control-sm border-primary" name="sizes[${sizeId}][offer_prize]" value="${size ? size.offer_prize || '' : ''}" step="0.01" readonly>
         </div>
         
-        <!-- Logic: Only show 'Initial Stock' field if it's a new size (when the 'size' object is null) -->
-        ${size ? '' : initialStockField}
+        <!-- Logic to conditionally add stock field -->
+        ${size ? '<div class="col-lg-2"></div>' : initialStockField}
         
-        <div class="col-md-2">
-            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()">Remove</button>
+        <div class="col-lg-1">
+            <button type="button" class="btn btn-danger btn-sm w-100" onclick="this.closest('.row').remove()"><i class="fas fa-trash"></i></button>
         </div>
     `;
     sizeRows.appendChild(row);
 
-    // Dynamic price calculation logic (remains the same)
+    // If we are editing an existing size, set the selected weight unit
+    if (size && size.weight_unit_id) {
+        row.querySelector(`select[name="sizes[${sizeId}][weight_unit_id]"]`).value = size.weight_unit_id;
+    }
+
+    // Dynamic price calculation logic
     const prizeInput = row.querySelector(`input[name="sizes[${sizeId}][prize]"]`);
     const discountInput = row.querySelector(`input[name="sizes[${sizeId}][discount]"]`);
     const offerPriceInput = row.querySelector(`input[name="sizes[${sizeId}][offer_prize]"]`);
@@ -298,23 +308,13 @@ function addSizeRow(size = null) {
     if (size) calculateOfferPrice();
 }
 
-
 function resetForm() {
-    // ... (this function's content remains the same) ...
-    document.getElementById('edit_product_id').value = '';
-    document.getElementById('edit_name').value = '';
-    document.getElementById('edit_description').value = '';
-    document.getElementById('edit_style').value = '';
-    document.getElementById('edit_images').value = '';
-    document.getElementById('edit_category_id').value = '';
-    document.getElementById('edit_sub_category_id').value = '';
-    document.getElementById('edit_status').value = 'active';
+    document.getElementById('edit_form').reset();
     document.getElementById('size_rows').innerHTML = '';
     $('#editFormCollapse').collapse('hide');
 }
 </script>
 
-<!-- Style block (Unchanged) -->
 <style>
     .table-hover tbody tr:hover { background-color: #f8f9fa; transition: background-color 0.2s; }
     .btn-group .btn { margin-right: 5px; }

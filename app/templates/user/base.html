@@ -13,36 +13,40 @@
   <link href="/static/user/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="/static/user/css/tiny-slider.css" rel="stylesheet">
-  
+  <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
+    
   <title>AURORA - Crafted by Earth, Perfected by Art</title>
 
   <!-- START: Main & Enhanced Styles -->
   <style>
     /*
-    * CSS from UntreeStore Template & Custom Enhancements
-    * Author: Untree.co
-    * URI: https://untree.co/
+    * THEME: Cosmic Glow for AURORA (V3 - Dark Theme)
+    * Main Colors: Deep Space (#0F172A), Ethereal Teal (#00D9C0), Mystic Purple (#9D4EDD)
+    * Backgrounds: Dark Matter (#1E293B) for panels
+    * Text: Starlight (#F1F5F9), Nebula Grey (#94A3B8)
+    * Fonts: Cormorant Garamond (Headings), Poppins (Body)
     */
-    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Poppins:wght@400;500;600&display=swap');
 
     body {
       overflow-x: hidden;
       position: relative;
-      font-family: "Inter", sans-serif;
+      font-family: 'Poppins', sans-serif;
       font-weight: 400;
       line-height: 28px;
-      color: #000000;
+      color: #E2E8F0; /* Starlight Text (Slate 200) */
       font-size: 14px;
-      background-color: #eff2f1;
+      background-color: #0F172A; /* Deep Space (Slate 900) - Main background */
     }
 
     a {
       text-decoration: none;
       transition: .3s all ease;
-      color: #03422a;
+      color: #00D9C0; /* Ethereal Teal */
     }
     a:hover {
-      color: #2f2f2f;
+      color: #ffffff; /* Pure White */
       text-decoration: none;
     }
     a.more {
@@ -51,19 +55,20 @@
 
     /* --- Navigation Bar --- */
     .custom-navbar {
-      background: #023522 !important; /* Slightly darker green for distinction */
+      background: #1A1D24 !important; /* Midnight Blue */
       padding-top: 20px;
       padding-bottom: 20px;
-      border-bottom: 1px solid rgba(249, 191, 41, 0.2); /* Subtle gold border for separation */
+      border-bottom: 1px solid rgba(0, 217, 192, 0.2); /* Subtle Teal Border */
     }
     .custom-navbar .navbar-brand {
-      font-size: 32px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
       font-weight: 700;
-      color: #fff;
+      color: #D1D5DB; /* Cool Grey */
     }
     .custom-navbar .navbar-brand span {
       opacity: 1;
-      color: #f9bf29;
+      color: #9D4EDD; /* Mystic Purple */
     }
     .custom-navbar .navbar-toggler {
       border-color: transparent;
@@ -80,8 +85,8 @@
     }
     .custom-navbar .custom-navbar-nav li a {
       font-weight: 500;
-      color: #ffffff !important;
-      opacity: .7;
+      color: #D1D5DB !important; /* Cool Grey */
+      opacity: .8;
       transition: .3s all ease;
       position: relative;
       padding-bottom: 8px;
@@ -93,7 +98,7 @@
         bottom: 0;
         left: 8px;
         right: 8px;
-        background: #f9bf29;
+        background: #00D9C0; /* Ethereal Teal */
         height: 3px;
         opacity: 0;
         visibility: hidden;
@@ -136,16 +141,18 @@
     .custom-navbar .custom-navbar-cta .nav-link i,
     .custom-navbar .custom-navbar-cta .nav-link img {
       transition: transform 0.3s ease;
+      filter: brightness(0) invert(1); /* Makes SVG icons white */
+      opacity: 0.8;
     }
     .custom-navbar .custom-navbar-cta .nav-link:hover i,
     .custom-navbar .custom-navbar-cta .nav-link:hover img {
       transform: scale(1.1);
+      opacity: 1;
     }
     
     /* --- Enhanced Hero Slider Section --- */
     .hero {
       padding: 0;
-      /* background: #03422a; Fallback for when image is loading */
     }
     .hero-slider-container {
       position: relative;
@@ -157,9 +164,9 @@
       background-position: center center;
       background-repeat: no-repeat;
       display: flex;
-      align-items: center; /* Vertically center content */
-      justify-content: flex-start; /* Horizontally align to the left */
-      text-align: left; /* Align text to the left */
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
       position: relative;
     }
     .hero-slide::before {
@@ -169,59 +176,82 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(to right, rgba(3, 66, 42, 0.8) 0%, rgba(3, 66, 42, 0.1) 100%);
+      background: linear-gradient(to right, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.1) 100%); /* Deep Space Gradient */
       z-index: 1;
     }
     .hero-slide .container {
       position: relative;
       z-index: 2;
+      margin-top: 20px;
     }
     .hero-slide .intro-excerpt h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 800;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5.5vw, 4.5rem);
+      font-weight: 700;
       color: #ffffff;
-      text-shadow: 0px 3px 6px rgba(0,0,0,0.5);
-      padding-top: 30px;
+      text-shadow: 0px 3px 8px rgba(0,0,0,0.6);
+      padding-top: 50px;
     }
     .hero-slide .intro-excerpt p {
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(234, 234, 234, 0.9);
       font-size: 1.1rem;
       max-width: 550px;
       text-shadow: 0px 2px 4px rgba(0,0,0,0.5);
     }
-    #hero-slider-nav {
+
+    /* --- Hero Slider Navigation Cards --- */
+    .hero-slider-nav-cards {
       position: absolute;
-      top: 50%;
+      bottom: 30px;
       left: 0;
-      width: 100%;
-      transform: translateY(-50%);
-      z-index: 99;
+      right: 0;
+      z-index: 100;
+      display: none; /* Hidden by default, shown on desktop */
+      justify-content: center;
+      gap: 15px;
       padding: 0 15px;
-      box-sizing: border-box;
     }
-    #hero-slider-nav span {
+    @media (min-width: 992px) {
+        .hero-slider-nav-cards {
+            display: flex;
+        }
+    }
+    .nav-card {
+      width: 200px;
+      height: 60px;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
       cursor: pointer;
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(5px);
-      color: #fff;
-      width: 50px;
-      height: 50px;
-      line-height: 50px;
-      text-align: center;
-      border-radius: 50%;
-      transition: background 0.3s ease;
+      transition: all .3s ease;
     }
-    #hero-slider-nav span:hover {
-      background: rgba(255, 255, 255, 0.4);
+    .nav-card:hover {
+      border-color: #9D4EDD; /* Mystic Purple on hover */
     }
-    #hero-slider-nav .prev {
-      left: 20px;
+    .nav-card.tns-nav-active {
+      border-color: #00D9C0; /* Teal for active slide */
+      transform: scale(1.05);
     }
-    #hero-slider-nav .next {
-      right: 20px;
+    .nav-card img {
+      width: 80px;
+      height: 100%;
+      object-fit: cover;
+    }
+    .nav-card .nav-card-title {
+      padding: 10px;
+      color: #E2E8F0;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     /* --- General Button Styles --- */
@@ -229,15 +259,16 @@
       font-weight: 600;
       padding: 12px 30px;
       border-radius: 30px;
-      color: #ffffff;
-      background: #2f2f2f;
-      border-color: #2f2f2f;
+      color: #F1F5F9; /* Starlight Text */
+      background: #334155; /* Neutral Dark (Slate 700) */
+      border-color: #334155;
       transition: all 0.3s ease;
+      letter-spacing: 0.5px;
     }
     .btn:hover {
       color: #ffffff;
-      background: #000;
-      border-color: #000;
+      background: #475569; /* Lighter Neutral Dark */
+      border-color: #475569;
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -246,21 +277,23 @@
       box-shadow: none;
     }
     .btn.btn-primary {
-        background: #03422a;
-        border-color: #03422a;
+      background: #00D9C0; /* Ethereal Teal */
+      border-color: #00D9C0;
+      color: #0F172A; /* Deep Space Text */
     }
     .btn.btn-primary:hover {
-        background: #023522;
-        border-color: #023522;
+      background: #00b3a1;
+      border-color: #00b3a1;
+      color: #0F172A;
     }
     .btn.btn-secondary {
-      color: #2f2f2f;
-      background: #f9bf29;
-      border-color: #f9bf29;
+      color: #ffffff;
+      background: #9D4EDD; /* Mystic Purple */
+      border-color: #9D4EDD;
     }
     .btn.btn-secondary:hover {
-      background: #f8b810;
-      border-color: #f8b810;
+      background: #8a3dbb;
+      border-color: #8a3dbb;
     }
     .btn.btn-white-outline {
       background: transparent;
@@ -275,7 +308,9 @@
 
     /* --- Section Styles --- */
     .section-title {
-      color: #2f2f2f;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      color: #ffffff; /* White title */
       font-weight: 700;
     }
     .product-section {
@@ -297,6 +332,7 @@
       border-radius: 15px;
     }
     .product-section .product-item h3 {
+      font-family: 'Poppins', sans-serif;
       font-weight: 600;
       font-size: 16px;
     }
@@ -305,7 +341,7 @@
       font-size: 18px !important;
     }
     .product-section .product-item h3, .product-section .product-item strong {
-      color: #2f2f2f;
+      color: #F1F5F9; /* Starlight Text */
       text-decoration: none;
     }
     .product-section .product-item .icon-cross {
@@ -313,7 +349,7 @@
       width: 35px;
       height: 35px;
       display: inline-block;
-      background: #2f2f2f;
+      background: #00D9C0; /* Ethereal Teal */
       bottom: 15px;
       left: 50%;
       transform: translateX(-50%);
@@ -335,7 +371,7 @@
       right: 0;
       position: absolute;
       content: "";
-      background: #dce5e4;
+      background: #1E293B; /* Dark Matter Panel */
       height: 0%;
       z-index: -1;
       border-radius: 10px;
@@ -343,7 +379,7 @@
     }
     .product-section .product-item:hover .product-thumbnail {
       top: -25px;
-      box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15);
+      box-shadow: 0 15px 30px -10px rgba(0,0,0,0.25);
     }
     .product-section .product-item:hover .icon-cross {
       bottom: 0;
@@ -356,7 +392,7 @@
 
     .why-choose-section {
       padding: 7rem 0;
-      background: #fff;
+      background: #1E293B; /* Dark Matter Panel */
     }
     .why-choose-section .img-wrap {
       position: relative;
@@ -366,7 +402,7 @@
       content: "";
       width: 255px;
       height: 217px;
-      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%23F9BF29' fill-opacity='0.2'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%239D4EDD' fill-opacity='0.1'/%3E%3C/svg%3E"); /* Mystic Purple accent */
       background-repeat: no-repeat;
       background-size: contain;
       transform: translate(-40%, -40%);
@@ -374,7 +410,7 @@
     }
     .why-choose-section .img-wrap img {
       border-radius: 20px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
     }
     .feature {
       margin-bottom: 30px;
@@ -384,25 +420,29 @@
       position: relative;
       margin-bottom: 20px;
     }
+    .feature .icon img {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
     .feature .icon:before {
       content: "";
       width: 33px;
       height: 33px;
       position: absolute;
-      background: rgba(59, 93, 80, 0.2);
+      background: rgba(0, 217, 192, 0.2); /* Teal accent */
       border-radius: 50%;
       right: -8px;
       bottom: 0;
     }
     .feature h3 {
       font-size: 16px;
-      color: #2f2f2f;
+      color: #F1F5F9; /* Starlight Text */
       font-weight: 600;
     }
     .feature p {
       font-size: 14px;
       line-height: 22px;
-      color: #6a6a6a;
+      color: #94A3B8; /* Nebula Grey */
     }
 
     .we-help-section {
@@ -418,7 +458,7 @@
       content: "";
       width: 255px;
       height: 217px;
-      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%233B5D50' fill-opacity='0.1'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='255' height='217' viewBox='0 0 255 217' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='127.5' cy='127.5' r='127.5' fill='%2300D9C0' fill-opacity='0.1'/%3E%3C/svg%3E"); /* Teal accent */
       background-size: contain;
       background-repeat: no-repeat;
       transform: translate(-40%, -40%);
@@ -427,7 +467,7 @@
     .we-help-section .imgs-grid .grid img {
       border-radius: 20px;
       max-width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
     .we-help-section .imgs-grid .grid.grid-1 {
       grid-column: 1 / span 18;
@@ -458,7 +498,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      border: 2px solid #03422a;
+      border: 2px solid #00D9C0; /* Teal */
       position: absolute;
       left: 0;
       top: 8px;
@@ -469,18 +509,18 @@
     }
     .popular-product .product-item-sm {
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      background: #fff;
+      background: #1E293B; /* Dark Matter Panel */
       padding: 15px;
       border-radius: 15px;
     }
     .popular-product .product-item-sm:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
     .popular-product .product-item-sm h3 {
       font-size: 14px;
       font-weight: 700;
-      color: #2f2f2f;
+      color: #F1F5F9; /* Starlight Text */
     }
     .popular-product .product-item-sm .thumbnail {
       margin-right: 15px;
@@ -495,74 +535,22 @@
         object-fit: cover;
     }
 
-    .testimonial-section {
-      padding: 3rem 0 7rem 0;
-      background: #f8f9fa;
-    }
-    .testimonial-slider-wrap {
-      position: relative;
-    }
-    .testimonial-slider-wrap .tns-inner {
-      padding-top: 30px;
-    }
-    .testimonial-slider-wrap .item .testimonial-block blockquote {
-      font-size: 16px;
-    }
-    @media (min-width: 768px) {
-      .testimonial-slider-wrap .item .testimonial-block blockquote {
-        line-height: 32px;
-        font-size: 18px;
-      }
-    }
-    .testimonial-slider-wrap .item .testimonial-block .author-info .author-pic {
-      margin-bottom: 20px;
-    }
-    .testimonial-slider-wrap .item .testimonial-block .author-info .author-pic img {
-      max-width: 80px;
-      border-radius: 50%;
-    }
-    .testimonial-slider-wrap .item .testimonial-block .author-info h3 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2f2f2f;
-      margin-bottom: 0;
-    }
-    .testimonial-slider-wrap #testimonial-nav {
-      position: absolute;
-      top: 50%;
-      z-index: 99;
-      width: 100%;
-      display: none;
-    }
-    @media (min-width: 768px) {
-      .testimonial-slider-wrap #testimonial-nav {
-        display: block;
-      }
-    }
-    .testimonial-slider-wrap #testimonial-nav > span {
-      cursor: pointer;
-      position: absolute;
-      width: 58px;
-      height: 58px;
-      line-height: 58px;
-      border-radius: 50%;
-      background: rgba(59, 93, 80, 0.1);
-      color: #2f2f2f;
-      transition: .3s all ease;
-    }
-    .testimonial-slider-wrap #testimonial-nav > span:hover {
-      background: #03422a;
-      color: #ffffff;
-    }
-    .testimonial-slider-wrap #testimonial-nav .prev {
-      left: -20px;
-    }
-    .testimonial-slider-wrap #testimonial-nav .next {
-      right: -20px;
-    }
-
+    /* UPDATED: Blog Section with new background color */
     .blog-section {
       padding: 7rem 0;
+      background-color: #1E293B; /* Dark Matter Panel */
+    }
+    .blog-section .post-entry {
+      text-decoration: none;
+      background: #0F172A; /* Deeper color for cards to contrast */
+      border-radius: 20px;
+      overflow: hidden;
+      padding-bottom: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .blog-section .post-entry:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
     .blog-section .post-entry a {
       text-decoration: none;
@@ -571,7 +559,6 @@
       display: block;
       margin-bottom: 20px;
       overflow: hidden;
-      border-radius: 20px;
     }
     .blog-section .post-entry .post-thumbnail img {
       transition: .3s all ease;
@@ -586,8 +573,15 @@
       font-weight: 600;
       margin-bottom: 7px;
     }
+    .blog-section .post-entry .post-content-entry h3 a {
+        color: #F1F5F9;
+    }
+    .blog-section .post-entry .post-content-entry h3 a:hover {
+        color: #ffffff;
+    }
     .blog-section .post-entry .post-content-entry .meta {
       font-size: 14px;
+      color: #94A3B8; /* Nebula Grey */
     }
     .blog-section .post-entry:hover .post-thumbnail img, .blog-section .post-entry:focus .post-thumbnail img {
       transform: scale(1.05);
@@ -596,7 +590,8 @@
     /* --- Footer Section --- */
     .footer-section {
       padding: 80px 0;
-      background: #ffffff;
+      background: #1A1D24; /* Midnight Blue */
+      color: #D1D5DB; /* Cool Grey */
     }
     .footer-section .relative {
       position: relative;
@@ -608,17 +603,36 @@
     .footer-section .subscription-form h3 {
       font-size: 18px;
       font-weight: 500;
-      color: #03422a;
+      color: #00D9C0; /* Teal */
     }
     .footer-section .subscription-form .form-control {
       height: 50px;
       border-radius: 10px;
+      background-color: #2D3748;
+      border-color: #4A5568;
+      color: #ffffff;
+    }
+    .footer-section .subscription-form .form-control::placeholder {
+      color: #A0AEC0;
     }
     .footer-section .footer-logo-wrap .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
       font-size: 32px;
       font-weight: 700;
       text-decoration: none;
-      color: #03422a;
+      color: #D1D5DB;
+    }
+    .footer-section .footer-logo-wrap .footer-logo span {
+      color: #9D4EDD; /* Mystic Purple */
+    }
+    .footer-section a {
+        color: #D1D5DB;
+    }
+    .footer-section a:hover {
+        color: #00D9C0;
+    }
+    .footer-section p {
+      color: #A0AEC0; /* Lighter grey for paragraphs */
     }
     .footer-section .custom-social li {
       margin: 2px;
@@ -630,37 +644,45 @@
       text-align: center;
       line-height: 40px;
       display: inline-block;
-      background: #dce5e4;
-      color: #03422a;
+      background: rgba(209, 213, 219, 0.1);
+      color: #D1D5DB;
       border-radius: 50%;
     }
     .footer-section .custom-social li a:hover {
-      background: #03422a;
-      color: #ffffff;
+      background: #00D9C0;
+      color: #1A1D24;
     }
     .footer-section .border-top {
-      border-color: #dce5e4;
+      border-color: rgba(209, 213, 219, 0.2);
     }
     .footer-section .border-top.copyright {
       font-size: 14px !important;
+      color: #A0AEC0;
+    }
+    .footer-section .border-top.copyright a {
+      color: #D1D5DB;
+      font-weight: 500;
+    }
+    .footer-section .border-top.copyright a:hover {
+      color: #00D9C0;
     }
 
     /* START: Styles for new Stone Categories Section */
     .stone-category-section {
       padding: 3rem 0;
-      background-color: #ffffff;
+      background-color: transparent; /* Inherits deep space from body */
     }
-    .stone-category-section-greybg {
+    .stone-category-section-whitebg { /* UPDATED CLASS NAME */
       padding: 3rem 0;
-      background-color: #eff2f1;
+      background-color: #1E293B; /* Dark Matter Panel */
     }
    
     .stone-category-section .section-heading,
-    .stone-category-section-greybg .section-heading {
-      font-family: 'Inter', sans-serif;
+    .stone-category-section-whitebg .section-heading {
+      font-family: 'Poppins', sans-serif;
       font-size: 1.2rem;
       font-weight: 500;
-      color: #000000;
+      color: #F1F5F9; /* Starlight Text */
       text-align: center;
       margin-bottom: 3rem;
       letter-spacing: 2px;
@@ -669,7 +691,7 @@
       padding-bottom: 15px;
     }
     .stone-category-section .section-heading::after,
-    .stone-category-section-greybg .section-heading::after {
+    .stone-category-section-whitebg .section-heading::after {
       content: '';
       position: absolute;
       bottom: 0;
@@ -677,7 +699,7 @@
       transform: translateX(-50%);
       width: 100px;
       height: 1px;
-      background-color: #dce5e4;
+      background-color: #334155; /* Neutral Dark Border */
     }
     .stone-item {
       text-align: center;
@@ -685,13 +707,13 @@
     }
     .stone-item a {
       text-decoration: none;
-      color: #6a6a6a;
+      color: #94A3B8; /* Nebula Grey */
       display: inline-block;
       transition: transform 0.3s ease;
     }
     .stone-item a:hover {
       transform: translateY(-5px);
-      color: #03422a;
+      color: #00D9C0;
     }
     .stone-item .icon-wrap {
       display: flex;
@@ -718,9 +740,9 @@
     .stone-shape-card {
       padding: 15px;
       text-align: center;
-      border: 1px solid #dce5e4;
+      border: 1px solid #334155; /* Neutral Dark Border */
       border-radius: 15px;
-      background-color: #ffffff;
+      background-color: #1E293B; /* Dark Matter Panel */
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -730,28 +752,27 @@
     }
     .stone-shape-card a {
       text-decoration: none;
-      color: #6a6a6a;
+      color: #94A3B8; /* Nebula Grey */
       transition: color 0.3s ease;
     }
     .stone-shape-card:hover a {
-      color: #03422a;
+      color: #00D9C0;
     }
     .stone-shape-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
 
     /* START: FIX for SVG Icon Color */
     .stone-shape-card .shape-icon-wrap svg {
-      stroke: #2f2f2f; /* Restore original outline color */
+      stroke: #94A3B8; /* Nebula Grey outline */
       stroke-width: 1.5;
       fill: none;      /* Ensure it has no fill color */
     }
     /* END: FIX for SVG Icon Color */
-
     /* END: Styles for new Stone Categories Section */
 
-    /* START: Styles for WhatsApp FAB */
+    /* START: Styles for Contact FAB */
     .contact-fab {
       position: fixed;
       bottom: 30px;
@@ -763,8 +784,8 @@
       text-decoration: none;
     }
     .contact-fab-text {
-      background-color: #fff;
-      color: #333;
+      background-color: #F1F5F9; /* Starlight */
+      color: #0F172A; /* Deep Space */
       padding: 10px 20px;
       border-radius: 25px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
@@ -775,7 +796,7 @@
     .contact-fab-icon {
       width: 50px;
       height: 50px;
-      background-color: #25D366;
+      background-color: #00D9C0; /* Ethereal Teal */
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -783,9 +804,9 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
       transition: all 0.3s ease;
     }
-    .contact-fab-icon .fa-whatsapp {
-      color: #fff;
-      font-size: 28px;
+    .contact-fab-icon .fas {
+      color: #0F172A; /* Deep Space icon color for contrast */
+      font-size: 24px;
     }
     .contact-fab:hover .contact-fab-text {
       transform: translateX(-5px);
@@ -793,7 +814,47 @@
     .contact-fab:hover .contact-fab-icon {
       transform: scale(1.1);
     }
-    /* END: Styles for WhatsApp FAB */
+    /* END: Styles for Contact FAB */
+
+    /* START: NEW STYLES FOR CONTACT MODAL */
+    .contact-modal-dark .modal-content {
+        background-color: #1E293B; /* Dark Matter Panel */
+        border: 1px solid #334155;
+        border-radius: 15px;
+        color: #F1F5F9;
+    }
+    .contact-modal-dark .modal-header {
+        border-bottom: 1px solid #334155;
+    }
+    .contact-modal-dark .modal-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-weight: 600;
+    }
+    .contact-modal-dark .list-group-item {
+        background-color: transparent;
+        border-color: #334155;
+        color: #E2E8F0;
+        padding: 1rem 1.25rem;
+        transition: background-color 0.3s ease;
+    }
+    .contact-modal-dark .list-group-item:hover {
+        background-color: #334155;
+        color: #ffffff;
+    }
+    .contact-modal-dark .list-group-item i {
+        font-size: 1.5rem;
+        margin-right: 15px;
+        width: 30px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .contact-modal-dark .fa-whatsapp {
+        color: #25D366;
+    }
+    .contact-modal-dark .fa-instagram {
+        color: #E4405F;
+    }
+    /* END: NEW STYLES FOR CONTACT MODAL */
   </style>
   <!-- END: Main & Enhanced Styles -->
 </head>
@@ -811,28 +872,23 @@
       <div class="collapse navbar-collapse" id="navbarsFurni">
         <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
           
-          <!-- UPDATED: Dynamic active class for Home link -->
           <li class="nav-item {% if request.endpoint == 'user.user_home' %}active{% endif %}">
             <a class="nav-link" href="{{ url_for('user.user_home') }}">Home</a>
           </li>
           
-          <!-- UPDATED: Dynamic active class for Shop link -->
           <li class="nav-item {% if request.endpoint == 'user.products' %}active{% endif %}">
             <a class="nav-link" href="{{ url_for('user.products') }}">Shop</a>
           </li>
           
-          <!-- UPDATED: Dynamic active class for About Us link (adjust endpoint name if needed) -->
-          <li class="nav-item {% if request.endpoint == 'user.about_us' %}active{% endif %}">
-            <a class="nav-link" href="#">About us</a>
+          <li class="nav-item {% if request.endpoint == 'user.about' %}active{% endif %}">
+            <a class="nav-link" href="{{ url_for('user.about') }}">About us</a>
           </li>
 
-          <!-- UPDATED: Dynamic active class for Contact Us link (adjust endpoint name if needed) -->
-          <li class="nav-item {% if request.endpoint == 'user.contact_us' %}active{% endif %}">
-            <a class="nav-link" href="#">Contact us</a>
+          <li class="nav-item {% if request.endpoint == 'user.contact' %}active{% endif %}">
+            <a class="nav-link" href="{{ url_for('user.contact') }}">Contact us</a>
           </li>
           
           {% if session['user'] %}
-            <!-- UPDATED: Dynamic active class for Order History link -->
             <li class="nav-item {% if request.endpoint == 'user.order_history' %}active{% endif %}">
               <a class="nav-link" href="{{ url_for('user.order_history') }}">Order History</a>
             </li>
@@ -912,11 +968,22 @@
           {% endfor %}
         </div>
         
-        <!-- Slider Navigation -->
-        <div id="hero-slider-nav">
-          <span class="prev" data-controls="prev"><i class="fa fa-chevron-left"></i></span>
-          <span class="next" data-controls="next"><i class="fa fa-chevron-right"></i></span>
+        <!-- Slider Card Navigation -->
+        <div class="hero-slider-nav-cards" id="hero-slider-nav-cards">
+            <!-- Card for Default Slide -->
+            <div class="nav-card">
+                <img src="/static/user/images/banner1.jpeg" alt="Preview: Crafted by Earth">
+                <div class="nav-card-title">Crafted by Earth</div>
+            </div>
+            <!-- Cards for Dynamic Banners -->
+            {% for banner in banners %}
+            <div class="nav-card">
+                <img src="{{ banner.image_url }}" alt="Preview: {{ banner.title|striptags }}">
+                <div class="nav-card-title">{{ banner.title|striptags|truncate(25) }}</div>
+            </div>
+            {% endfor %}
         </div>
+
       </div>
     </div>
     <!-- END: Hero Section with Slider -->
@@ -929,7 +996,7 @@
           <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
             <h2 class="mb-4 section-title">Crafted with excellence.</h2>
             <p class="mb-4">Each of our gemstones is sourced with integrity and crafted with precision to bring you pieces of extraordinary quality and lasting value.</p>
-            <p><a href="{{ url_for('user.products') }}" class="btn">Explore Products</a></p>
+            <p><a href="{{ url_for('user.products') }}" class="btn btn-secondary">Explore Products</a></p>
           </div>
           <!-- End Column 1 -->
 
@@ -972,13 +1039,9 @@
                 <div class="icon-wrap color-icon-wrap">
                   <svg viewBox="0 0 100 50"  style="border-radius: 15px;">
                     <defs>
-                      <!-- <clipPath id="diamond-clip-{{name}}"><path d="M50,0 L100,25 L50,50 L0,25 Z" /></clipPath> -->
                     </defs>
                     <g clip-path="url(#diamond-clip-{{name}})" fill="{{hex}}">
                       <rect x="0" y="0" width="100" height="80" />
-                      <!-- <rect x="0" y="10.5" width="100" height="8" />
-                      <rect x="0" y="21" width="100" height="8" /><rect x="0" y="31.5" width="100" height="8" />
-                      <rect x="0" y="42" width="100" height="8" /> -->
                     </g>
                   </svg>
                 </div>
@@ -992,7 +1055,7 @@
     </div>
     <!-- END: Natural Stones by Category Section -->
 
-    <div class="stone-category-section-greybg">
+    <div class="stone-category-section-whitebg"> <!-- UPDATED CLASS -->
       <div class="container">
         <!-- Stones by Shape -->
         <div>
@@ -1111,7 +1174,7 @@
               <li>Expert Craftsmanship</li>
               <li>Personalized Consultations</li>
             </ul>
-            <p><a href="#" class="btn">Learn More</a></p>
+            <p><a href="#" class="btn btn-secondary">Learn More</a></p>
           </div>
         </div>
       </div>
@@ -1166,51 +1229,6 @@
         </div>
     </div>
     <!-- End Popular Product -->
-
-    <!-- Start Testimonial Slider -->
-    <div class="testimonial-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-7 mx-auto text-center">
-            <h2 class="section-title">Testimonials</h2>
-          </div>
-        </div>
-
-        <div class="row justify-content-center">
-          <div class="col-lg-12">
-            <div class="testimonial-slider-wrap text-center">
-              <div id="testimonial-nav">
-                <span class="prev" data-controls="prev"><span class="fa fa-chevron-left"></span></span>
-                <span class="next" data-controls="next"><span class="fa fa-chevron-right"></span></span>
-              </div>
-
-              <div class="testimonial-slider">
-                <div class="item">
-                  <div class="row justify-content-center">
-                    <div class="col-lg-8 mx-auto">
-                      <div class="testimonial-block text-center">
-                        <blockquote class="mb-5">
-                          <p>“The quality of the amethyst I received was breathtaking. The energy it brings to my home is palpable. AURORA is my go-to for authentic, high-quality crystals. The shipping was incredibly fast and the packaging was beautiful.”</p>
-                        </blockquote>
-                        <div class="author-info">
-                          <div class="author-pic">
-                            <img src="/static/user/images/person-1.png" alt="Maria Jones" class="img-fluid">
-                          </div>
-                          <h3 class="font-weight-bold">Maria Jones</h3>
-                          <span class="position d-block mb-3">Crystal Enthusiast</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Add other testimonial items here -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- End Testimonial Slider -->
 
     <!-- Start Blog Section -->
     <div class="blog-section">
@@ -1313,58 +1331,70 @@
       </div>
 
       <!-- Subscription Form -->
-      <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-8">
-          <div class="subscription-form text-center">
-            <h3 class="d-block d-lg-flex align-items-center justify-content-center mb-3">
-              <span class="me-2 d-inline-block mb-2 mb-lg-0"><img src="/static/user/images/envelope-outline.svg" alt="Image" class="img-fluid"></span>
-              <span>Subscribe to our Newsletter</span>
-            </h3>
-            <form action="#" class="row g-2 justify-content-center">
-              <div class="col-md-5">
-                <input type="text" class="form-control" placeholder="Enter your name">
-              </div>
-              <div class="col-md-5">
-                <input type="email" class="form-control" placeholder="Enter your email">
-              </div>
-              <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                  <span class="fa fa-paper-plane"></span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="subscription-form text-center">
+    <h3 class="d-block d-lg-flex align-items-center justify-content-center mb-3">
+      <span class="me-2 d-inline-block mb-2 mb-lg-0"><img src="/static/user/images/envelope-outline.svg" alt="Image" class="img-fluid" style="filter: invert(1);"></span>
+      <span>Subscribe to our Newsletter</span>
+    </h3>
+    <!-- MODIFIED FORM -->
+    <form action="{{ url_for('user.subscribe') }}" method="POST" class="row g-2 justify-content-center">
+      <div class="col-md-5">
+        <input type="text" class="form-control" name="name" placeholder="Enter your name" required>
       </div>
-      
-      <div class="border-top copyright pt-4 mt-5">
-        <div class="row">
-          <div class="col-lg-6">
-            <p class="mb-2 text-center text-lg-start">
-              Copyright ©<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. — Designed by <a href="https://untree.co">Untree.co</a> & Enhanced.
-            </p>
-          </div>
-          <div class="col-lg-6 text-center text-lg-end">
-            <ul class="list-unstyled d-inline-flex ms-auto">
-              <li class="me-4"><a href="#">Terms & Conditions</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-        </div>
+      <div class="col-md-5">
+        <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
       </div>
-    </div>
-  </footer>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+          <span class="fa fa-paper-plane"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+
   <!-- End Footer Section -->
 
-  <!-- START: WhatsApp Contact Button -->
-  <!-- IMPORTANT: Replace YOUR_PHONE_NUMBER_HERE with your WhatsApp number e.g., 919876543210 -->
-  <a href="https://wa.me/YOUR_PHONE_NUMBER_HERE" target="_blank" class="contact-fab">
+  <!-- START: MODIFIED Contact Button -->
+  <a href="#" class="contact-fab" data-bs-toggle="modal" data-bs-target="#contactModal">
     <span class="contact-fab-text">Contact us</span>
     <span class="contact-fab-icon">
-        <i class="fab fa-whatsapp"></i>
+        <i class="fas fa-comment-dots"></i>
     </span>
   </a>
-  <!-- END: WhatsApp Contact Button -->
+  <!-- END: MODIFIED Contact Button -->
+
+  <!-- START: NEW Contact Modal -->
+  <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered contact-modal-dark">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">Contact Us</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-4 text-center" style="color: #94A3B8;">Reach out to us through your preferred channel.</p>
+                <div class="list-group list-group-flush">
+                    <!-- IMPORTANT: Replace YOUR_PHONE_NUMBER_HERE with your WhatsApp number e.g., 919876543210 -->
+                    <a href="https://wa.me/8943458096" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp Support</span>
+                    </a>
+                    <a href="https://wa.me/6238575185" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp Sales</span>
+                    </a>
+                    <!-- IMPORTANT: Replace YOUR_INSTAGRAM_USERNAME with your Instagram username -->
+                    <a href="https://instagram.com/mr__aadhii" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <i class="fab fa-instagram"></i>
+                        <span>Follow us on Instagram</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- END: NEW Contact Modal -->
+
 
   <!-- Scripts -->
   <script src="/static/user/js/bootstrap.bundle.min.js"></script>
@@ -1381,39 +1411,12 @@
             slideBy: 'page',
             autoplay: true,
             autoplayButtonOutput: false,
-            controls: true,
-            nav: false, // Disables the dots
-            controlsContainer: "#hero-slider-nav",
+            controls: false, // Arrows are now disabled
+            nav: true, 
+            navContainer: "#hero-slider-nav-cards",
             speed: 800,
             autoplayTimeout: 5000,
           });
-        }
-        
-        // Initialize Testimonial Slider
-        if (document.querySelector('.testimonial-slider')) {
-            var testimonialSlider = tns({
-                container: '.testimonial-slider',
-                items: 1,
-                axis: "horizontal",
-                controlsContainer: "#testimonial-nav",
-                nav: true,
-                autoplay: true,
-                autoplayButtonOutput: false,
-                responsive: {
-                    0: {
-                        items: 1,
-                        nav: true
-                    },
-                    768: {
-                        items: 1,
-                        nav: true
-                    },
-                    992: {
-                        items: 1,
-                        nav: true
-                    }
-                }
-            });
         }
       });
   </script>

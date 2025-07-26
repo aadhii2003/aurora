@@ -66,6 +66,7 @@
             </div>
             <div class="card-body">
               <p><strong>Customer:</strong> {{ order.first_name }} {{ order.last_name }} ({{ order.email }})</p>
+              <p><strong>Phone Number:</strong> {{ order.phone_number or 'N/A' }}</p>
               <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
               <p><strong>Subtotal:</strong> ${{ '%.2f'|format(order.sub_total) }}</p>
               <p><strong>Tax:</strong> ${{ '%.2f'|format(order.tax) }}</p>

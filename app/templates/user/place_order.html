@@ -2,10 +2,13 @@
 
 {% block content %}
 <style>
-  /* --- Compact "Action Sidebar" Checkout Styling --- */
+  /* ---
+  * PLACE ORDER PAGE THEME: Cosmic Glow Integration
+  --- */
   .checkout-section {
-    background-color: #f8f9fa;
+    background-color: #0F172A; /* Deep Space BG */
     padding: 50px 0;
+    color: #E2E8F0; /* Starlight Text */
   }
   .checkout-container {
     max-width: 1200px;
@@ -17,6 +20,7 @@
   }
   .checkout-header h2 {
     font-weight: 600;
+    color: #F1F5F9;
   }
 
   /* --- Main Layout: Details on Left, Actions on Right --- */
@@ -28,9 +32,9 @@
   }
 
   /* --- Left Column: Shipping & Order Details --- */
-  .details-card {
-    background: #fff;
-    border: 1px solid #e9ecef;
+  .details-card, .action-card {
+    background: #1E293B; /* Dark Matter Panel */
+    border: 1px solid #334155; /* Neutral Dark Border */
     border-radius: 8px;
     padding: 30px;
     margin-bottom: 30px;
@@ -39,15 +43,24 @@
     font-size: 1.25rem;
     font-weight: 500;
     margin-bottom: 20px;
+    color: #F1F5F9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .details-card-header .fa-fw {
+    color: #9D4EDD; /* Mystic Purple Icon */
   }
   .shipping-info p { margin: 0 0 8px 0; }
-  .shipping-info strong { color: #212529; }
+  .shipping-info strong { color: #F1F5F9; }
+  .shipping-info a { color: #00D9C0; text-decoration: none; }
+  .shipping-info a:hover { text-decoration: underline; }
 
   .order-item {
     display: flex;
     align-items: center;
     padding: 20px 0;
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px solid #334155;
   }
   .order-item:first-child { padding-top: 0; }
   .order-item:last-child { border-bottom: none; padding-bottom: 0; }
@@ -56,36 +69,80 @@
     object-fit: cover; border-radius: 6px; margin-right: 20px;
   }
   .order-item__details { flex-grow: 1; }
-  .order-item__name { font-weight: 500; }
-  .order-item__meta { font-size: 0.9rem; color: #6c757d; }
-  .order-item__price { font-weight: 500; font-size: 1.1rem; margin-left: 20px; }
+  .order-item__name { font-weight: 500; color: #F1F5F9; }
+  .order-item__meta { font-size: 0.9rem; color: #94A3B8; }
+  .order-item__price { font-weight: 500; font-size: 1.1rem; margin-left: 20px; color: #F1F5F9; }
 
   /* --- Right Column: Sticky Action Sidebar --- */
   .checkout-sidebar {
     position: sticky;
     top: 20px;
   }
-  .action-card {
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 30px;
-  }
+  .action-card { padding: 30px; }
   .summary-line {
     display: flex; justify-content: space-between;
     font-size: 1rem; padding: 10px 0;
   }
   .summary-line.total {
-    font-size: 1.3rem; font-weight: bold; color: #3b5d50;
-    border-top: 2px solid #3b5d50; margin-top: 10px; padding-top: 15px;
+    font-size: 1.3rem; font-weight: bold; color: #00D9C0; /* Teal for total */
+    border-top: 2px solid #00D9C0; margin-top: 10px; padding-top: 15px;
   }
-  .payment-instructions dt { font-weight: 500; color: #6c757d; }
+  .payment-instructions dt { font-weight: 500; color: #94A3B8; }
   .payment-instructions dd {
-    font-weight: 500; color: #212529; margin-bottom: 1rem;
+    font-weight: 500; color: #F1F5F9; margin-bottom: 1rem;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .copy-btn { font-size: 0.75rem; padding: 2px 8px; }
+  .payment-instructions a { color: #00D9C0; }
+  .copy-btn {
+    font-size: 0.75rem; padding: 2px 8px; background-color: #334155;
+    color: #E2E8F0; border-color: #475569;
+  }
+  .copy-btn.btn-success { background-color: #10b981; border-color: #10b981; }
+
+  /* File Input Styling */
+  .form-control {
+    background-color: #334155; color: #E2E8F0; border: 1px solid #475569;
+  }
+  .form-control:focus {
+    background-color: #334155; color: #F1F5F9; border-color: #00D9C0;
+    box-shadow: 0 0 0 0.25rem rgba(0, 217, 192, 0.2);
+  }
+  .form-control::file-selector-button {
+      background-color: #475569; color: #E2E8F0; border: none;
+  }
+
   #submitBtn { width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 500; }
+  #showPaymentBtn {
+    border-color: #00D9C0; color: #00D9C0;
+  }
+  #showPaymentBtn:hover {
+    background-color: #00D9C0; color: #0F172A;
+  }
+
+  /* Custom Alert Styling */
+  .alert.alert-warning {
+    background-color: rgba(252, 163, 17, 0.1); color: #fca311;
+    border-color: rgba(252, 163, 17, 0.3);
+  }
+  .alert.alert-warning a { color: #fcd34d; font-weight: bold; }
+
+  /* --- Custom Modal Styling for Cosmic Glow Theme --- */
+  .modal-content {
+    background-color: #1E293B; /* Dark Matter Panel */
+    color: #E2E8F0; /* Starlight Text */
+    border: 1px solid #334155; /* Neutral Dark Border */
+  }
+  .modal-header {
+    border-bottom: 1px solid #334155;
+  }
+  .modal-title {
+    color: #F1F5F9;
+  }
+  /* The .btn-close-white class from Bootstrap 5 handles the 'X' button color */
+  .modal-footer {
+    border-top: 1px solid #334155;
+    background-color: #0F172A;
+  }
 
   /* --- Responsive Design --- */
   @media (max-width: 991.98px) {
@@ -95,11 +152,12 @@
     .checkout-sidebar {
       position: static; /* Remove sticky behavior */
     }
+    .details-card { margin-bottom: 30px; }
   }
 </style>
 
 <div class="checkout-section">
-<div class="checkout-container">
+<div class="container checkout-container">
   <div class="checkout-header">
     <h2>Complete Your Order</h2>
   </div>
@@ -114,13 +172,13 @@
     <!-- Left Column: Order & Shipping Details -->
     <div class="checkout-main">
       <div class="details-card">
-        <h3 class="details-card-header">Shipping Information</h3>
+        <h3 class="details-card-header"><i class="fas fa-truck fa-fw"></i> Shipping Information</h3>
         <div class="shipping-info">
           {% if user and user.first_name and user.shipping_address %}
             <p><strong>{{ user.first_name }} {{ user.last_name or '' }}</strong></p>
-            <p>{{ user.shipping_address }}</p>
-            <p>{{ user.phone_number or 'N/A' }}</p>
-            <a href="{{ url_for('user.user_details') }}" class="small">Change shipping address</a>
+            <p class="text-muted">{{ user.shipping_address }}</p>
+            <p class="text-muted">{{ user.phone_number or 'N/A' }}</p>
+            <a href="{{ url_for('user.user_details') }}" class="small fw-bold">Change shipping address</a>
           {% else %}
             <div class="alert alert-warning">Please <a href="{{ url_for('user.user_details') }}">add your shipping details</a> to proceed.</div>
           {% endif %}
@@ -128,7 +186,7 @@
       </div>
 
       <div class="details-card">
-        <h3 class="details-card-header">Items in Your Order</h3>
+        <h3 class="details-card-header"><i class="fas fa-box-open fa-fw"></i> Items in Your Order</h3>
         <div class="order-list">
           {% for item in cart_items %}
             <div class="order-item">
@@ -148,37 +206,30 @@
     <!-- Right Column: Actions & Totals (Sticky Sidebar) -->
     <div class="checkout-sidebar">
       <div class="action-card">
-        <h3 class="details-card-header">Order Total</h3>
+        <h3 class="details-card-header"><i class="fas fa-wallet fa-fw"></i> Order Total</h3>
         <div class="summary-line">
           <span>Subtotal</span>
           <span>${{ '%.2f'|format(total_amount) }}</span>
         </div>
         <div class="summary-line">
           <span>Shipping</span>
-          <span class="text-success">FREE</span>
+          <span class="text-success fw-bold">FREE</span>
         </div>
         <div class="summary-line total">
           <span>Total Amount</span>
           <span>${{ '%.2f'|format(total_amount) }}</span>
         </div>
         
-        <hr class="my-4">
+        <hr class="my-4" style="border-color: #334155;">
 
-        <h3 class="details-card-header">Payment</h3>
-        <p class="small text-muted mb-3">Transfer the total amount to the account below, then upload the receipt.</p>
-        <dl class="payment-instructions">
-          <dt>Account Number</dt>
-          <dd>
-            <span>{{ bank_details.account_number }}</span>
-            <button class="btn btn-light btn-sm copy-btn" data-copy="{{ bank_details.account_number }}">Copy</button>
-          </dd>
-          <dt>Bank Name</dt>
-          <dd><span>{{ bank_details.bank_name }}</span></dd>
-          <dt>Account Holder</dt>
-          <dd><span>{{ bank_details.account_holder }}</span></dd>
-        </dl>
+        <h3 class="details-card-header"><i class="fas fa-university fa-fw"></i> Payment</h3>
+        <p class="small text-muted mb-3">Transfer the total amount, then upload the receipt below.</p>
         
-        <hr class="my-4">
+        <button type="button" class="btn btn-outline-info w-100 fw-bold" id="showPaymentBtn" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">
+            <i class="fas fa-eye me-2"></i>Show Payment Instructions
+        </button>
+
+        <hr class="my-4" style="border-color: #334155;">
 
         <form method="POST" action="{{ url_for('user.place_order') }}" enctype="multipart/form-data" id="orderForm">
           <input type="hidden" name="payment_method" value="bank_transfer">
@@ -199,6 +250,55 @@
     </div>
   </div>
 </div>
+
+<!-- ### MODIFIED SECTION: Payment Details Modal ### -->
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentDetailsModalLabel"><i class="fas fa-university fa-fw me-2"></i>Bank Transfer Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-3">Transfer the total amount to the account below.</p>
+        <dl class="payment-instructions">
+          <!-- Account Number -->
+          <dt>Account Number</dt>
+          <dd>
+            <span id="accountNumber">{{ bank_details.account_number }}</span>
+            <button class="btn btn-sm copy-btn" data-copy-target="#accountNumber">Copy</button>
+          </dd>
+          <!-- SWIFT Code -->
+          <dt>SWIFT Code</dt>
+          <dd>
+            <span id="swiftCode">{{ bank_details.swift_code }}</span>
+            <button class="btn btn-sm copy-btn" data-copy-target="#swiftCode">Copy</button>
+          </dd>
+          <!-- Bank Name -->
+          <dt>Bank Name</dt>
+          <dd><span>{{ bank_details.bank_name }}</span></dd>
+          <!-- Account Name -->
+          <dt>Account Name</dt>
+          <dd><span>{{ bank_details.account_name }}</span></dd>
+          <!-- Bank Address -->
+          <dt>Bank Address</dt>
+          <dd><span style="text-align: left; width: 100%;">{{ bank_details.bank_address }}</span></dd>
+          <!-- WISE Transfer Email -->
+          <dt>WISE Transfer (Email)</dt>
+          <dd>
+            <span id="wiseEmail">{{ bank_details.wise_email }}</span>
+            <button class="btn btn-sm copy-btn" data-copy-target="#wiseEmail">Copy</button>
+          </dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ### END MODIFIED SECTION ### -->
+
 </div>
 
 <script>
@@ -229,19 +329,20 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInput.addEventListener('change', () => { fileError.textContent = ''; });
   }
 
-  // --- Copy to Clipboard Logic ---
+  // --- Copy to Clipboard Logic (Improved) ---
   document.querySelectorAll('.copy-btn').forEach(button => {
     button.addEventListener('click', function(e) {
       e.preventDefault();
-      navigator.clipboard.writeText(this.dataset.copy).then(() => {
+      const targetElement = document.querySelector(this.dataset.copyTarget);
+      if (!targetElement) return;
+
+      navigator.clipboard.writeText(targetElement.innerText).then(() => {
         const originalText = this.innerHTML;
         this.innerHTML = 'Copied!';
         this.classList.add('btn-success', 'text-white');
-        this.classList.remove('btn-light');
         setTimeout(() => {
           this.innerHTML = originalText;
           this.classList.remove('btn-success', 'text-white');
-          this.classList.add('btn-light');
         }, 2000);
       });
     });

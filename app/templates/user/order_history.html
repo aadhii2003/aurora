@@ -1,6 +1,71 @@
 {% extends "user/base.html" %}
 
 {% block content %}
+<style>
+    /* ---
+    * ORDER HISTORY THEME: Cosmic Glow Integration
+    --- */
+    .section-title, .text-muted {
+        color: #F1F5F9 !important;
+    }
+    .text-muted {
+        color: #94A3B8 !important;
+    }
+
+    /* --- Order Card Styling --- */
+    .order-card {
+        background-color: #1E293B; /* Dark Matter Panel */
+        border: 1px solid #334155; /* Neutral Dark Border */
+        box-shadow: 0 5px 25px rgba(0,0,0,0.2) !important;
+    }
+
+    .order-card .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #334155;
+        color: #F1F5F9;
+    }
+
+    .order-card .card-body h5 {
+        color: #F1F5F9;
+    }
+    .order-card .card-body p, .order-card .card-body strong {
+        color: #E2E8F0;
+    }
+
+    /* --- Status Badge and Alert Customization --- */
+    .badge.status-verified {
+        background-color: rgba(0, 217, 192, 0.15); /* Teal accent */
+        color: #00D9C0;
+    }
+    .badge.status-progress {
+        background-color: rgba(157, 78, 221, 0.15); /* Purple accent */
+        color: #9D4EDD;
+    }
+
+    .alert.alert-custom-warning {
+        background-color: rgba(252, 163, 17, 0.1);
+        color: #fca311;
+        border: 1px solid rgba(252, 163, 17, 0.3);
+    }
+     .alert.alert-custom-danger {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* --- "No Orders" State --- */
+    .no-orders-card {
+        background-color: #1E293B;
+        border: 1px solid #334155;
+    }
+    .no-orders-card .card-body i {
+        color: #475569; /* Darker grey icon */
+    }
+    .no-orders-card .card-body h3 {
+        color: #F1F5F9;
+    }
+</style>
+
 <div class="untree_co-section">
   <div class="container">
     <div class="row">
@@ -21,13 +86,11 @@
         {% if orders %}
           {% for order in orders %}
             
-            {# --- Enhanced Order Card Layout --- #}
-            <div class="card order-card mb-4 shadow-sm">
+            <div class="card order-card mb-4">
               
-              {# --- Card Header: Order ID & Date --- #}
-              <div class="card-header bg-light d-flex justify-content-between align-items-center fw-bold">
+              <div class="card-header d-flex justify-content-between align-items-center fw-bold">
                 <span>
-                  Order #{{ order.purchase_id }}
+                  Orders{{ order.status|capitalize }}
                 </span>
                 <span class="text-muted small">
                   <i class="fas fa-calendar-alt me-1"></i>
@@ -35,17 +98,14 @@
                 </span>
               </div>
 
-              {# --- Card Body: Item Details, Status, Actions --- #}
               <div class="card-body">
                 <div class="row g-0 align-items-center">
                   
-                  {# --- Image --- #}
                   <div class="col-md-2 text-center p-2">
                     {% set image_path = order.images_list[0] if order.images_list else 'images/product-1.png' %}
                     <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid rounded" style="max-height: 120px; max-width: 120px; object-fit: contain;" alt="{{ order.product_name }}">
                   </div>
                   
-                  {# --- Product Info & Status --- #}
                   <div class="col-md-7">
                     <div class="ps-3">
                       <h5 class="card-title mb-2">{{ order.product_name or 'Order Item' }}</h5>
@@ -53,41 +113,35 @@
                         <strong>Total:</strong> ${{ '%.2f'|format(order.taxed_subtotal) }}
                       </p>
                       
-                      {# --- LOGIC BASED ON PAYMENT VERIFICATION STATUS --- #}
-
-                      {# CASE 1: Payment VERIFIED ('true') #}
                       {% if order.payment_verify == 'true' %}
                         <div class="d-flex align-items-center gap-2">
-                          <span class="badge bg-success-subtle text-success-emphasis p-2 fs-6">
+                          <span class="badge status-verified p-2 fs-6">
                             <i class="fas fa-check-circle me-1"></i> Payment Verified
                           </span>
-                          <span class="badge bg-info-subtle text-info-emphasis p-2 fs-6 text-capitalize">
+                          <span class="badge status-progress p-2 fs-6 text-capitalize">
                             <i class="fas fa-truck-fast me-1"></i> {{ order.status }}
                           </span>
                         </div>
                       
-                      {# CASE 2: Payment PENDING ('open') #}
                       {% elif order.payment_verify == 'open' %}
-                        <div class="alert alert-warning d-flex align-items-center p-2 mb-0">
+                        <div class="alert alert-custom-warning d-flex align-items-center p-2 mb-0">
                           <i class="fas fa-hourglass-half fa-lg me-2"></i>
                           <div>
                             <strong>Pending Verification:</strong> Your payment is being reviewed.
                           </div>
                         </div>
 
-                      {# CASE 3: Payment REJECTED ('false') #}
                       {% else %}
-                        <div class="alert alert-danger d-flex align-items-center p-2 mb-0">
+                        <div class="alert alert-custom-danger d-flex align-items-center p-2 mb-0">
                            <i class="fas fa-exclamation-triangle fa-lg me-2"></i>
                            <div>
-                             <strong>Payment Rejected:</strong> There was an issue with your proof of payment.
+                             <strong>Payment Rejected:</strong> There was an issue with your payment.
                            </div>
                         </div>
                       {% endif %}
                     </div>
                   </div>
 
-                  {# --- Action Buttons --- #}
                   <div class="col-md-3 text-center text-md-end p-2">
                     {% if order.payment_verify == 'true' %}
                       <a href="{{ url_for('user.user_order_details', id=order.purchase_id) }}" class="btn btn-primary">
@@ -96,7 +150,7 @@
                     {% elif order.payment_verify == 'open' %}
                       <button class="btn btn-secondary" disabled>Awaiting Approval</button>
                     {% else %}
-                      <a href="#" class="btn btn-danger">
+                       <a href="{{ url_for('user.contact') }}" class="btn btn-danger">
                         <i class="fas fa-headset me-1"></i> Contact Support
                       </a>
                     {% endif %}
@@ -107,13 +161,12 @@
             </div>
           {% endfor %}
         {% else %}
-          {# --- Enhanced "No Orders" State --- #}
-          <div class="card text-center shadow-sm">
+          <div class="card text-center no-orders-card">
             <div class="card-body p-5">
-              <i class="fas fa-shopping-bag fa-4x text-muted mb-4"></i>
+              <i class="fas fa-shopping-bag fa-4x mb-4"></i>
               <h3 class="card-title">Your Order History is Empty</h3>
               <p class="text-muted">It looks like you haven't placed any orders yet. Let's find something special!</p>
-              <a href="{{ url_for('user.products') }}" class="btn btn-primary btn-lg mt-3">Start Shopping</a>
+              <a href="{{ url_for('user.products') }}" class="btn btn-secondary btn-lg mt-3">Start Shopping</a>
             </div>
           </div>
         {% endif %}

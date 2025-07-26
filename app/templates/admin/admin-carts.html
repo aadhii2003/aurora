@@ -1,0 +1,179 @@
+{% extends "admin/admin-base.html" %}
+
+{% block content %}
+<div class="main-content">
+  <section class="section">
+    <div class="section-header">
+      <h1>Manage Cart Requests</h1>
+    </div>
+
+    <div class="section-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible show fade">
+            <div class="alert-body"><button class="close" data-dismiss="alert"><span>×</span></button>{{ message }}</div>
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- PENDING ITEMS CARD -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card card-primary">
+            <div class="card-header">
+              <h4><i class="fas fa-hourglass-half mr-2"></i>Pending Items ({{ pending_items|length }})</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Product & Size</th>
+                      <th>Qty</th>
+                      <th>Stock</th>
+                      <th style="width: 30%;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in pending_items %}
+                    <tr>
+                      <td>{{ item.created_at.strftime('%b %d, %H:%M') }}</td>
+                      <td>{{ item.customer_name }}</td>
+                      <td>
+                        <div>{{ item.product_name }}</div>
+                        <div class="text-muted small">Size: {{ item.size }}</div>
+                      </td>
+                      <td>{{ item.quantity }}</td>
+                      <td><span class="badge {% if item.available_stock >= item.quantity %}badge-success{% else %}badge-danger{% endif %}">{{ item.available_stock }}</span></td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <form method="POST" action="{{ url_for('admin.approve_cart_item', cart_id=item.id) }}" class="mr-2">
+                            <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
+                          </form>
+                          <form method="POST" action="{{ url_for('admin.reject_cart_item', cart_id=item.id) }}" class="flex-grow-1">
+                            <div class="input-group input-group-sm">
+                              <input type="text" name="admin_message" class="form-control" placeholder="Optional reason...">
+                              <div class="input-group-append"><button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</button></div>
+                            </div>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center">No pending cart requests.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REJECTED ITEMS CARD -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card card-danger">
+            <div class="card-header">
+              <h4><i class="fas fa-ban mr-2"></i>Rejected Items ({{ rejected_items|length }})</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Product & Size</th>
+                      <th>Reason / Note</th>
+                      <th>Stock</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in rejected_items %}
+                    <tr>
+                      <td>{{ item.updated_at.strftime('%b %d, %H:%M') }}</td>
+                      <td>{{ item.customer_name }}</td>
+                      <td>
+                        <div>{{ item.product_name }}</div>
+                        <div class="text-muted small">Size: {{ item.size }}</div>
+                      </td>
+                      <td><span class="text-muted"><em>{{ item.admin_message or 'No reason given.' }}</em></span></td>
+                      <td><span class="badge {% if item.available_stock >= item.quantity %}badge-success{% else %}badge-danger{% endif %}">{{ item.available_stock }}</span></td>
+                      <td>
+                        <!-- Allow re-approval if stock is now available -->
+                        <form method="POST" action="{{ url_for('admin.approve_cart_item', cart_id=item.id) }}">
+                          <button type="submit" class="btn btn-outline-success btn-sm" {% if item.available_stock < item.quantity %}disabled title="Not enough stock to approve"{% endif %}>
+                            <i class="fas fa-check"></i> Re-Approve
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center">No rejected items.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- APPROVED ITEMS CARD -->
+      <!-- <div class="row">
+        <div class="col-12">
+          <div class="card card-success">
+            <div class="card-header">
+              <h4><i class="fas fa-check-circle mr-2"></i>Recently Approved Items ({{ approved_items|length }})</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                   <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Product & Size</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in approved_items %}
+                    <tr>
+                      <td>{{ item.updated_at.strftime('%b %d, %H:%M') }}</td>
+                      <td>{{ item.customer_name }}</td>
+                      <td>
+                        <div>{{ item.product_name }}</div>
+                        <div class="text-muted small">Size: {{ item.size }}</div>
+                      </td>
+                      <td> -->
+                        <!-- Allow rejection of an already approved item -->
+                         <!-- <form method="POST" action="{{ url_for('admin.reject_cart_item', cart_id=item.id) }}" class="flex-grow-1">
+                            <div class="input-group input-group-sm">
+                              <input type="text" name="admin_message" class="form-control" placeholder="Reason to un-approve...">
+                              <div class="input-group-append"><button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-times"></i> Un-Approve</button></div>
+                            </div>
+                          </form>
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center">No recently approved items.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+    </div>
+  </section>
+</div>
+{% endblock %}

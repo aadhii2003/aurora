@@ -72,51 +72,50 @@ def user_home():
         banners=banners  # The 'banners' variable is now available in your HTML
     )
 
+# In your user_routes.py file
+# Make sure to import 'ceil' from the 'math' module at the top of your file
+from math import ceil
+
 @user_bp.route('/products', methods=['GET'])
 def products():
-    # --- Get all filter parameters from the request URL ---
+    # --- Pagination & Per-Page Controls ---
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 9, type=int)
+    
+    # --- Get all other filter parameters ---
     category_id = request.args.get('category_id')
     subcategory_id = request.args.get('subcategory_id')
     color_id = request.args.get('color_id')
     shape_id = request.args.get('shape_id')
     sort_by = request.args.get('sort', 'default')
-    per_page = request.args.get('per_page', 9, type=int)
-
-    # --- Get price filter parameters ---
-    min_price = request.args.get('min_price', type=float)
+    weight_range = request.args.get('weight_range')
     max_price = request.args.get('max_price', type=float)
 
-    # --- Fetch data for the filter options ---
-    query_categories = "SELECT * FROM tbl_category"
-    query_subcategories = "SELECT * FROM tbl_subcategory"
-    query_colors = "SELECT id, color_name, color_hex_code FROM master_color"
-    query_shapes = "SELECT * FROM master_shape"
+    # --- Fetch static data for filters ---
+    categories = db.fetchall("SELECT * FROM tbl_category")
+    subcategories = db.fetchall("SELECT * FROM tbl_subcategory")
+    colors = db.fetchall("SELECT * FROM master_color ORDER BY color_name")
+    shapes = db.fetchall("SELECT * FROM master_shape ORDER BY shape_name")
+    weight_ranges_data = [
+        {'value': '0-1', 'label': '0.00-1.00 CT'},
+        {'value': '1-2', 'label': '1.00-2.00 CT'},
+        {'value': '2-3', 'label': '2.00-3.00 CT'},
+        {'value': '4-10', 'label': '4.00-10.00 CT'}
+    ]
+    per_page_options = [9, 12, 18, 24]
     
-    # --- Get the absolute maximum price for the slider's range ---
-    max_price_query = "SELECT CEIL(MAX(COALESCE(offer_prize, prize))) as max_p FROM tbl_product_size"
-    max_price_result = db.fetchone(max_price_query)
-    # Use the fetched max price, or default to a high number if no products/prices exist.
+    max_price_result = db.fetchone("SELECT CEIL(MAX(COALESCE(offer_prize, prize))) as max_p FROM tbl_product_size")
     slider_max_price = max_price_result['max_p'] if max_price_result and max_price_result['max_p'] else 300000
 
-    # --- Build the base query for fetching products ---
-    query_products_base = """
-        SELECT p.*, c.category_name, s.sub_category_name, 
-               COALESCE(ps.offer_prize, ps.prize) as effective_price,
-               ps.prize, ps.offer_prize,
-               mc.color_name, mc.color_hex_code
+    # --- Build the base query and filter conditions ---
+    query_base = """
         FROM tbl_product p 
         JOIN tbl_category c ON p.category_id = c.id 
         JOIN tbl_subcategory s ON p.sub_category_id = s.id 
-        LEFT JOIN (
-            SELECT product_id, MIN(prize) as prize, MIN(offer_prize) as offer_prize
-            FROM tbl_product_size
-            GROUP BY product_id
-        ) ps ON p.id = ps.product_id
+        LEFT JOIN tbl_product_size ps ON p.id = ps.product_id
         LEFT JOIN master_color mc ON p.color_id = mc.id
         WHERE p.status = 'active'
     """
-    
-    # --- Build filter conditions and parameters ---
     conditions = []
     params = []
 
@@ -132,61 +131,147 @@ def products():
     if shape_id:
         conditions.append("p.shape_id = %s")
         params.append(shape_id)
-    
-    if conditions:
-        query_products_base += " AND " + " AND ".join(conditions)
-
-    # --- Create final query by wrapping the base to filter by price ---
-    final_query = f"SELECT * FROM ({query_products_base}) AS filtered_products WHERE 1=1"
-    
-    if min_price is not None:
-        final_query += " AND effective_price >= %s"
-        params.append(min_price)
     if max_price is not None:
-        final_query += " AND effective_price <= %s"
-        params.append(max_price)
+        # This condition checks if ANY size of the product is below the max price
+        conditions.append("(ps.prize <= %s OR ps.offer_prize <= %s)")
+        params.extend([max_price, max_price])
+    if weight_range and '-' in weight_range:
+        try:
+            min_weight, max_weight = map(float, weight_range.split('-'))
+            # This condition checks if ANY size of the product is within the weight range
+            conditions.append("ps.weight >= %s AND ps.weight <= %s")
+            params.extend([min_weight, max_weight])
+        except (ValueError, IndexError):
+            pass
 
-    # --- Total Products Count (must use the final filtered query) ---
-    total_products_query = f"SELECT COUNT(*) as total FROM ({final_query}) as subquery"
-    total_products = db.fetchone(total_products_query, tuple(params))['total']
+    if conditions:
+        query_base += " AND " + " AND ".join(conditions)
 
-    # --- Sorting Logic ---
+    # --- Get Total Count for Pagination (This query is already correct) ---
+    count_query = f"SELECT COUNT(DISTINCT p.id) as total {query_base}"
+    total_products = db.fetchone(count_query, tuple(params))['total']
+
+    # --- Build Final Query with GROUP BY to remove duplicates ---
+    # MODIFIED: Use aggregate MIN() for price columns to get the "starting from" price
+    query_select = """
+        SELECT p.*, 
+               MIN(COALESCE(ps.offer_prize, ps.prize)) as effective_price, 
+               MIN(ps.prize) as prize, 
+               MIN(ps.offer_prize) as offer_prize
+    """
+    
+    # MODIFIED: Added GROUP BY p.id at the end of the query
+    group_by_clause = " GROUP BY p.id"
+    
+    final_query = query_select + query_base + group_by_clause
+
     if sort_by == 'price_asc':
-        final_query += " ORDER BY effective_price ASC, id DESC"
+        final_query += " ORDER BY effective_price ASC, p.id DESC"
     elif sort_by == 'price_desc':
-        final_query += " ORDER BY effective_price DESC, id DESC"
+        final_query += " ORDER BY effective_price DESC, p.id DESC"
     else:
-        final_query += " ORDER BY id DESC"
-        
-    # --- Execute final queries ---
+        final_query += " ORDER BY p.id DESC"
+    
+    offset = (page - 1) * per_page
+    final_query += f" LIMIT {per_page} OFFSET {offset}"
+    
     products = db.fetchall(final_query, tuple(params))
-    categories = db.fetchall(query_categories)
-    subcategories = db.fetchall(query_subcategories)
-    colors = db.fetchall(query_colors)
-    shapes = db.fetchall(query_shapes)
-
     for product in products:
         product['images_list'] = json.loads(product['images']) if product['images'] and product['images'].strip() else []
 
-    # --- Render the template with all the necessary data ---
+    # --- Create the Pagination Object Manually (No changes needed here) ---
+    class SimplePagination:
+        def __init__(self, page, per_page, total_count):
+            self.page = page
+            self.per_page = per_page
+            self.total_count = total_count
+            self.pages = int(ceil(total_count / float(per_page))) if per_page > 0 else 0
+            self.has_prev = page > 1
+            self.has_next = page < self.pages
+            self.prev_num = page - 1 if self.has_prev else None
+            self.next_num = page + 1 if self.has_next else None
+            self.first = (page - 1) * per_page + 1 if total_count > 0 else 0
+            self.last = min(page * per_page, total_count)
+        
+        def iter_pages(self, left_edge=2, left_current=2, right_current=3, right_edge=2):
+            last = 0
+            for num in range(1, self.pages + 1):
+                if num <= left_edge or \
+                   (num > self.page - left_current - 1 and num < self.page + right_current) or \
+                   num > self.pages - right_edge:
+                    if last + 1 != num:
+                        yield None
+                    yield num
+                    last = num
+    
+    pagination = SimplePagination(page=page, per_page=per_page, total_count=total_products)
+
     return render_template(
         'user/shop.html', 
         products=products, 
+        pagination=pagination,
+        per_page_options=per_page_options,
         total_products=total_products,
         categories=categories, 
         subcategories=subcategories,
         colors=colors,
         shapes=shapes,
+        weight_ranges=weight_ranges_data,
         selected_category=category_id,
         selected_subcategory=subcategory_id,
         selected_color=color_id,
         selected_shape=shape_id,
+        selected_weight_range=weight_range,
         slider_max_price=slider_max_price,
-        selected_min_price=min_price,
         selected_max_price=max_price,
         selected_sort=sort_by,
         selected_per_page=per_page
     )
+
+import re
+def generate_tags(product, sizes):
+    """
+    Generates a list of relevant tags from product data.
+    Uses a set to avoid duplicates automatically.
+    """
+    tags_set = set()
+
+    # Add core attributes
+    if product.get('name'):
+        tags_set.add(product['name'].lower())
+    if product.get('color_name'):
+        tags_set.add(product['color_name'].lower())
+        tags_set.add(f"{product['color_name'].lower()} gem")
+    if product.get('shape_name'):
+        tags_set.add(product['shape_name'].lower())
+    if product.get('category_name'):
+        tags_set.add(product['category_name'].lower())
+    if product.get('sub_category_name'):
+        tags_set.add(product['sub_category_name'].lower())
+    if product.get('origin'):
+        tags_set.add(f"{product['origin'].lower()} origin")
+    if product.get('treatment'):
+        tags_set.add(product['treatment'].lower())
+    
+    # Try to extract weight from the first available size option
+    if sizes:
+        first_size = sizes[0]
+        if first_size.get('weight') and first_size.get('weight_unit_name'):
+             # e.g., "0.95ct"
+            tags_set.add(f"{first_size['weight']}{first_size['weight_unit_name'].lower()}")
+
+    # Clean up tags: remove any empty strings that might have crept in
+    # and split any multi-word names into individual tags
+    final_tags = set()
+    for tag in tags_set:
+        # Split tags that might have spaces, e.g., "vivid red" becomes "vivid", "red"
+        parts = re.split(r'[\s,]+', tag)
+        for part in parts:
+            if part: # ensure no empty parts are added
+                final_tags.add(part.strip())
+
+    return sorted(list(final_tags)) # Return as a sorted list
+
 @user_bp.route('/product/<int:id>')
 def product_detail(id):
     query_product = """
@@ -194,20 +279,17 @@ def product_detail(id):
             p.*,
             c.category_name,
             s.sub_category_name,
-            mc.color_name,mc.color_hex_code,
+            mc.color_name, mc.color_hex_code,
             ms.shape_name
         FROM tbl_product        AS p
         JOIN tbl_category        AS c  ON p.category_id     = c.id
         JOIN tbl_subcategory     AS s  ON p.sub_category_id = s.id
         LEFT JOIN master_color   AS mc ON p.color_id        = mc.id
         LEFT JOIN master_shape   AS ms ON p.shape_id        = ms.id
-        WHERE p.id = %s             -- <-- put a real ID here
-        AND p.status = 'active';
-
-
-            """
-    # *** MODIFIED QUERY ***
-    # Fetch stock_count and purchase_count from tbl_stock
+        WHERE p.id = %s
+        AND p.status = 'active'
+    """
+    
     query_sizes = """
         SELECT 
             ps.*, 
@@ -219,15 +301,23 @@ def product_detail(id):
         LEFT JOIN tbl_stock s ON ps.id = s.product_size_id
         LEFT JOIN master_weight_unit mwu ON ps.weight_unit_id = mwu.id
         WHERE ps.product_id = %s
-
-            """
+    """
+    
     product = db.fetchone(query_product, (id,))
     if not product:
         flash('Product not found or inactive', 'error')
         return redirect(url_for('user.products'))
     
+    # --- MODIFIED SECTION ---
     product['images_list'] = json.loads(product['images']) if product['images'] else []
+    product['videos_list'] = json.loads(product['videos']) if product['videos'] else []
+    
     sizes = db.fetchall(query_sizes, (id,))
+    
+    # --- NEW: Generate and add tags to the product dictionary ---
+    product['generated_tags'] = generate_tags(product, sizes)
+    # --- END OF NEW SECTION ---
+    
     return render_template('user/product-detail.html', product=product, sizes=sizes)
     
 
@@ -256,111 +346,252 @@ def remove_from_cart(id):
 @user_bp.route('/cart', methods=['GET', 'POST'])
 def cart():
     if not session.get('user'):
-        flash('Please log in to add items to cart.', 'error')
+        flash('Please log in to manage your cart.', 'error')
         return redirect(url_for('user.user_login'))
     
+    login_id = session['user']
+
     if request.method == 'POST':
         product_id = request.form.get('product_id')
         product_size_id = request.form.get('product_size_id')
         quantity = request.form.get('quantity', 1, type=int)
 
-        # *** NEW: SERVER-SIDE STOCK VALIDATION ***
         try:
-            # 1. Check current stock level for the selected size
             stock_query = "SELECT stock_count, purchase_count FROM tbl_stock WHERE product_size_id = %s"
             stock = db.fetchone(stock_query, (product_size_id,))
             
             if not stock:
-                flash('This item is not available for purchase (stock not managed).', 'error')
+                flash('This item is not available for purchase.', 'error')
                 return redirect(url_for('user.product_detail', id=product_id))
 
             available_stock = stock['stock_count'] - stock['purchase_count']
 
-            # 2. Check if item is already in cart to calculate total needed
-            check_query = "SELECT quantity FROM tbl_cart WHERE login_id = %s AND product_size_id = %s"
-            existing_item = db.fetchone(check_query, (session.get('user'), product_size_id))
-            
-            current_cart_qty = existing_item['quantity'] if existing_item else 0
-            total_quantity_needed = current_cart_qty + quantity
+            check_query = "SELECT id, quantity, status FROM tbl_cart WHERE login_id = %s AND product_size_id = %s"
+            existing_item = db.fetchone(check_query, (login_id, product_size_id))
 
-            # 3. The final check
-            if available_stock < total_quantity_needed:
+            current_cart_qty = 0
+            if existing_item and existing_item['status'] != 'rejected':
+                current_cart_qty = existing_item['quantity']
+
+            if available_stock < (current_cart_qty + quantity):
                 flash(f'Not enough stock available. Only {available_stock} items left.', 'error')
                 return redirect(url_for('user.product_detail', id=product_id))
 
-            # --- If stock is sufficient, proceed with original logic ---
+            price_query = "SELECT prize FROM tbl_product_size WHERE id = %s"
+            price_result = db.fetchone(price_query, (product_size_id,))
+            if not price_result or price_result['prize'] is None:
+                flash('Invalid product size selected.', 'error')
+                return redirect(url_for('user.product_detail', id=product_id))
 
-            if existing_item:
+            if existing_item and existing_item['status'] != 'rejected':
                 new_quantity = existing_item['quantity'] + quantity
-                update_query = "UPDATE tbl_cart SET quantity = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s"
+                update_query = "UPDATE tbl_cart SET quantity = %s, status = 'pending', updated_at = CURRENT_TIMESTAMP WHERE id = %s"
                 db.execute(update_query, (new_quantity, existing_item['id']))
             else:
-                price_query = "SELECT prize FROM tbl_product_size WHERE id = %s"
-                price_result = db.fetchone(price_query, (product_size_id,))
-                if not price_result or price_result['prize'] is None:
-                    flash('Invalid product size selected.', 'error')
-                    return redirect(url_for('user.product_detail', id=product_id))
                 insert_query = """
-                    INSERT INTO tbl_cart (login_id, product_id, product_size_id, quantity, created_at, updated_at, prize)
-                    VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, %s)
+                    INSERT INTO tbl_cart (login_id, product_id, product_size_id, quantity, prize, status, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, 'pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 """
-                db.execute(insert_query, (session.get('user'), product_id, product_size_id, quantity, price_result['prize']))
+                db.execute(insert_query, (login_id, product_id, product_size_id, quantity, price_result['prize']))
 
-            flash('Item added to cart successfully!', 'success')
+            # --- START: NEW ADMIN NOTIFICATION CODE ---
+            try:
+                user_info = db.fetchone("SELECT email FROM tbl_login WHERE id = %s", (login_id,))
+                user_email = user_info['email'] if user_info else 'A user'
+
+                notification_message = f"{user_email} added an item to their cart for approval."
+                notification_link = url_for('admin.admin_carts')
+
+                db.execute(
+                    "INSERT INTO tbl_admin_notifications (message, link_url) VALUES (%s, %s)",
+                    (notification_message, notification_link)
+                )
+            except Exception as e:
+                print(f"--- FAILED TO CREATE ADMIN NOTIFICATION (CART): {e} ---")
+            # --- END: NEW ADMIN NOTIFICATION CODE ---
+
+            flash('Item added to cart. Awaiting admin confirmation.', 'info')
             return redirect(url_for('user.cart'))
 
         except Exception as e:
             flash(f'Error adding to cart: {str(e)}', 'error')
             return redirect(url_for('user.product_detail', id=product_id))
 
-    # ... (the rest of the GET logic for the cart remains the same) ...
+    # --- GET Request Logic (No changes needed here) ---
     try:
         cart_query = """
-            SELECT c.*, ps.size, ps.prize as size_price, p.name as product_name, p.images as product_images
+            SELECT 
+                c.id, c.quantity, c.status, c.admin_message,
+                ps.size, ps.prize as size_price, 
+                p.name as product_name, p.images as product_images
             FROM tbl_cart c
             JOIN tbl_product_size ps ON c.product_size_id = ps.id
             JOIN tbl_product p ON c.product_id = p.id
             WHERE c.login_id = %s
         """
-        cart_items = db.fetchall(cart_query, (session.get('user'),))
+        cart_items = db.fetchall(cart_query, (login_id,))
+        
+        has_approved_items = False
+        total_amount = 0
+
         for item in cart_items:
             item['images_list'] = json.loads(item['product_images']) if item['product_images'] else []
+            if item['status'] == 'approved':
+                total_amount += item['size_price'] * item['quantity']
+                has_approved_items = True
         
-        total_amount = sum(item['size_price'] * item['quantity'] for item in cart_items)
-        return render_template('user/cart.html', cart_items=cart_items, total_amount=total_amount)
+        return render_template('user/cart.html', 
+                               cart_items=cart_items, 
+                               total_amount=total_amount, 
+                               has_approved_items=has_approved_items)
     except Exception as e:
         flash(f'Error loading cart: {str(e)}', 'error')
-        return render_template('user/cart.html', cart_items=[], total_amount=0)
+        return render_template('user/cart.html', cart_items=[], total_amount=0, has_approved_items=False)
     
-@user_bp.route('/checkout', methods=['GET'])
+# @user_bp.route('/checkout', methods=['GET'])
+# def checkout():
+#     if 'user' not in session:
+#         flash('Please login first', 'error')
+#         return redirect(url_for('user.user_login'))
+    
+#     try:
+#         cart_items = db.fetchall(
+#             """
+#             SELECT c.*, p.name as product_name, ps.size, ps.prize as size_price, p.images as product_images
+#             FROM tbl_cart c 
+#             JOIN tbl_product_size ps ON c.product_size_id = ps.id 
+#             JOIN tbl_product p ON c.product_id = p.id 
+#             WHERE c.login_id = %s
+#             """,
+#             (session['user'],)
+#         )
+#         for item in cart_items:
+#             item['images_list'] = json.loads(item['product_images']) if item['product_images'] else []
+        
+#         total_amount = sum(item['size_price'] * item['quantity'] for item in cart_items)
+        
+#         if not cart_items:
+#             flash('Your cart is empty', 'error')
+#             return redirect(url_for('user.cart'))
+        
+#         return render_template('user/checkout.html', cart_items=cart_items, total_amount=total_amount)
+#     except Exception as e:
+#         flash(f'Error loading checkout: {str(e)}', 'error')
+#         return redirect(url_for('user.cart'))
+@user_bp.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     if 'user' not in session:
         flash('Please login first', 'error')
         return redirect(url_for('user.user_login'))
     
+    user_id = session['user']
+
+    # --- POST block remains the same ---
+    if request.method == 'POST':
+        # ... your existing POST logic ...
+        # No changes needed here
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        shipping_address = request.form.get('shipping_address')
+        phone_number = request.form.get('phone_number')
+        city = request.form.get('city')
+        state = request.form.get('state')
+        country = request.form.get('country')
+        pincode = request.form.get('pincode')
+        
+        if not all([first_name, last_name, shipping_address, phone_number, city, state, country, pincode]):
+            flash('All shipping details are required', 'error')
+            return redirect(url_for('user.checkout'))
+
+        try:
+            existing_user = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
+            
+            if existing_user:
+                query = """
+                    UPDATE tbl_user 
+                    SET first_name = %s, last_name = %s, shipping_address = %s, 
+                        phone_number = %s, city = %s, state = %s, country = %s, pincode = %s
+                    WHERE login_id = %s
+                """
+                params = (first_name, last_name, shipping_address, phone_number, city, state, country, pincode, user_id)
+                db.execute(query, params)
+                flash('Details updated successfully!', 'success')
+            else:
+                query = """
+                    INSERT INTO tbl_user (
+                        login_id, first_name, last_name, shipping_address, 
+                        phone_number, city, state, country, pincode
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                params = (user_id, first_name, last_name, shipping_address, phone_number, city, state, country, pincode)
+                db.execute(query, params)
+                flash('Details saved successfully!', 'success')
+            
+            return redirect(url_for('user.checkout'))
+        except Exception as e:
+            flash(f'Error saving details: {str(e)}', 'error')
+            print(f"Database error in checkout POST: {str(e)}")
+            print(traceback.format_exc())
+            return redirect(url_for('user.checkout'))
+    
+    # --- GET: REVISED BLOCK WITH DEBUGGING ---
     try:
-        cart_items = db.fetchall(
-            """
+        # 1. Load country data with robust error checking
+        countries_data = []
+        resource_path = 'static/data/countries.json' # <-- DOUBLE CHECK THIS FILENAME!
+        print(f"--- DEBUG: Attempting to load resource: {resource_path} ---")
+
+        try:
+            with current_app.open_resource(resource_path, 'r') as f:
+                countries_data = json.load(f)
+            
+            print(f"--- DEBUG: Successfully loaded {len(countries_data)} countries. ---")
+            if countries_data:
+                # Print the first country to verify structure
+                print(f"--- DEBUG: First country data: {countries_data[0]} ---")
+
+        except FileNotFoundError:
+            print(f"--- DEBUG: ERROR! File not found at path: {resource_path} ---")
+            flash('Country data file not found. Please contact support.', 'error')
+        except json.JSONDecodeError as e:
+            print(f"--- DEBUG: ERROR! JSON is invalid in {resource_path}. Error: {e} ---")
+            flash('Error reading country data. Please contact support.', 'error')
+        
+        # 2. Fetch cart items (No change)
+        cart_items_query = """
             SELECT c.*, p.name as product_name, ps.size, ps.prize as size_price, p.images as product_images
             FROM tbl_cart c 
             JOIN tbl_product_size ps ON c.product_size_id = ps.id 
             JOIN tbl_product p ON c.product_id = p.id 
-            WHERE c.login_id = %s
-            """,
-            (session['user'],)
-        )
+            WHERE c.login_id = %s AND c.status = 'approved'
+        """
+        cart_items = db.fetchall(cart_items_query, (user_id,))
+        
+        if not cart_items and request.method == 'GET':
+            flash('You have no approved items to check out.', 'warning')
+            return redirect(url_for('user.cart'))
+
         for item in cart_items:
             item['images_list'] = json.loads(item['product_images']) if item['product_images'] else []
         
-        total_amount = sum(item['size_price'] * item['quantity'] for item in cart_items)
-        
-        if not cart_items:
-            flash('Your cart is empty', 'error')
-            return redirect(url_for('user.cart'))
-        
-        return render_template('user/checkout.html', cart_items=cart_items, total_amount=total_amount)
+        total_amount = sum(Decimal(item['size_price']) * item['quantity'] for item in cart_items)
+
+        # 3. Fetch User Details (No change)
+        user_details = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
+        if not user_details:
+            user_details = {'login_id': user_id}
+
+        # 4. Render the page
+        return render_template('user/checkout.html', 
+                               cart_items=cart_items, 
+                               total_amount=total_amount, 
+                               user=user_details,
+                               countries_data=countries_data)
+                               
     except Exception as e:
-        flash(f'Error loading checkout: {str(e)}', 'error')
+        flash(f'Error loading checkout page: {str(e)}', 'error')
+        print(f"Error loading checkout GET: {str(e)}")
+        print(traceback.format_exc())
         return redirect(url_for('user.cart'))
     
 import traceback
@@ -374,51 +605,81 @@ def user_details():
     user_id = session['user']
     
     if request.method == 'POST':
-        # ... (form data retrieval code is fine) ...
+        # Retrieve form data
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         shipping_address = request.form.get('shipping_address')
         phone_number = request.form.get('phone_number')
+        city = request.form.get('city')
+        state = request.form.get('state')
+        country = request.form.get('country')
+        pincode = request.form.get('pincode')
         
-        if not all([first_name, last_name, shipping_address, phone_number]):
+        # Validate all fields
+        if not all([first_name, last_name, shipping_address, phone_number, city, state, country, pincode]):
             flash('All fields are required', 'error')
             return redirect(url_for('user.user_details'))
         
         try:
             # Check if user details already exist
             existing_user = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
+            print(f"Existing user check: {existing_user}")
             
             if existing_user:
                 # Update existing details
                 query_update_user = """
                     UPDATE tbl_user 
-                    SET first_name = %s, last_name = %s, shipping_address = %s, phone_number = %s
+                    SET first_name = %s, last_name = %s, shipping_address = %s, 
+                        phone_number = %s, city = %s, state = %s, country = %s, pincode = %s
                     WHERE login_id = %s
                 """
-                db.execute(query_update_user, (first_name, last_name, shipping_address, phone_number, user_id))
+                print(f"Executing update: {query_update_user} with params: {(first_name, last_name, shipping_address, phone_number, city, state, country, pincode, user_id)}")
+                db.execute(query_update_user, (
+                    first_name, last_name, shipping_address, phone_number,
+                    city, state, country, pincode, user_id
+                ))
                 flash('Details updated successfully', 'success')
             else:
                 # Insert new details
                 query_insert_user = """
-                    INSERT INTO tbl_user (login_id, first_name, last_name, shipping_address, phone_number)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO tbl_user (
+                        login_id, first_name, last_name, shipping_address, 
+                        phone_number, city, state, country, pincode
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
-                db.execute(query_insert_user, (user_id, first_name, last_name, shipping_address, phone_number))
+                print(f"Executing insert: {query_insert_user} with params: {(user_id, first_name, last_name, shipping_address, phone_number, city, state, country, pincode)}")
+                db.execute(query_insert_user, (
+                    user_id, first_name, last_name, shipping_address,
+                    phone_number, city, state, country, pincode
+                ))
                 flash('Details added successfully', 'success')
 
-            # Also use .connection.commit() for consistency
-            if hasattr(db, 'connection') and hasattr(db.connection, 'commit'):
-                db.connection.commit()
+            # Attempt to commit (adjust based on your db library)
+            try:
+                if hasattr(db, 'commit'):  # Check if db has a commit method
+                    db.commit()
+                    print("Database commit successful")
+                elif hasattr(db, 'session') and hasattr(db.session, 'commit'):  # For SQLAlchemy-like objects
+                    db.session.commit()
+                    print("Database session commit successful")
+                else:
+                    print("No commit method found, assuming autocommit")
+            except Exception as commit_error:
+                print(f"Commit failed: {commit_error}")
+                raise
 
-            return redirect(url_for('user.checkout')) # Redirect to checkout after saving details
+            return redirect(url_for('user.checkout'))
         
         except Exception as e:
-            # *** THE FIX IS HERE ***
-            # Call rollback() on the underlying connection object
+            # Attempt to rollback if possible
             try:
-                if hasattr(db, 'connection') and hasattr(db.connection, 'rollback'):
-                    db.connection.rollback()
+                if hasattr(db, 'rollback'):  # Check if db has a rollback method
+                    db.rollback()
                     print("Rollback successful in user_details")
+                elif hasattr(db, 'session') and hasattr(db.session, 'rollback'):  # For SQLAlchemy-like objects
+                    db.session.rollback()
+                    print("Session rollback successful in user_details")
             except Exception as rb_e:
                 print(f"Could not perform rollback: {rb_e}")
             
@@ -427,9 +688,10 @@ def user_details():
             print(traceback.format_exc())
             return redirect(url_for('user.user_details'))
     
-    # GET Request Logic...
+    # GET Request Logic
     try:
         user = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
+        print(f"User data fetched: {user}")
         if not user:
             user = {'login_id': user_id}
         return render_template('user/user_details.html', user=user)
@@ -438,6 +700,100 @@ def user_details():
         print(f"Error loading user details: {str(e)}")
         print(traceback.format_exc())
         return render_template('user/user_details.html', user={'login_id': user_id})
+
+# import traceback
+# @user_bp.route('/checkout', methods=['GET', 'POST'])
+# def checkout():
+#     if 'user' not in session:
+#         flash('Please login to proceed.', 'danger')
+#         return redirect(url_for('user.user_login'))
+
+#     user_id = session['user']
+
+#     # --- HANDLE FORM SUBMISSION TO UPDATE/ADD USER DETAILS ---
+#     if request.method == 'POST':
+#         first_name = request.form.get('first_name')
+#         last_name = request.form.get('last_name')
+#         shipping_address = request.form.get('shipping_address')
+#         phone_number = request.form.get('phone_number')
+#         city = request.form.get('city')
+#         state = request.form.get('state')
+#         country = request.form.get('country')
+#         pincode = request.form.get('pincode')
+
+#         if not all([first_name, last_name, shipping_address, phone_number, city, state, country, pincode]):
+#             flash('All shipping fields are required to proceed.', 'error')
+#             # Fall through to the GET logic to re-render the page with an error
+#         else:
+#             try:
+#                 existing_user = db.fetchone("SELECT id FROM tbl_user WHERE login_id = %s", (user_id,))
+                
+#                 if existing_user:
+#                     query_update = """
+#                         UPDATE tbl_user SET first_name=%s, last_name=%s, shipping_address=%s, 
+#                                             phone_number=%s, city=%s, state=%s, country=%s, pincode=%s
+#                         WHERE login_id = %s
+#                     """
+#                     db.execute(query_update, (first_name, last_name, shipping_address, phone_number, city, state, country, pincode, user_id))
+#                     flash('Shipping details updated successfully!', 'success')
+#                 else:
+#                     query_insert = """
+#                         INSERT INTO tbl_user (login_id, first_name, last_name, shipping_address, 
+#                                               phone_number, city, state, country, pincode)
+#                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+#                     """
+#                     db.execute(query_insert, (user_id, first_name, last_name, shipping_address, phone_number, city, state, country, pincode))
+#                     flash('Shipping details saved successfully!', 'success')
+                
+#                 # No commit needed as per your DB setup
+#                 return redirect(url_for('user.checkout')) # Redirect to refresh the page with updated details
+            
+#             except Exception as e:
+#                 flash(f'An error occurred while saving your details: {str(e)}', 'error')
+#                 print(f"Checkout POST Error: {e}")
+
+#     # --- GET REQUEST LOGIC (FETCH EVERYTHING FOR THE PAGE) ---
+#     try:
+#         # 1. Fetch APPROVED cart items for the order summary
+#         cart_items = db.fetchall(
+#             """
+#             SELECT c.quantity, p.name as product_name, ps.size, ps.prize as size_price, p.images as product_images
+#             FROM tbl_cart c 
+#             JOIN tbl_product_size ps ON c.product_size_id = ps.id 
+#             JOIN tbl_product p ON c.product_id = p.id 
+#             WHERE c.login_id = %s AND c.status = 'approved'
+#             """,
+#             (user_id,)
+#         )
+        
+#         # If no approved items, they can't check out
+#         if not cart_items:
+#             flash('You have no approved items in your cart. Please wait for admin approval or add items.', 'warning')
+#             return redirect(url_for('user.cart'))
+        
+#         for item in cart_items:
+#             item['images_list'] = json.loads(item['product_images']) if item['product_images'] else []
+        
+#         total_amount = sum(item['size_price'] * item.get('quantity', 0) for item in cart_items)
+        
+#         # 2. Fetch user's existing shipping details
+#         user_details = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
+#         if not user_details:
+#             # Create a blank dictionary so the template doesn't error out
+#             user_details = {}
+
+#         # 3. Render the single, combined checkout page
+#         return render_template(
+#             'user/checkout_combined.html', 
+#             cart_items=cart_items, 
+#             total_amount=total_amount,
+#             user=user_details
+#         )
+        
+#     except Exception as e:
+#         flash(f'Error loading checkout page: {str(e)}', 'error')
+#         print(f"Checkout GET Error: {e}")
+#         return redirect(url_for('user.cart'))
 
 @user_bp.route('/delete-user-details', methods=['POST'])
 def delete_user_details():
@@ -504,6 +860,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Assuming this is part of a blueprint named user_bp
+# /user/routes.py (or wherever your route is)
+
 @user_bp.route('/place-order', methods=['GET', 'POST'])
 def place_order():
     if 'user' not in session:
@@ -513,17 +871,17 @@ def place_order():
     user_id = session['user']
     
     try:
-        # ... (Your existing code to fetch cart items, user, etc. is fine)
         cart_items_query = """
             SELECT c.*, p.name as product_name, ps.size, ps.prize as size_price, p.images as product_images
             FROM tbl_cart c 
             JOIN tbl_product_size ps ON c.product_size_id = ps.id 
             JOIN tbl_product p ON c.product_id = p.id 
-            WHERE c.login_id = %s
+            WHERE c.login_id = %s AND c.status = 'approved'
         """
         cart_items = db.fetchall(cart_items_query, (user_id,))
+        
         if not cart_items:
-            flash('Your cart is empty. Cannot place an order.', 'error')
+            flash('You have no approved items to order. Cannot place an order.', 'error')
             return redirect(url_for('user.cart'))
 
         for item in cart_items:
@@ -532,11 +890,19 @@ def place_order():
         total_amount = sum(Decimal(item['size_price']) * item['quantity'] for item in cart_items)
         
         user = db.fetchone("SELECT * FROM tbl_user WHERE login_id = %s", (user_id,))
-        if not user or not all([user.get('id'), user.get('shipping_address')]):
-            flash('Please complete your shipping details before placing an order.', 'error')
-            return redirect(url_for('user.user_details'))
 
-        bank_details = { 'account_number': '1234567890', 'bank_name': 'Example Bank', 'ifsc_code': 'EXMP0001234', 'account_holder': 'Admin Name' }
+        if not user or not user.get('id') or not user.get('shipping_address'):
+            flash('Please complete your shipping details before placing an order.', 'error')
+            return redirect(url_for('user.checkout'))
+
+        bank_details = {
+            'account_number': '176-8-90907-1',
+            'bank_name': 'KASIKORNBANK',
+            'swift_code': 'KASITHBK',
+            'account_name': 'Arunrat Changtongmadun',
+            'bank_address': '919/1 ROOMJEWELRYTRADE CENTER BUILDINGSILOM ROAD SILOM. BANGRAKBANGKOK 10500 THAILAND',
+            'wise_email': 'spinel.aurora@gmail.com'
+        }
         
         if request.method == 'POST':
             query_master = """
@@ -548,26 +914,19 @@ def place_order():
 
             if not purchase_id or isinstance(purchase_id, Exception):
                 flash('A critical error occurred while creating your order. Please try again.', 'error')
-                return redirect(url_for('user.place_order'))
+                return redirect(url_for('user.checkout'))
                 
             try:
                 if 'payment_screenshot' in request.files:
                     file = request.files['payment_screenshot']
                     if file and allowed_file(file.filename):
                         filename = secure_filename(f"{user_id}_{purchase_id}_{file.filename}")
-                        # This saves to the correct physical path: 'app/static/uploads/...'
                         file.save(os.path.join(UPLOAD_FOLDER, filename))
-                        
-                        # <<< THE FIX IS HERE >>>
-                        # We create the URL path, which should start from '/static/', not '/app/static/'
                         screenshot_path = f"/static/uploads/{filename}"
-                        
-                        # Now, the correct URL path is saved to the database
                         db.execute("UPDATE tbl_purchase_master SET payment_image = %s WHERE id = %s", (screenshot_path, purchase_id))
                     elif file:
                         raise ValueError("Invalid file format. Please upload a PNG, JPG, or JPEG.")
 
-                # ... (The rest of your code for inserting child records and updating stock is correct)
                 for item in cart_items:
                     unit_prize = Decimal(item['size_price'])
                     quantity = item['quantity']
@@ -578,19 +937,33 @@ def place_order():
                     """
                     params_child = (purchase_id, item['product_size_id'], quantity, unit_prize, total_prize, total_prize)
                     db.execute(query_child, params_child)
-                    db.execute("UPDATE tbl_stock SET stock_count = stock_count - %s, purchase_count = purchase_count + %s WHERE product_size_id = %s",
-                               (quantity, quantity, item['product_size_id']))
+                    
+                    db.execute("UPDATE tbl_stock SET purchase_count = purchase_count + %s WHERE product_size_id = %s",
+                              (quantity, item['product_size_id']))
                 
                 initial_tracking_query = "INSERT INTO tbl_tracking (purchase_id, status, date) VALUES (%s, %s, NOW())"
                 db.execute(initial_tracking_query, (purchase_id, 'Order Placed'))
                 
-                db.execute("DELETE FROM tbl_cart WHERE login_id = %s", (user_id,))
+                db.execute("DELETE FROM tbl_cart WHERE login_id = %s AND status = 'approved'", (user_id,))
                 
+                # --- START: NEW ADMIN NOTIFICATION CODE ---
+                try:
+                    user_email = user.get('email', 'A user')
+                    notification_message = f"New Order #{purchase_id} was placed by {user_email}."
+                    notification_link = url_for('admin.order_details', id=purchase_id)
+                    
+                    db.execute(
+                        "INSERT INTO tbl_admin_notifications (message, link_url) VALUES (%s, %s)",
+                        (notification_message, notification_link)
+                    )
+                except Exception as e:
+                    print(f"--- FAILED TO CREATE ADMIN NOTIFICATION (ORDER): {e} ---")
+                # --- END: NEW ADMIN NOTIFICATION CODE ---
+
                 flash('Order placed successfully! It will appear in your history after payment verification.', 'success')
                 return redirect(url_for('user.order_history'))
 
             except Exception as e:
-                # Rollback logic is fine
                 db.execute("DELETE FROM tbl_tracking WHERE purchase_id = %s", (purchase_id,))
                 db.execute("DELETE FROM tbl_purchase_child WHERE purchase_id = %s", (purchase_id,))
                 db.execute("DELETE FROM tbl_purchase_master WHERE id = %s", (purchase_id,))
@@ -770,3 +1143,119 @@ def logout():
     session.pop('user', None)
     flash('Logged out successfully', 'success')
     return redirect(url_for('user.user_login'))
+
+@user_bp.route('/about')
+def about():
+    return render_template('user/about.html')
+
+@user_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        try:
+            # Get data from the contact form
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            email = request.form.get('email')
+            message = request.form.get('message')
+            
+            # Combine first and last name
+            full_name = f"{first_name} {last_name}".strip()
+
+            if not all([full_name, email, message]):
+                flash('Please fill out all required fields.', 'error')
+                return redirect(url_for('user.contact'))
+
+            # Insert into the new inquiries table
+            query = """
+                INSERT INTO tbl_inquiries (type, name, email, message)
+                VALUES (%s, %s, %s, %s)
+            """
+            db.execute(query, ('Contact', full_name, email, message))
+
+            flash('Thank you for your message! We will get back to you soon.', 'success')
+            return redirect(url_for('user.contact'))
+
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+            return redirect(url_for('user.contact'))
+    
+    # This is the original GET request logic
+    return render_template('user/contact.html')
+
+@user_bp.route('/subscribe', methods=['POST'])
+def subscribe():
+    try:
+        # Get data from the subscription form
+        name = request.form.get('name')
+        email = request.form.get('email')
+
+        if not all([name, email]):
+            flash('Please provide both name and email to subscribe.', 'error')
+            # Redirect user back to the page they came from
+            return redirect(request.referrer or url_for('user.user_home'))
+
+        # Insert into the new inquiries table
+        query = """
+            INSERT INTO tbl_inquiries (type, name, email)
+            VALUES (%s, %s, %s)
+        """
+        db.execute(query, ('Subscription', name, email))
+        
+        flash('Thank you for subscribing to our newsletter!', 'success')
+        return redirect(request.referrer or url_for('user.user_home'))
+
+    except Exception as e:
+        flash(f'An error occurred during subscription: {str(e)}', 'error')
+        return redirect(request.referrer or url_for('user.user_home'))
+    
+@user_bp.route('/notify-me', methods=['POST'])
+def notify_admin_stock():
+    # Ensure user is logged in to make a request
+    if 'user' not in session:
+        flash('Please log in to request a stock notification.', 'warning')
+        return redirect(url_for('user.user_login'))
+
+    try:
+        login_id = session['user']
+        product_size_id = request.form.get('product_size_id')
+
+        if not product_size_id:
+            flash('Invalid product selection for notification.', 'error')
+            return redirect(request.referrer or url_for('user.products'))
+
+        # Query to get user and product details for a clear notification message
+        query = """
+            SELECT u.email, p.name as product_name, ps.size
+            FROM tbl_login u, tbl_product_size ps
+            JOIN tbl_product p ON ps.product_id = p.id
+            WHERE u.id = %s AND ps.id = %s
+        """
+        details = db.fetchone(query, (login_id, product_size_id))
+
+        if not details:
+            flash('Could not find details for the notification request.', 'error')
+            return redirect(request.referrer)
+        
+        # Create a detailed message for the admin
+        user_email = details['email']
+        product_name = details['product_name']
+        product_size_label = f"(Size: {details['size']})" if details['size'] else ""
+        
+        notification_message = f"User {user_email} requested a stock alert for: {product_name} {product_size_label}."
+        
+        # Link to the admin's general stock management page
+        notification_link = url_for('admin.admin_update_stock', _external=True)
+
+        # Insert the notification into the database
+        db.execute(
+            "INSERT INTO tbl_admin_notifications (message, link_url) VALUES (%s, %s)",
+            (notification_message, notification_link)
+        )
+
+        flash('Thank you! The admin has been notified. We will contact you when the item is back in stock.', 'success')
+
+    except Exception as e:
+        print(f"--- ERROR in notify_admin_stock: {e} ---")
+        flash('An error occurred while sending the notification.', 'error')
+
+    return redirect(request.referrer or url_for('user.products'))

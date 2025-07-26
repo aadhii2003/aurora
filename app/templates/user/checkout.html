@@ -3,9 +3,9 @@
 {% block content %}
 <div class="untree_co-section">
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h2 class="h3 mb-3 text-black">Checkout</h2>
+    <div class="row mb-4">
+      <div class="col-md-12 text-center">
+        <h2 class="h3 text-light">Complete Your Order</h2>
       </div>
     </div>
     
@@ -24,353 +24,209 @@
       {% endif %}
     {% endwith %}
 
-    {% if cart_items %}
-      <!-- Custom CSS for Mobile Responsiveness -->
-      <style>
-        /* General styling */
-        h2.h3 {
-          font-size: 1.8rem;
-        }
-
-        .card {
-          border-radius: 8px;
-          margin-bottom: 20px;
-        }
-
-        .card-header h4 {
-          font-size: 1.4rem;
-        }
-
-        /* Table styling */
-        .table {
-          font-size: 0.9rem;
-        }
-
-        .table th, .table td {
-          padding: 10px;
-          vertical-align: middle;
-        }
-
-        .table img {
-          width: 80px;
-          height: 80px;
-          object-fit: cover;
-        }
-
-        .table h5 {
-          font-size: 1.1rem;
-        }
-
-        .table p {
-          font-size: 0.85rem;
-        }
-
-        /* Order summary styling */
-        .list-group-item {
-          font-size: 0.9rem;
-          padding: 10px 0;
-        }
-
-        .list-group-item span.h5 {
-          font-size: 1.2rem;
-        }
-
-        .card.bg-light {
-          font-size: 0.9rem;
-        }
-
-        .card.bg-light i {
-          font-size: 1.5rem;
-        }
-
-        .btn-lg {
-          font-size: 1rem;
-          padding: 10px 20px;
-        }
-
-        /* Empty cart styling */
-        .card.p-5 {
-          padding: 20px !important;
-        }
-
-        .card.p-5 h3 {
-          font-size: 1.5rem;
-        }
-
-        .card.p-5 p {
-          font-size: 0.9rem;
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 767.98px) {
-          h2.h3 {
-            font-size: 1.5rem;
-            text-align: center;
-          }
-
-          .row {
-            flex-direction: column;
-          }
-
-          .col-lg-8, .col-lg-4, .col-md-12, .col-md-6 {
-            width: 100%;
-            margin-bottom: 20px;
-          }
-
-          /* Table to card layout */
-          .table-responsive {
-            border: none;
-          }
-
-          .table thead {
-            display: none; /* Hide table headers on mobile */
-          }
-
-          .table tbody tr {
-            display: block;
-            margin-bottom: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-          }
-
-          .table tbody td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border: none;
-            font-size: 0.85rem;
-          }
-
-          .table tbody td::before {
-            content: attr(data-label);
-            font-weight: bold;
-            margin-right: 10px;
-            flex: 0 0 40%;
-          }
-
-          .table tbody td .d-flex {
-            flex-direction: column;
-            align-items: flex-start;
-            width: 100%;
-          }
-
-          .table tbody td .d-flex img {
-            margin-bottom: 10px;
-            width: 60px;
-            height: 60px;
-          }
-
-          .table tbody td .d-flex .ms-3 {
-            margin-left: 0;
-          }
-
-          .table tbody td.text-center, .table tbody td.text-end {
-            justify-content: space-between;
-            text-align: left !important;
-          }
-
-          /* Order summary */
-          .card-header h4 {
-            font-size: 1.2rem;
-            text-align: center;
-          }
-
-          .list-group-item {
-            font-size: 0.85rem;
-          }
-
-          .list-group-item span.h5 {
-            font-size: 1.1rem;
-          }
-
-          .card.bg-light {
-            font-size: 0.85rem;
-            padding: 15px !important;
-          }
-
-          .card.bg-light i {
-            font-size: 1.3rem;
-          }
-
-          .btn-lg {
-            width: 100%;
-            font-size: 0.9rem;
-            padding: 8px 15px;
-          }
-
-          /* Empty cart */
-          .card.p-5 {
-            padding: 15px !important;
-          }
-
-          .card.p-5 h3 {
-            font-size: 1.3rem;
-          }
-
-          .card.p-5 p {
-            font-size: 0.85rem;
-          }
-        }
-
-        @media (max-width: 575.98px) {
-          h2.h3 {
-            font-size: 1.3rem;
-          }
-
-          .table tbody td {
-            font-size: 0.8rem;
-          }
-
-          .table tbody td::before {
-            flex: 0 0 50%;
-          }
-
-          .table tbody td .d-flex img {
-            width: 50px;
-            height: 50px;
-          }
-
-          .table h5 {
-            font-size: 1rem;
-          }
-
-          .table p {
-            font-size: 0.8rem;
-          }
-
-          .list-group-item {
-            font-size: 0.8rem;
-          }
-
-          .list-group-item span.h5 {
-            font-size: 1rem;
-          }
-
-          .card.bg-light {
-            font-size: 0.8rem;
-          }
-
-          .card.bg-light i {
-            font-size: 1.2rem;
-          }
-
-          .btn-lg {
-            font-size: 0.85rem;
-            padding: 6px 12px;
-          }
-
-          .card.p-5 h3 {
-            font-size: 1.2rem;
-          }
-
-          .card.p-5 p {
-            font-size: 0.8rem;
-          }
-        }
-      </style>
-
-      <div class="row">
-        <!-- Left Column: Cart Items -->
-        <div class="col-lg-8">
-          <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white py-3">
-              <h4 class="mb-0">Review Your Order ({{ cart_items|length }} items)</h4>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-borderless table-hover align-middle">
-                  <thead>
-                    <tr>
-                      <th class="py-3">Product</th>
-                      <th class="text-center py-3">Quantity</th>
-                      <th class="text-end py-3">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in cart_items %}
-                      <tr>
-                        <td data-label="Product">
-                          <div class="d-flex align-items-center">
-                            <a href="{{ url_for('user.product_detail', id=item.product_id) }}">
-                              <img src="{{ url_for('static', filename=item.images_list[0]) if item.images_list else url_for('static', filename='user/images/product-1.png') }}" class="img-fluid rounded" alt="{{ item.product_name }}">
-                            </a>
-                            <div class="ms-3">
-                              <h5 class="mb-1 fw-bold">{{ item.product_name }}</h5>
-                              <p class="mb-0 text-muted">Size: {{ item.size }}</p>
-                              <p class="mb-0 text-muted">Price: ${{ '%.2f'|format(item.size_price) }}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td data-label="Quantity" class="text-center">{{ item.quantity }}</td>
-                        <td data-label="Subtotal" class="text-end fw-bold">${{ '%.2f'|format(item.size_price * item.quantity) }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Order Summary -->
-        <div class="col-lg-4">
-          <div class="card shadow-sm">
-            <div class="card-header bg-white py-3">
-              <h4 class="mb-0">Order Summary</h4>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-2">
-                  <span>Subtotal</span>
-                  <span>${{ '%.2f'|format(total_amount) }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-2">
-                  <span>Shipping <i class="bi bi-info-circle text-muted"></i></span>
-                  <span class="text-success">Free</span>
-                </li>
-              </ul>
-              
-              <hr class="my-3">
-
-              <div class="d-flex justify-content-between align-items-center fw-bold px-0 mb-3">
-                <span class="h5">Total</span>
-                <span class="h5">${{ '%.2f'|format(total_amount) }}</span>
-              </div>
-              
-              <!-- Trust & Security Block -->
-              <div class="card bg-light border-0 p-3 text-center mb-4">
-                <p class="mb-2 fw-bold"><i class="bi bi-shield-lock-fill me-1"></i> Secure Checkout</p>
-                <div class="d-flex justify-content-center" style="font-size: 1.5rem;">
-                  <i class="bi bi-credit-card-2-front mx-1" title="Visa/Mastercard"></i>
-                  <i class="bi bi-paypal mx-1" title="PayPal"></i>
+    <!-- ===== UNIFIED CHECKOUT CONTAINER ===== -->
+    <div class="card checkout-container p-4 p-lg-5">
+        <div class="row">
+            <!-- ===== LEFT COLUMN: SHIPPING DETAILS (col-lg-7) ===== -->
+            <div class="col-lg-7 mb-5 mb-lg-0">
+                <div class="checkout-step-header mb-4">
+                    <span class="step-icon">1</span>
+                    <h4 class="mb-0">Shipping Details</h4>
                 </div>
-              </div>
 
-              <a href="{{ url_for('user.user_details') }}" class="btn btn-primary btn-lg w-100">
-                Proceed to Details
-              </a>
+                {% if user and user.first_name and user.shipping_address %}
+                <!-- START: Display Existing Details -->
+                <div class="details-summary-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="text-muted small mb-0">Your order will be shipped to this address.</p>
+                        <a href="#edit-form" class="btn btn-outline-secondary btn-sm flex-shrink-0" onclick="document.getElementById('edit-form').style.display='block'; this.closest('.details-summary-card').style.display='none';">
+                            <i class="fas fa-pen me-1"></i> Change
+                        </a>
+                    </div>
+                    <div class="details-grid">
+                        <div class="details-item"><span class="details-label">Name</span><span class="details-value">{{ user.first_name }} {{ user.last_name }}</span></div>
+                        <div class="details-item"><span class="details-label">Phone</span><span class="details-value">{{ user.phone_number }}</span></div>
+                        <div class="details-item full-span"><span class="details-label">Address</span><span class="details-value">{{ user.shipping_address }}</span></div>  
+                        <div class="details-item"><span class="details-label">City</span><span class="details-value">{{ user.city }}</span></div>
+                        <div class="details-item"><span class="details-label">Location</span><span class="details-value"> {{ user.state }}</span></div>
+                        <div class="details-item"><span class="details-label">Pincode</span><span class="details-value">{{ user.pincode }}</span></div>
+                        <div class="details-item"><span class="details-label">Country</span><span class="details-value">{{ user.country }}</span></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">Please add your shipping details to proceed.</div>
+                {% endif %}
+
+                <!-- START: Form for Adding/Editing Details -->
+                <div id="edit-form" style="{% if user and user.first_name and user.shipping_address %}display: none;{% else %}display: block;{% endif %}">
+                    <form method="POST" action="{{ url_for('user.checkout') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label for="first_name" class="form-label">First Name</label><input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required></div>
+                            <div class="col-md-6 mb-3"><label for="last_name" class="form-label">Last Name</label><input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required></div>
+                        </div>
+                        <div class="mb-3"><label for="shipping_address" class="form-label">Address</label><textarea class="form-control" id="shipping_address" name="shipping_address" rows="2" required>{{ user.shipping_address or '' }}</textarea></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label for="city" class="form-label">City</label><input type="text" class="form-control" id="city" name="city" value="{{ user.city or '' }}" required></div>
+                            <div class="col-md-6 mb-3"><label for="pincode" class="form-label">Pincode / Zip</label><input type="text" class="form-control" id="pincode" name="pincode" value="{{ user.pincode or '' }}" required></div>
+                        </div>
+                        
+                        <!-- ===== START: DYNAMIC COUNTRY & STATE WITH DATALIST ===== -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="country" class="form-label">Country (Select or Type)</label>
+                                <input class="form-control" list="country-list" id="country" name="country" value="{{ user.country or '' }}" placeholder="Search for country..." required>
+                                <datalist id="country-list">
+                                    {% for country_obj in countries_data %}
+                                        <option value="{{ country_obj.country }}">
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label">State / Province (Select or Type)</label>
+                                <input class="form-control" list="state-list" id="state" name="state" value="{{ user.state or '' }}" placeholder="Select country first..." required>
+                                <datalist id="state-list">
+                                    <!-- States will be populated by JavaScript -->
+                                </datalist>
+                            </div>
+                        </div>
+                        <!-- ===== END: DYNAMIC COUNTRY & STATE ===== -->
+
+                        <div class="mb-3"><label for="phone_number" class="form-label">Phone Number</label><input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" required></div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                            {% if user and user.first_name %}
+                            <i class="fas fa-save me-1"></i> Update Details
+                            {% else %}
+                            Save and Continue <i class="fas fa-arrow-right ms-1"></i>
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    {% else %}
-      <!-- Empty Cart View -->
-      <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-          <div class="card p-5 shadow-sm">
-            <h3 class="mb-3">Your Cart is Empty</h3>
-            <p class="text-muted">Looks like you haven't added anything to your cart yet.</p>
-            <div class="mt-4">
-              <a href="{{ url_for('user.products') }}" class="btn btn-primary">Continue Shopping</a>
+
+            <!-- ===== RIGHT COLUMN: ORDER SUMMARY (col-lg-5) ===== -->
+            <div class="col-lg-5">
+                <div class="order-summary-panel">
+                    <div class="checkout-step-header mb-4">
+                        <span class="step-icon">2</span>
+                        <h4 class="mb-0">Order Summary</h4>
+                    </div>
+                    <ul class="list-unstyled order-summary-items mb-4">
+                        {% for item in cart_items %}
+                        <li class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename=item.images_list[0]) if item.images_list else url_for('static', filename='user/images/product-1.png') }}" alt="{{ item.product_name }}" class="img-fluid me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ item.product_name }}</h6>
+                                <small class="text-muted">Size: {{ item.size }} × {{ item.quantity }}</small>
+                            </div>
+                            <div class="text-end fw-bold">${{ '%.2f'|format(item.size_price * item.quantity) }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="order-summary-totals">
+                        <div class="d-flex justify-content-between mb-2"><span>Subtotal</span><span>${{ '%.2f'|format(total_amount) }}</span></div>
+                        <div class="d-flex justify-content-between mb-3"><span>Shipping</span><span class="text-success fw-bold">Free</span></div>
+                        <div class="final-total d-flex justify-content-between h5 fw-bold pt-3"><span>Total</span><span>${{ '%.2f'|format(total_amount) }}</span></div>
+                    </div>
+                    {% if user and user.first_name %}
+                    <div class="mt-4">
+                        <a href="{{ url_for('user.place_order') }}" class="btn btn-primary btn-lg w-100">
+                            Proceed to Payment
+                        </a>
+                        <div class="secure-badge mt-3">
+                            <i class="fas fa-lock me-2"></i> Secure SSL Encrypted Checkout
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    {% endif %}
+    </div>
   </div>
 </div>
+
+<!-- START: Custom CSS (Unchanged) -->
+<style>
+  h2, h4 { color: #F1F5F9; font-weight: 600; } .text-muted { color: #94A3B8 !important; }
+  .checkout-container { background-color: #1E293B; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .checkout-step-header { display: flex; align-items: center; gap: 0.75rem; }
+  .step-icon { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: #3B82F6; color: #fff; font-weight: bold; font-size: 1rem; }
+  .details-summary-card { background-color: #334155; padding: 1.25rem; border-radius: 8px; }
+  .details-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem 1.5rem; }
+  .details-item.full-span { grid-column: 1 / -1; }
+  .details-label { font-size: 0.8rem; color: #94A3B8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .details-value { font-size: 0.95rem; color: #F1F5F9; line-height: 1.4; }
+  .form-label { color: #cbd5e1; font-weight: 500; font-size: 0.9rem; }
+  .form-control, .form-select { background-color: #334155; color: #F1F5F9; border: 1px solid #475569; padding: 0.75rem 1rem; border-radius: 6px; }
+  .form-control:focus, .form-select:focus { background-color: #334155; border-color: #3B82F6; box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25); }
+  .order-summary-panel { background-color: #0F172A; padding: 1.5rem; border-radius: 8px; height: 100%; position: sticky; top: 2rem; }
+  .order-summary-items li { padding: 1rem 0; border-bottom: 1px solid #334155; }
+  .order-summary-items li:first-child { padding-top: 0; } .order-summary-items li:last-child { border-bottom: none; }
+  .order-summary-items img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+  .order-summary-items h6 { font-size: 0.95rem; }
+  .order-summary-totals span { color: #cbd5e1; }
+  .final-total { border-top: 1px solid #475569; color: #F1F5F9; } .final-total span { color: inherit; }
+  .secure-badge { text-align: center; color: #64748B; font-size: 0.8rem; } .secure-badge .fa-lock { color: #4ADE80; }
+  @media (max-width: 991.98px) { .order-summary-panel { position: static; } .details-grid { grid-template-columns: 1fr; } }
+</style>
+<!-- END: Custom CSS -->
+
+
+<!-- ===== START: REVISED JAVASCRIPT FOR DATALIST ===== -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Embed the country data from Flask into JavaScript.
+        const countriesData = {{ countries_data|tojson }};
+        
+        // Get references to the new input fields and datalists
+        const countryInput = document.getElementById('country');
+        const stateInput = document.getElementById('state');
+        const stateDatalist = document.getElementById('state-list');
+        
+        // This is the user's saved state from the database, if it exists.
+        const savedState = "{{ user.state or '' }}";
+
+        function updateStates(selectedCountryName) {
+            // Find the selected country object from our data
+            const selectedCountry = countriesData.find(c => c.country === selectedCountryName);
+            
+            // Clear previous state options from the datalist
+            stateDatalist.innerHTML = '';
+
+            // If a valid country with states is found, populate the datalist
+            if (selectedCountry && selectedCountry.states && selectedCountry.states.length > 0) {
+                stateInput.disabled = false;
+                stateInput.placeholder = "Select or type state...";
+                
+                selectedCountry.states.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    stateDatalist.appendChild(option);
+                });
+            } else {
+                // If country not found or has no states, still enable the input for typing
+                stateInput.disabled = false;
+                stateInput.placeholder = "Type state/province/region";
+            }
+        }
+
+        // --- Event Listener ---
+        // Use the 'input' event, which fires on both typing and selecting from the list.
+        countryInput.addEventListener('input', function() {
+            // Clear the state input whenever the country changes
+            stateInput.value = '';
+            updateStates(this.value);
+        });
+
+        // --- Initial Population ---
+        // When the page loads, check if a country is already set (e.g., from DB)
+        // If so, trigger the update function to populate the states datalist immediately.
+        if (countryInput.value) {
+            updateStates(countryInput.value);
+            // The state value is already set by Jinja, so we don't need to set it again here.
+        }
+    });
+</script>
+<!-- ===== END: JAVASCRIPT ===== -->
+
 {% endblock %}

@@ -1,267 +1,222 @@
 {% extends "user/base.html" %}
 
 {% block content %}
-<!-- Add CSS for the image zoom library and custom styles -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drift-zoom@1.3.1/dist/drift-basic.min.css">
-<!-- Bootstrap JS for Tabs (if not already in base.html) -->
+<!-- External libraries -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/drift-zoom@1.5.1/dist/drift-basic.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
-  /* --- General Page & Gallery Styles --- */
-  .untree_co-section { padding-top: 50px; padding-bottom: 50px; }
-  .product-gallery { display: flex; gap: 15px; }
-  .thumbnails-col { flex: 0 0 80px; display: flex; flex-direction: column; gap: 10px; }
-  .thumbnail-img { width: 100%; border: 2px solid #eee; cursor: pointer; transition: border-color 0.3s; }
-  .thumbnail-img:hover, .thumbnail-img.active { border-color: #3b5d50; }
-  .main-image-container { flex: 1; border: 1px solid #ddd; position: relative; overflow: hidden; }
-  .main-product-image { width: 100%; height: auto; display: block; }
-
-  /* --- Improved Product Details Styling --- */
-  .product-details .product-title { font-size: 2.2rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .product-details .price { font-size: 2.1rem; color: #c7a17a; font-weight: bold; margin-bottom: 25px; }
-  .breadcrumb-item a { color: #888; text-decoration: none; }
-  .breadcrumb-item.active { color: #222; }
-
-  /* Key Features Section */
-  .product-key-features {
-    list-style: none; padding: 0; margin: 20px 0;
-    border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0;
-  }
-  .key-feature-item { padding: 5px 0; display: flex; font-size: 0.95rem; }
-  .key-feature-item strong { color: #333; font-weight: 500; width: 100px; }
-  .key-feature-item span { color: #666; }
-
-  /* Attributes table for dynamic content (Weight/Size) */
-  .product-attributes-table { margin: 25px 0; font-size: 1rem; width: 100%; }
-  .product-attributes-table th { width: 100px; color: #6c757d; font-weight: 400; text-align: left; padding-right: 15px; vertical-align: top; }
-  .product-attributes-table td { padding: 8px 0; font-weight: 500; color: #212529; }
-  .color-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle; margin-right: 8px; }
+  /* ---
+  * PRODUCT DETAIL THEME: Cosmic Glow Integration
+  --- */
+  .untree_co-section { padding-top: 50px; padding-bottom: 50px; color: #E2E8F0; }
   
-  /* Tab Section Styles */
-  .product-info-tabs { margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; }
-  .product-info-tabs .nav-tabs { border-bottom: 2px solid #dee2e6; }
-  .product-info-tabs .nav-link { color: #3b5d50; font-weight: 500; border: 0; border-bottom: 2px solid transparent; }
-  .product-info-tabs .nav-link.active, .product-info-tabs .nav-link:hover { color: #2f4a40; border-color: #3b5d50; background-color: transparent; }
-  .product-info-tabs .tab-content { padding: 30px 5px; font-size: 1rem; color: #555; line-height: 1.7; }
-  .additional-info-table { width: 100%; border-collapse: collapse; }
-  .additional-info-table th { width: 150px; font-weight: 500; color: #333; }
-  .additional-info-table td, .additional-info-table th { padding: 12px 5px; text-align: left; border-bottom: 1px solid #eee; }
-  .additional-info-table tbody tr:nth-child(odd) { background-color: #f8f9fa; }
+  /* Gallery Styles */
+  .product-gallery { display: flex; gap: 15px; }
+  .thumbnails-col { flex: 0 0 80px; display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto; }
+  .thumbnail-img { width: 100%; border: 2px solid #334155; border-radius: 8px; cursor: pointer; transition: border-color 0.3s; display: block; }
+  .thumbnail-img:hover, .thumbnail-img.active { border-color: #00D9C0; }
+  .thumbnail-container.video-thumb::after { content: '►'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; background-color: rgba(0, 0, 0, 0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  
+  .main-image-container { flex: 1; border: 1px solid #334155; border-radius: 12px; position: relative; overflow: hidden; background-color: #0F172A; aspect-ratio: 1 / 1; }
+  .main-product-image, .main-product-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+  .main-product-video { background-color: #000; }
+  
+  /* Details Styles */
+  .product-details .product-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+  .product-details .price { font-size: 2.2rem; color: #00D9C0; font-weight: bold; margin-bottom: 25px; }
+  .breadcrumb-item a { color: #94A3B8; text-decoration: none; }
+  .breadcrumb-item a:hover { color: #00D9C0; }
 
-  /* WhatsApp Button */
-  .whatsapp-fab { position: fixed; bottom: 20px; right: 20px; background-color: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; text-decoration: none; }
-  .whatsapp-fab:hover { color: white; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+  /* Attributes Table Styles */
+  .product-attributes-table th { width: 100px; color: #94A3B8; font-weight: 400; text-align: left; padding-right: 15px; vertical-align: top; }
+  .product-attributes-table td { padding: 8px 0; font-weight: 600; color: #E2E8F0; }
+  .color-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #475569; vertical-align: middle; margin-right: 8px; }
+  
+  /* Meta/Tags Section */
+  .product-meta { border-top: 1px solid #334155; margin-top: 30px; padding-top: 20px; font-size: 0.9rem; }
+  .product-meta-item strong { color: #94A3B8; min-width: 90px; display: inline-block; }
+  .product-meta-item span, .product-meta-item a { color: #E2E8F0; text-decoration: none; transition: color .3s; }
+  .product-meta-item a:hover { color: #00D9C0; }
+
+  /* Info Tabs */
+  .product-info-tabs { margin-top: 50px; border-top: 1px solid #334155; padding-top: 20px; }
+  .nav-tabs .nav-link { background-color: transparent; border-color: #334155; color: #94A3B8; }
+  .nav-tabs .nav-link.active { background-color: #1E293B; border-color: #334155; color: #ffffff; }
+  .tab-content { color: #94A3B8; padding: 20px 0; }
+  .additional-info-table th { color: #94A3B8; }
+  .additional-info-table td { color: #E2E8F0; }
+
+  /* --- MODIFIED: Styles for Cart & Notify Buttons --- */
+  .btn-action-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .btn-action-group .btn {
+    flex-grow: 1; /* Makes both buttons take up available space */
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
 </style>
 
 <div class="untree_co-section">
   <div class="container">
     {% if product %}
       <div class="row">
-        <!-- Left Column: Image Gallery -->
+        <!-- Left Column: Image & Video Gallery -->
         <div class="col-lg-6 mb-5 mb-lg-0">
           <div class="product-gallery">
             <div class="thumbnails-col">
-              {% if product.images_list %}
-                {% for image_url in product.images_list %}
-                <img src="/static/{{ image_url }}" alt="Thumbnail {{ loop.index }}" class="thumbnail-img {% if loop.first %}active{% endif %}" onclick="changeImage(this, '/static/{{ image_url }}')">
-                {% endfor %}
-              {% else %}
-                <img src="/static/user/images/default-product.png" alt="Default Thumbnail" class="thumbnail-img active">
-              {% endif %}
+              {% for image_url in product.images_list %}<div class="thumbnail-container"><img src="/static/{{ image_url }}" alt="Thumbnail {{ loop.index }}" class="thumbnail-img {% if loop.first %}active{% endif %}" data-type="image" data-src="/static/{{ image_url }}" onclick="changeMedia(this)"></div>{% endfor %}
+              {% for video_url in product.videos_list %}<div class="thumbnail-container video-thumb"><img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}" alt="Video Thumbnail" class="thumbnail-img" data-type="video" data-src="/static/{{ video_url }}" onclick="changeMedia(this)"></div>{% endfor %}
             </div>
             <div class="main-image-container">
-              <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}"
-                   class="main-product-image"
-                   data-zoom="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}"
-                   alt="{{ product.name }}">
+              <img src="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}" class="main-product-image" id="main-product-image" data-zoom="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}" alt="{{ product.name }}">
+              <video src="" class="main-product-video" id="main-product-video" poster="/static/{{ product.images_list[0] if product.images_list else 'user/images/default-product.png' }}" controls loop muted playsinline style="display: none;"></video>
             </div>
           </div>
         </div>
 
         <!-- Right Column: Product Details -->
         <div class="col-lg-6 product-details">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb bg-transparent p-0 mb-2">
-              <li class="breadcrumb-item"><a href="{{ url_for('user.user_home') }}">Home</a></li>
-              <li class="breadcrumb-item"><a href="#">{{ product.category_name }}</a></li>
-              <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-            </ol>
+          <nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent p-0 mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('user.user_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">{{ product.category_name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li></ol>
           </nav>
-
           <h1 class="product-title">{{ product.name }}</h1>
           <p class="price" id="display-price">$0.00</p>
           
-          <form method="POST" action="{{ url_for('user.cart') }}">
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-
-            <table class="product-attributes-table">
-              <tbody>
-                <tr>
-                  <th>Weight:</th>
-                  <td><span id="display-weight">N/A</span> <span id="display-weight-unit" class="text-muted ms-1"></span></td>
-                </tr>
-                <tr>
-                  <th>Size:</th>
-                  <td><span id="display-size">N/A</span></td>
-                </tr>
-                {% if product.shape_name %}
-                <tr>
-                  <th>Shape:</th>
-                  <td>{{ product.shape_name }}</td>
-                </tr>
-                {% endif %}
-                {% if product.color_name %}
-                <tr>
-                  <th>Color:</th>
-                  <td>
-                    {% if product.color_hex_code %}
-                    <span class="color-swatch" style="background-color: {{ product.color_hex_code }};"></span>
-                    {% endif %}
-                    {{ product.color_name }}
-                  </td>
-                </tr>
-                {% endif %}
-              </tbody>
-            </table>
-
-            {% if sizes %}
-            <div class="mb-3">
-              <label for="product_size_id" class="form-label"><strong>Select Option:</strong></label>
-              <select name="product_size_id" id="product_size_id" class="form-select" required onchange="updateProductDetails()">
-                {% for size in sizes %}
-                  {% set available_stock = (size.stock_count or 0) - (size.purchase_count or 0) %}
-                  {% set is_out_of_stock = size.stock_count is none or available_stock <= 0 %}
-                  <option
-                    value="{{ size.id }}"
-                    data-price="{{ size.offer_prize or size.size_price or '0.00' }}"
-                    data-weight="{{ size.weight or 'N/A' }}"
-                    data-size="{{ size.size or 'N/A' }}"
-                    data-weight-unit="{{ size.weight_unit_name or '' }}" {# MODIFIED: Use correct alias #}
-                    {% if is_out_of_stock %}disabled{% endif %}>
-                      {{ size.size or 'Default' }} {% if is_out_of_stock %}(Out of Stock){% else %}({{ available_stock }} left){% endif %}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-            {% else %}
-               <input type="hidden" name="product_size_id" value="0">
-            {% endif %}
-
-            <div class="d-flex align-items-center my-4">
-              <label for="quantity" class="form-label me-3 mb-0"><strong>Quantity:</strong></label>
-              <input type="number" name="quantity" id="quantity" class="form-control" style="max-width: 80px;" min="1" value="1" required>
-            </div>
-            
-            <button type="submit" id="add-to-cart-btn" class="btn btn-primary btn-lg w-100">Add to Cart</button>
-            <p id="stock-message" class="text-danger mt-2" style="display: none;">This option is out of stock.</p>
-          </form>
-
+          <table class="product-attributes-table"><tbody>
+              <tr><th>Weight:</th><td><span id="display-weight">N/A</span> <span id="display-weight-unit" class="text-muted ms-1"></span></td></tr>
+              <tr><th>Size:</th><td><span id="display-size">N/A</span></td></tr>
+              {% if product.shape_name %}<tr><th>Shape:</th><td>{{ product.shape_name }}</td></tr>{% endif %}
+              {% if product.color_name %}<tr><th>Color:</th><td>{% if product.color_hex_code %}<span class="color-swatch" style="background-color: {{ product.color_hex_code }};"></span>{% endif %}{{ product.color_name }}</td></tr>{% endif %}
+          </tbody></table>
+          
+          {% if sizes %}
+          <div class="mb-3">
+            <label for="product_size_id" class="form-label"><strong>Select Option:</strong></label>
+            <select name="product_size_id" id="product_size_id" class="form-select" required onchange="updateProductDetails()">
+              {% for size in sizes %}{% set available_stock = (size.stock_count or 0) - (size.purchase_count or 0) %}{% set is_out_of_stock = size.stock_count is none or available_stock <= 0 %}<option value="{{ size.id }}" data-price="{{ size.offer_prize or size.size_price or '0.00' }}" data-weight="{{ size.weight or 'N/A' }}" data-size="{{ size.size or 'N/A' }}" data-weight-unit="{{ size.weight_unit_name or '' }}" {% if is_out_of_stock %}disabled{% endif %}>{{ size.size or 'Default' }} {% if is_out_of_stock %}(Out of Stock){% else %}({{ available_stock }} left){% endif %}</option>{% endfor %}
+            </select>
+          </div>
+          {% endif %}
+          
+          <div class="my-4">
+              <div class="d-flex align-items-center gap-3">
+                  <!-- Quantity Selector -->
+                  <div class="d-flex align-items-center">
+                      <label for="quantity" class="form-label mb-0 me-2" style="white-space: nowrap;"><strong>Quantity:</strong></label>
+                      <input type="number" id="quantity" class="form-control" style="width: 80px;" min="1" value="1" required>
+                  </div>
+                  
+                  <!-- Button Group Container -->
+                  <div class="btn-action-group flex-grow-1">
+                      <form method="POST" action="{{ url_for('user.cart') }}" id="add-to-cart-form" class="w-100">
+                          <input type="hidden" name="product_id" value="{{ product.id }}">
+                          <input type="hidden" name="product_size_id" id="cart_product_size_id">
+                          <input type="hidden" name="quantity" id="cart_quantity">
+                          <button type="submit" id="add-to-cart-btn" class="btn btn-primary w-100">Add to Cart</button>
+                      </form>
+                      
+                      <form method="POST" action="{{ url_for('user.notify_admin_stock') }}" id="notify-me-form" class="w-100" style="display: none;">
+                          <input type="hidden" name="product_size_id" id="notify_product_size_id">
+                          <button type="submit" class="btn btn-secondary w-100">
+                              <i class="fas fa-bell"></i> Notify Me
+                          </button>
+                      </form>
+                  </div>
+              </div>
+              <p id="stock-message" class="text-danger mt-2" style="display: none;">This option is out of stock.</p>
+          </div>
         </div>
       </div>
-
-      <!-- TABS FOR DESCRIPTION AND ADDITIONAL DETAILS -->
-      <div class="row">
-        <div class="col-12">
-            <div class="product-info-tabs">
-                <ul class="nav nav-tabs" id="productTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-pane" type="button" role="tab" aria-controls="description-pane" aria-selected="true">Description</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="additional-info-tab" data-bs-toggle="tab" data-bs-target="#additional-info-pane" type="button" role="tab" aria-controls="additional-info-pane" aria-selected="false">Additional Information</button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="productTabContent">
-                    <div class="tab-pane fade show active" id="description-pane" role="tabpanel" aria-labelledby="description-tab">
-                        <p>{{ product.description|safe }}</p>
-                    </div>
-                    <div class="tab-pane fade" id="additional-info-pane" role="tabpanel" aria-labelledby="additional-info-tab">
-                        <table class="additional-info-table">
-                            <tbody>
-                                {% if product.sku %}<tr><th>SKU</th><td>{{ product.sku }}</td></tr>{% endif %}
-                                {% if product.dimensions %}<tr><th>Dimensions</th><td>{{ product.dimensions }}</td></tr>{% endif %}
-                                {% if product.cut %}<tr><th>Cut</th><td>{{ product.cut }}</td></tr>{% endif %}
-                                {% if product.clarity %}<tr><th>Clarity</th><td>{{ product.clarity }}</td></tr>{% endif %}
-                                {% if product.origin %}<tr><th>Origin</th><td>{{ product.origin }}</td></tr>{% endif %}
-                                {% if product.treatment %}<tr><th>Treatment</th><td>{{ product.treatment }}</td></tr>{% endif %}
-                                {% if product.certification %}<tr><th>Certification</th><td>{{ product.certification }}</td></tr>{% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-
     {% else %}
       <div class="alert alert-warning">Product not found.</div>
     {% endif %}
   </div>
 </div>
 
-<!-- Floating WhatsApp Button -->
-<a href="https://wa.me/YOUR_PHONE_NUMBER" class="whatsapp-fab" target="_blank" title="Contact us on WhatsApp">
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.89 7.89 0 0 0 13.6 2.326zM7.994 14.521a6.57 6.57 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-0.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
-</a>
+<script src="https://cdn.jsdelivr.net/npm/drift-zoom@1.5.1/dist/Drift.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/drift-zoom@1.3.1/dist/Drift.min.js"></script>
 <script>
-  // --- IMAGE GALLERY & ZOOM LOGIC ---
+  // RESTORED: All necessary JavaScript functions
+  const mainImageEl = document.getElementById('main-product-image');
+  const mainVideoEl = document.getElementById('main-product-video');
   let drift;
-  const mainImageEl = document.querySelector('.main-product-image');
-  if (mainImageEl) {
-    drift = new Drift(mainImageEl, { inlinePane: true, hoverBoundingBox: true, zoomFactor: 2 });
+
+  function initializeDrift() {
+    if (drift) { drift.destroy(); }
+    if (mainImageEl) {
+      drift = new Drift(mainImageEl, { inlinePane: true, hoverBoundingBox: true, zoomFactor: 2 });
+    }
   }
-  function changeImage(thumbnailElement, newImageSrc) {
-    const mainImage = document.querySelector('.main-product-image');
-    mainImage.src = newImageSrc;
-    mainImage.setAttribute('data-zoom', newImageSrc);
+
+  function changeMedia(thumbnailElement) {
+    const dataType = thumbnailElement.dataset.type;
+    const mediaSrc = thumbnailElement.dataset.src;
+    mainVideoEl.pause();
     document.querySelectorAll('.thumbnail-img').forEach(img => img.classList.remove('active'));
     thumbnailElement.classList.add('active');
+
+    if (dataType === 'image') {
+      mainImageEl.style.display = 'block';
+      mainVideoEl.style.display = 'none';
+      mainImageEl.src = mediaSrc;
+      mainImageEl.dataset.zoom = mediaSrc; // Update the zoom source
+      initializeDrift();
+    } else if (dataType === 'video') {
+      mainImageEl.style.display = 'none';
+      mainVideoEl.style.display = 'block';
+      if (drift) { drift.destroy(); drift = null; }
+      mainVideoEl.src = mediaSrc;
+      mainVideoEl.load();
+      const playPromise = mainVideoEl.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => { console.log("Autoplay prevented.", error); });
+      }
+    }
   }
 
-  // --- DYNAMIC PRODUCT DETAILS LOGIC ---
   function updateProductDetails() {
     const select = document.getElementById('product_size_id');
-    const priceEl = document.getElementById('display-price');
-    const weightEl = document.getElementById('display-weight');
-    const weightUnitEl = document.getElementById('display-weight-unit');
-    const sizeEl = document.getElementById('display-size');
-    const addToCartButton = document.getElementById('add-to-cart-btn');
-    const stockMessage = document.getElementById('stock-message');
-  
-    if (!select || select.selectedIndex < 0) {
-      priceEl.textContent = 'N/A';
-      weightEl.textContent = 'N/A';
-      weightUnitEl.textContent = '';
-      sizeEl.textContent = 'N/A';
-      if(addToCartButton) addToCartButton.disabled = true;
-      return;
-    }
+    if (!select || select.selectedIndex < 0) return;
     const selectedOption = select.options[select.selectedIndex];
     
-    // Update displayed details
-    const price = parseFloat(selectedOption.getAttribute('data-price') || 0).toFixed(2);
-    priceEl.textContent = `$${price}`;
-    weightEl.textContent = selectedOption.getAttribute('data-weight');
-    weightUnitEl.textContent = selectedOption.getAttribute('data-weight-unit');
-
-    // MODIFIED: Append 'cm' to the size if it exists
+    document.getElementById('display-price').textContent = `$${parseFloat(selectedOption.getAttribute('data-price') || 0).toFixed(2)}`;
+    document.getElementById('display-weight').textContent = selectedOption.getAttribute('data-weight');
+    document.getElementById('display-weight-unit').textContent = selectedOption.getAttribute('data-weight-unit');
     const sizeValue = selectedOption.getAttribute('data-size');
-    sizeEl.textContent = (sizeValue && sizeValue !== 'N/A') ? `${sizeValue} cm` : 'N/A';
+    document.getElementById('display-size').textContent = (sizeValue && sizeValue !== 'N/A') ? `${sizeValue} mm` : 'N/A';
     
-    // Handle stock status
+    // Update the hidden inputs for both forms
+    document.getElementById('cart_product_size_id').value = selectedOption.value;
+    document.getElementById('notify_product_size_id').value = selectedOption.value;
+
+    const addToCartForm = document.getElementById('add-to-cart-form');
+    const notifyMeForm = document.getElementById('notify-me-form');
+    const stockMessage = document.getElementById('stock-message');
+    
     if (selectedOption.disabled) {
-      addToCartButton.disabled = true;
+      addToCartForm.style.display = 'none';
+      notifyMeForm.style.display = 'block';
       stockMessage.style.display = 'block';
     } else {
-      addToCartButton.disabled = false;
+      addToCartForm.style.display = 'block';
+      notifyMeForm.style.display = 'none';
       stockMessage.style.display = 'none';
     }
   }
 
-  // --- INITIALIZATION ---
+  // Pass the quantity from the visible input to the hidden input before submitting
+  document.getElementById('add-to-cart-form').addEventListener('submit', function() {
+      document.getElementById('cart_quantity').value = document.getElementById('quantity').value;
+  });
+
   document.addEventListener('DOMContentLoaded', function() {
+    initializeDrift();
     const sizeSelector = document.getElementById('product_size_id');
     if (sizeSelector && sizeSelector.options.length > 0) {
         const firstAvailableOption = Array.from(sizeSelector.options).find(opt => !opt.disabled);
@@ -272,9 +227,10 @@
         }
         updateProductDetails();
     } else {
-        // Fallback for products without any size options
-        const priceEl = document.getElementById('display-price');
-        priceEl.textContent = `$${parseFloat({{ product.price or 0 }}).toFixed(2)}`;
+        const productPrice = {{ (product.sizes[0].offer_prize or product.sizes[0].size_price) if product and product.sizes else 'null' | tojson }};
+        if (productPrice !== null) {
+          document.getElementById('display-price').textContent = `$${parseFloat(productPrice).toFixed(2)}`;
+        }
     }
   });
 </script>

@@ -2,6 +2,48 @@
 
 {% block content %}
 <style>
+  /* ---
+  * ORDER DETAILS THEME: Cosmic Glow Integration
+  --- */
+
+  h2, .text-muted, h4, h6 {
+    color: #F1F5F9 !important;
+  }
+  .text-muted, small.text-muted {
+    color: #94A3B8 !important;
+  }
+  
+  /* --- General Card Styling --- */
+  .card {
+      background-color: #1E293B;
+      border: 1px solid #334155;
+  }
+  .card-header {
+      background-color: transparent;
+      border-bottom: 1px solid #334155;
+  }
+  
+  /* --- List Group Styling --- */
+  .list-group-item {
+      background-color: transparent;
+      border-color: #334155;
+      color: #E2E8F0;
+  }
+  .list-group-item strong {
+      color: #F1F5F9;
+  }
+
+  /* --- Status Badge in Summary --- */
+  .badge.bg-secondary {
+      background-color: #475569 !important;
+      color: #F1F5F9 !important;
+  }
+
+  /* --- Hr styling --- */
+  hr {
+      border-top-color: #334155;
+  }
+
   /* --- CSS for Tracking Timeline --- */
   .tracking-timeline {
     list-style: none;
@@ -17,7 +59,7 @@
     bottom: 10px;
     left: 6px;
     width: 2px;
-    background: #e0e0e0;
+    background: #334155; /* Dark track */
     transition: background 0.3s ease;
   }
 
@@ -36,34 +78,36 @@
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background-color: #ced4da; /* Default grey dot */
-    border: 2px solid #fff;
-    transition: background-color 0.3s ease;
+    background-color: #475569; /* Default dark grey dot */
+    border: 2px solid #1E293B; /* Punch-out effect */
+    transition: all 0.3s ease;
   }
   
-  /* Current/Active status (blue dot) */
+  /* Current/Active status (Teal dot) */
   .tracking-timeline .timeline-item.active::before {
-    background-color: #0d6efd; /* Bootstrap Primary */
+    background-color: #00D9C0; /* Ethereal Teal */
+    box-shadow: 0 0 10px rgba(0, 217, 192, 0.5);
   }
 
-  /* Completed status (green dot) */
+  /* Completed status (Purple dot) */
   .tracking-timeline .timeline-item.completed::before {
-    background-color: #198754; /* Bootstrap Success */
+    background-color: #9D4EDD; /* Mystic Purple */
   }
 
   .timeline-item-content .status {
     font-weight: bold;
+    color: #F1F5F9;
     margin-bottom: 5px;
   }
 
   .timeline-item-content .date {
-    color: #6c757d;
+    color: #94A3B8;
     font-size: 0.9em;
   }
 
-  /* When the whole order is delivered, turn the line green */
+  /* When the whole order is delivered, turn the line purple */
   .order-delivered .tracking-timeline::before {
-    background: #198754;
+    background: #9D4EDD;
   }
 
 </style>
@@ -95,12 +139,10 @@
           </div>
           <div class="card-body">
             {% if tracking_info %}
-              {# Check if the latest status is 'Delivered' to apply a global style #}
               {% set is_delivered = tracking_info[0].status|lower == 'delivered' %}
               <div class="{% if is_delivered %}order-delivered{% endif %}">
                 <ul class="tracking-timeline">
                   {% for tracking_event in tracking_info %}
-                    {# The 'active' class is for the latest status if not yet delivered #}
                     {% set is_active = loop.first and not is_delivered %}
                     <li class="timeline-item {% if is_delivered %}completed{% elif is_active %}active{% else %}completed{% endif %}">
                       <div class="timeline-item-content">
@@ -131,7 +173,7 @@
                   <h6 class="mb-0">{{ item.product_name }}</h6>
                   <small class="text-muted">Size: {{ item.product_size }} | Qty: {{ item.quantity }}</small>
                 </div>
-                <div class="text-end">
+                <div class="text-end text-light">
                   <strong>${{ '%.2f'|format(item.total_prize) }}</strong>
                 </div>
               </div>
@@ -147,11 +189,11 @@
           <div class="card-header">
             <h4>Order Summary</h4>
           </div>
-          <ul class="list-group list-group-flush">
+          <!-- <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span>Order ID</span>
               <strong>#{{ order.id }}</strong>
-            </li>
+            </li> -->
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Order Status</span>
                 <span class="badge bg-secondary text-capitalize">{{ order.status }}</span>
@@ -167,19 +209,19 @@
             <h4>Shipping Address</h4>
           </div>
           <div class="card-body">
-            <p class="mb-1"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
+            <p class="mb-1 text-light"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
             <p class="mb-0 text-muted">{{ order.shipping_address|replace(',', '<br>')|safe }}</p>
+            
           </div>
         </div>
         
-        <!-- Payment Screenshot Card (Corrected) -->
         <div class="card">
             <div class="card-header">
                 <h4>Payment Screenshot</h4>
             </div>
             <div class="card-body text-center">
                 {% if order.payment_image %}
-                    <!-- The fix is here: using order.payment_image directly -->
+                    <!-- CORRECTED: Using order.payment_image directly as it contains the full path -->
                     <a href="{{ order.payment_image }}" target="_blank" title="Click to view full size">
                         <img src="{{ order.payment_image }}" class="img-fluid rounded" alt="Payment Screenshot">
                     </a>
@@ -194,7 +236,7 @@
     {% else %}
       <div class="text-center py-5">
         <h4>Order Not Found</h4>
-        <p>The order you are looking for does not exist or you do not have permission to view it.</p>
+        <p class="text-muted">The order you are looking for does not exist or you do not have permission to view it.</p>
         <a href="{{ url_for('user.order_history') }}" class="btn btn-primary">Back to Order History</a>
       </div>
     {% endif %}

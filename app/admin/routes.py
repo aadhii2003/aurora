@@ -348,15 +348,31 @@ def delete_subcategory(id):
 
 # Product Management
 # Configure upload folder
-UPLOAD_FOLDER = 'app/static/admin/img'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+# from moviepy.editor import VideoFileClip  # <-- Import moviepy
 
-# Ensure the upload folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# ... (your other imports and Blueprint setup) ...
+import ffmpeg
+import time
+import imageio_ffmpeg 
+# --- Configuration for File Uploads ---
+UPLOAD_IMAGE_FOLDER = 'app/static/admin/img'
+UPLOAD_VIDEO_FOLDER = 'app/static/admin/vid'
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv', 'webm'}
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# --- Ensure upload folders exist ---
+if not os.path.exists(UPLOAD_IMAGE_FOLDER):
+    os.makedirs(UPLOAD_IMAGE_FOLDER)
+if not os.path.exists(UPLOAD_VIDEO_FOLDER):
+    os.makedirs(UPLOAD_VIDEO_FOLDER)
+
+def allowed_image_file(filename):
+    """Checks if a filename has an allowed image extension."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+def allowed_video_file(filename):
+    """Checks if a filename has an allowed video extension."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_VIDEO_EXTENSIONS
 
 @admin_bp.route('/admin-product', methods=['GET', 'POST'])
 def admin_product():
@@ -366,7 +382,7 @@ def admin_product():
     
     # --- HANDLE FORM SUBMISSION (POST REQUEST) ---
     if request.method == 'POST':
-        # Retrieve all form data, including new fields
+        # Retrieve all form data
         name = request.form.get('name')
         description = request.form.get('description')
         style = request.form.get('style')
@@ -377,56 +393,121 @@ def admin_product():
         color_id = request.form.get('color_id')
         shape_id = request.form.get('shape_id')
         
-        # --- Handle the three separate image file inputs ---
+        # --- Handle the image file inputs ---
         image_paths = []
-        for i in range(1, 4):  # Loop to check for image1, image2, image3
+        for i in range(1, 4):
             input_name = f'image{i}'
             if input_name in request.files:
                 file = request.files[input_name]
-                if file and allowed_file(file.filename):
+                if file and allowed_image_file(file.filename):
                     filename = secure_filename(file.filename)
                     unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                    file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+                    file_path = os.path.join(UPLOAD_IMAGE_FOLDER, unique_filename)
                     file.save(file_path)
                     image_paths.append(f"admin/img/{unique_filename}")
         
         images_json = json.dumps(image_paths)
 
-        # --- Updated validation to include new required fields ---
+        # --- Handle video inputs with ffmpeg-python and imageio-ffmpeg helper ---
+        video_paths = []
+        for i in range(1, 6):
+            input_name = f'video{i}'
+            if input_name in request.files:
+                file = request.files[input_name]
+                if file and allowed_video_file(file.filename):
+                    original_filename = secure_filename(file.filename)
+                    unique_filename_base = f"{uuid.uuid4().hex}_{os.path.splitext(original_filename)[0]}"
+                    compressed_filename = f"{unique_filename_base}_compressed.mp4"
+                    
+                    temp_path = os.path.join(UPLOAD_VIDEO_FOLDER, f"temp_{original_filename}")
+                    final_path = os.path.join(UPLOAD_VIDEO_FOLDER, compressed_filename)
+                    
+                    file.save(temp_path)
+                    
+                    try:
+                        print(f"Compressing video using ffmpeg found by imageio-ffmpeg: {temp_path}")
+                        
+                        # <-- 2. Get the path to the ffmpeg executable from the helper library
+                        ffmpeg_executable = imageio_ffmpeg.get_ffmpeg_exe()
+
+                        # --- Video Compression Logic ---
+                        (
+                            ffmpeg
+                            .input(temp_path)
+                            .output(final_path, vf='scale=720:-2', vcodec='libx264', acodec='aac', preset='medium', **{'b:v': '1000k'})
+                            # <-- 3. Pass the executable path to the run command
+                            .run(cmd=ffmpeg_executable, overwrite_output=True, quiet=True)
+                        )
+                        
+                        video_paths.append(f"admin/vid/{compressed_filename}")
+                        print(f"Compression successful. Saved to: {final_path}")
+                        
+                    except FileNotFoundError:
+                        # This would happen if imageio_ffmpeg fails to provide the executable
+                        print("!!! FFMPEG ERROR: Could not find ffmpeg executable via imageio-ffmpeg helper. !!!")
+                        flash("Server configuration error: FFmpeg dependency is missing or could not be located.", "error")
+                    except ffmpeg.Error as e:
+                        # Catches errors from the FFmpeg process itself (e.g., corrupt file)
+                        error_details = e.stderr.decode('utf8') if e.stderr else 'No details available.'
+                        print(f"!!! FFMPEG ERROR for {temp_path}: {error_details} !!!")
+                        flash(f"Could not process video '{original_filename}'. The file may be corrupt or in an unsupported format.", "error")
+                    except Exception as e:
+                        # Catches any other unexpected errors
+                        print(f"!!! GENERAL ERROR during video processing for {temp_path}: {str(e)} !!!")
+                        flash("An unexpected error occurred during video processing.", "error")
+                    finally:
+                        # --- Robust temp file cleanup with retry logic ---
+                        if os.path.exists(temp_path):
+                            retries = 5
+                            delay = 0.5
+                            for attempt in range(retries):
+                                try:
+                                    os.remove(temp_path)
+                                    print(f"Successfully removed temp file: {temp_path}")
+                                    break
+                                except PermissionError:
+                                    if attempt < retries - 1:
+                                        print(f"Could not delete temp file (in use), retrying in {delay}s...")
+                                        time.sleep(delay)
+                                    else:
+                                        print(f"!!! CRITICAL: Could not delete temp file after {retries} retries: {temp_path} !!!")
+                                except Exception as e:
+                                    print(f"!!! CRITICAL: An unexpected error occurred while deleting temp file {temp_path}: {e} !!!")
+                                    break
+
+        videos_json = json.dumps(video_paths)
+
+        # --- Validation ---
         if not all([name, description, style, sub_category_id, category_id, status, color_id, shape_id]):
             flash('All product fields, including Color and Shape, are required.', 'error')
             return redirect(url_for('admin.admin_product'))
         
         try:
-            # --- Updated INSERT query with new columns ---
+            # --- INSERT query with the new 'videos' column ---
             query_product = """
-                INSERT INTO tbl_product (name, description, style, images, sub_category_id, status, category_id, color_id, shape_id, updated_by)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO tbl_product (name, description, style, images, videos, sub_category_id, status, category_id, color_id, shape_id, updated_by)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            # --- Pass all values, including new ones, in the correct order ---
-            db.execute(query_product, (name, description, style, images_json, sub_category_id, status, category_id, color_id, shape_id, updated_by))
+            db.execute(query_product, (name, description, style, images_json, videos_json, sub_category_id, status, category_id, color_id, shape_id, updated_by))
             flash('Product added successfully!', 'success')
             return redirect(url_for('admin.admin_manage_product'))
 
         except Exception as e:
-            print(f"!!! DATABASE ERROR: {str(e)} !!!") # Log the error for debugging
+            print(f"!!! DATABASE ERROR: {str(e)} !!!")
             flash(f'Error adding product. A database error occurred: {str(e)}', 'error')
             return redirect(url_for('admin.admin_product'))
 
     # --- DISPLAY THE FORM (GET REQUEST) ---
-    # Fetch data for all dropdowns, including the new master tables
     query_categories = "SELECT * FROM tbl_category ORDER BY category_name"
     query_subcategories = "SELECT * FROM tbl_subcategory ORDER BY sub_category_name"
     query_colors = "SELECT * FROM master_color ORDER BY color_name"
     query_shapes = "SELECT * FROM master_shape ORDER BY shape_name"
     
-    # Execute all queries
     categories = db.fetchall(query_categories)
     subcategories = db.fetchall(query_subcategories)
     colors = db.fetchall(query_colors)
     shapes = db.fetchall(query_shapes)
     
-    # Pass all data to the template
     return render_template(
         'admin/admin-product.html', 
         categories=categories, 
@@ -434,6 +515,8 @@ def admin_product():
         colors=colors,
         shapes=shapes
     )
+
+
 @admin_bp.route('/admin-product/delete/<int:id>')
 def delete_product(id):
     if 'admin_id' not in session:
@@ -966,7 +1049,7 @@ def order_details(id):
         return redirect(url_for('admin.admin_login'))
     
     query_order = """
-        SELECT pm.*, u.first_name, u.last_name, l.email 
+        SELECT pm.*, u.first_name, u.last_name, l.email,u.phone_number 
         FROM tbl_purchase_master pm 
         JOIN tbl_user u ON pm.user_id = u.id 
         JOIN tbl_login l ON u.login_id = l.id
@@ -998,28 +1081,31 @@ def admin_manage_product():
         flash('Please login first', 'error')
         return redirect(url_for('admin.admin_login'))
     
-    # --- POST LOGIC: SAVING PRODUCT, SIZES, AND INITIAL STOCK ---
+    # --- POST LOGIC: SAVING PRODUCT, SIZES (with weight), AND INITIAL STOCK ---
     if request.method == 'POST':
         try:
+            # === (This part remains the same) ===
             product_id = request.form.get('product_id')
             name = request.form.get('name')
             description = request.form.get('description')
+            # ... (rest of the product details and image handling) ...
+            # ...
             style = request.form.get('style')
             sub_category_id = request.form.get('sub_category_id')
             category_id = request.form.get('category_id')
             status = request.form.get('status')
             updated_by = session['admin_id']
 
-            # Image handling logic
             image_paths = []
             if 'images' in request.files:
                 files = request.files.getlist('images')
-                if files and files[0].filename: # Check if new files were actually uploaded
+                if files and files[0].filename: 
                     for file in files:
                         if file and allowed_file(file.filename):
                             filename = secure_filename(file.filename)
                             unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+                            # Assuming UPLOAD_FOLDER is defined, if not, replace with UPLOAD_IMAGE_FOLDER
+                            file_path = os.path.join(UPLOAD_IMAGE_FOLDER, unique_filename)
                             file.save(file_path)
                             image_paths.append(f"admin/img/{unique_filename}")
 
@@ -1030,7 +1116,6 @@ def admin_manage_product():
             
             images_json = json.dumps(image_paths)
 
-            # Update the main product details
             if all([product_id, name, description, style, sub_category_id, category_id, status]):
                 query_update_product = """
                     UPDATE tbl_product 
@@ -1043,9 +1128,10 @@ def admin_manage_product():
             else:
                  flash('Missing required product details.', 'error')
                  return redirect(url_for('admin.admin_manage_product'))
+            # === (End of unchanged part) ===
 
 
-            # Combined size and stock logic
+            # ### MODIFIED: Combined size, weight, and stock logic ###
             sizes = {}
             for key, value in request.form.items():
                 if key.startswith('sizes['):
@@ -1060,27 +1146,35 @@ def admin_manage_product():
                 prize = size_data.get('prize')
                 discount = size_data.get('discount', '0')
                 offer_prize = size_data.get('offer_prize')
-                existing_size_id = size_data.get('id') # This is the ID of an *existing* product_size record
+                # NEW: Get weight and unit from the form data
+                weight = size_data.get('weight')
+                weight_unit_id = size_data.get('weight_unit_id')
+                existing_size_id = size_data.get('id')
                 
                 if size and not size.endswith(' cm'):
                     size = f"{size} cm"
 
                 if existing_size_id:  # Update existing size
+                    # NEW: Updated query with weight fields
                     query_update_size = """
                         UPDATE tbl_product_size 
-                        SET size = %s, prize = %s, offer_prize = %s, discount = %s, updated_by = %s
+                        SET size = %s, prize = %s, offer_prize = %s, discount = %s, 
+                            weight = %s, weight_unit_id = %s, updated_by = %s
                         WHERE id = %s AND product_id = %s
                     """
-                    db.execute(query_update_size, (size, prize, offer_prize, discount, updated_by, existing_size_id, product_id))
+                    # NEW: Added new parameters
+                    db.execute(query_update_size, (size, prize, offer_prize, discount, weight, weight_unit_id, updated_by, existing_size_id, product_id))
                 
-                else:  # This is a NEW size, so add it and create its initial stock record.
+                else:  # This is a NEW size, add it and its stock
                     initial_stock = size_data.get('initial_stock')
                     
+                    # NEW: Updated query with weight fields
                     query_insert_size = """
-                        INSERT INTO tbl_product_size (product_id, size, prize, offer_prize, discount, updated_by)
-                        VALUES (%s, %s, %s, %s, %s, %s)
+                        INSERT INTO tbl_product_size (product_id, size, prize, offer_prize, discount, weight, weight_unit_id, updated_by)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     """
-                    new_size_id = db.executeAndReturnId(query_insert_size, (product_id, size, prize, offer_prize, discount, updated_by))
+                    # NEW: Added new parameters and using a function that returns the new ID
+                    new_size_id = db.executeAndReturnId(query_insert_size, (product_id, size, prize, offer_prize, discount, weight, weight_unit_id, updated_by))
                     
                     if new_size_id:
                         stock_count = int(initial_stock) if initial_stock else 0
@@ -1112,6 +1206,8 @@ def admin_manage_product():
         query_subcategories = "SELECT * FROM tbl_subcategory ORDER BY sub_category_name"
         query_sizes = "SELECT * FROM tbl_product_size"
         query_stocks = "SELECT * FROM tbl_stock"
+        # ### NEW: Fetch weight units to populate the dropdown in the edit form ###
+        query_weight_units = "SELECT * FROM master_weight_unit ORDER BY unit_name"
 
         products = db.fetchall(query_products)
         if isinstance(products, Exception): raise products
@@ -1128,28 +1224,32 @@ def admin_manage_product():
         stocks = db.fetchall(query_stocks)
         if isinstance(stocks, Exception): raise stocks
         
+        # ### NEW: Execute the weight units query ###
+        weight_units = db.fetchall(query_weight_units)
+        if isinstance(weight_units, Exception): raise weight_units
+        
         for product in products:
             product['images_list'] = json.loads(product['images']) if product.get('images') else []
         
+        # ### MODIFIED: Pass weight_units to the template ###
         return render_template('admin/admin-manage-product.html', 
                                products=products, 
                                categories=categories, 
                                subcategories=subcategories, 
                                product_sizes=product_sizes, 
-                               stocks=stocks)
+                               stocks=stocks,
+                               weight_units=weight_units) # Pass the new data
 
     except Exception as e:
         flash(f'A critical database error occurred while loading the page: {str(e)}', 'error')
         print("--- DATABASE ERROR IN admin_manage_product (GET) ---")
+        print(traceback.format_exc())
         print("---------------------------------------------")
         
-        # Render the page with EMPTY lists to prevent crashing
         return render_template('admin/admin-manage-product.html', 
-                               products=[], 
-                               categories=[], 
-                               subcategories=[], 
-                               product_sizes=[], 
-                               stocks=[])
+                               products=[], categories=[], subcategories=[], 
+                               product_sizes=[], stocks=[], weight_units=[]) # Add empty list
+    
 @admin_bp.route('/admin-update-stock', methods=['GET', 'POST'])
 def admin_update_stock():
     if 'admin_id' not in session:
@@ -1355,3 +1455,195 @@ def delete_shape(id):
     except Exception as e:
         flash(f'Error deleting shape: {e}', 'danger')
     return redirect(url_for('admin.admin_color_shape_weight'))
+
+@admin_bp.route('/admin-carts')
+def admin_carts():
+    if 'admin_id' not in session:
+        flash('Please login to access this page.', 'warning')
+        return redirect(url_for('admin.admin_login'))
+
+    # Initialize lists for each status
+    pending_items = []
+    rejected_items = []
+    approved_items = []
+
+    try:
+        # A single query to get all non-removed cart items
+        # We will filter them into lists in Python
+        query = """
+            SELECT
+                c.id, c.quantity, c.created_at, c.updated_at, c.status, c.admin_message,
+                p.name AS product_name,
+                ps.size,
+                u.email AS customer_name,
+                s.stock_count, s.purchase_count
+            FROM tbl_cart c
+            JOIN tbl_product p ON c.product_id = p.id
+            JOIN tbl_product_size ps ON c.product_size_id = ps.id
+            LEFT JOIN tbl_login u ON c.login_id = u.id
+            LEFT JOIN tbl_stock s ON c.product_size_id = s.product_size_id
+            ORDER BY c.updated_at DESC
+        """
+        all_cart_items = db.fetchall(query)
+
+        for item in all_cart_items:
+            # Calculate available stock for easy display
+            item['available_stock'] = (item['stock_count'] or 0) - (item['purchase_count'] or 0)
+            
+            # Sort items into the correct list based on their status
+            if item['status'] == 'pending':
+                pending_items.append(item)
+            elif item['status'] == 'rejected':
+                rejected_items.append(item)
+            elif item['status'] == 'approved':
+                approved_items.append(item)
+
+    except Exception as e:
+        print(f"--- DATABASE ERROR in admin_carts: {str(e)} ---")
+        flash(f"A database error occurred: {str(e)}", 'danger')
+
+    return render_template(
+        'admin/admin-carts.html', 
+        pending_items=pending_items,
+        rejected_items=rejected_items,
+        approved_items=approved_items
+    )
+
+# The 'approve' and 'reject' routes are already correct and will work for this new system.
+# No changes are needed for them. Just ensure they are present as they were in the last step.
+
+@admin_bp.route('/admin/cart/approve/<int:cart_id>', methods=['POST'])
+def approve_cart_item(cart_id):
+    if 'admin_id' not in session:
+        return redirect(url_for('admin.admin_login'))
+    
+    try:
+        # Check current status to avoid double-counting stock
+        current_status_query = "SELECT status, quantity, product_size_id FROM tbl_cart WHERE id = %s"
+        item = db.fetchone(current_status_query, (cart_id,))
+
+        if not item:
+             flash('Could not find the cart item to approve.', 'error')
+             return redirect(url_for('admin.admin_carts'))
+        
+        # Only update stock if the item was NOT previously approved
+        if item['status'] != 'approved':
+            stock_update_query = """
+                UPDATE tbl_stock 
+                SET purchase_count = purchase_count + %s 
+                WHERE product_size_id = %s
+            """
+            db.execute(stock_update_query, (item['quantity'], item['product_size_id']))
+        
+        # Now, update the item status to 'approved'
+        db.execute("UPDATE tbl_cart SET status = 'approved', admin_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = %s", (cart_id,))
+        flash('Cart item has been approved and stock has been updated.', 'success')
+
+    except Exception as e:
+        print(f"--- ERROR approving item {cart_id}: {str(e)} ---")
+        flash(f'Error approving item: {str(e)}', 'danger')
+        
+    return redirect(url_for('admin.admin_carts'))
+
+
+@admin_bp.route('/admin/cart/reject/<int:cart_id>', methods=['POST'])
+def reject_cart_item(cart_id):
+    if 'admin_id' not in session:
+        return redirect(url_for('admin.admin_login'))
+    
+    rejection_message = request.form.get('admin_message', 'Item is currently unavailable.')
+    try:
+        # --- NEW: Check if the item was previously approved to adjust stock back ---
+        current_status_query = "SELECT status, quantity, product_size_id FROM tbl_cart WHERE id = %s"
+        item = db.fetchone(current_status_query, (cart_id,))
+
+        if not item:
+             flash('Could not find the cart item to reject.', 'error')
+             return redirect(url_for('admin.admin_carts'))
+
+        # If it was approved, we need to "return" the stock by decreasing purchase_count
+        if item['status'] == 'approved':
+            stock_update_query = """
+                UPDATE tbl_stock 
+                SET purchase_count = purchase_count - %s 
+                WHERE product_size_id = %s AND purchase_count >= %s
+            """
+            db.execute(stock_update_query, (item['quantity'], item['product_size_id'], item['quantity']))
+
+        # Now, update the status to 'rejected'
+        db.execute("UPDATE tbl_cart SET status = 'rejected', admin_message = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s", (rejection_message, cart_id,))
+        flash('Cart item has been rejected. If it was previously approved, stock has been adjusted.', 'warning')
+    except Exception as e:
+        print(f"--- ERROR rejecting item {cart_id}: {str(e)} ---")
+        flash(f'Error rejecting item: {str(e)}', 'danger')
+        
+    return redirect(url_for('admin.admin_carts'))
+
+@admin_bp.context_processor
+def inject_notifications():
+    """
+    Makes notification data available to all admin templates automatically.
+    """
+    if 'admin_id' in session:
+        try:
+            # Get the 5 most recent unread notifications for the dropdown
+            unread_notifications_query = """
+                SELECT id, message, link_url, created_at 
+                FROM tbl_admin_notifications 
+                WHERE is_read = FALSE 
+                ORDER BY created_at DESC 
+                LIMIT 5
+            """
+            unread_notifications = db.fetchall(unread_notifications_query)
+            
+            # Get the total count of all unread notifications for the badge
+            count_query = "SELECT COUNT(id) as total FROM tbl_admin_notifications WHERE is_read = FALSE"
+            count_result = db.fetchone(count_query)
+            unread_count = count_result['total'] if count_result else 0
+
+            return dict(
+                unread_notifications=unread_notifications,
+                unread_count=unread_count
+            )
+        except Exception as e:
+            print(f"--- ERROR fetching admin notifications: {e} ---")
+            return dict(unread_notifications=[], unread_count=0)
+    # Return empty values if admin is not logged in
+    return dict(unread_notifications=[], unread_count=0)
+
+
+@admin_bp.route('/admin/notifications/mark-as-read')
+def mark_all_as_read():
+    """
+    Handles the 'Mark All As Read' action from the notification dropdown.
+    """
+    if 'admin_id' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    try:
+        # Update all unread items to be read
+        db.execute("UPDATE tbl_admin_notifications SET is_read = TRUE WHERE is_read = FALSE")
+        flash('All notifications have been marked as read.', 'success')
+    except Exception as e:
+        flash(f'Could not mark notifications as read: {e}', 'danger')
+        print(f"--- ERROR marking notifications as read: {e} ---")
+
+    # Redirect back to the main admin dashboard
+    return redirect(url_for('admin.admin_home'))
+
+# In your admin routes file (admin_routes.py or similar)
+
+@admin_bp.route('/admin/inquiries')
+def admin_inquiries():
+    if 'admin_id' not in session:
+        flash('Please login to access this page.', 'warning')
+        return redirect(url_for('admin.admin_login'))
+    
+    try:
+        query = "SELECT * FROM tbl_inquiries ORDER BY created_at DESC"
+        inquiries = db.fetchall(query)
+    except Exception as e:
+        inquiries = []
+        flash(f'Could not fetch inquiries: {str(e)}', 'danger')
+        
+    return render_template('admin/admin-inquiries.html', inquiries=inquiries)

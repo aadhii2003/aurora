@@ -1,545 +1,224 @@
 {% extends "user/base.html" %}
 
-{% block head_extra %}
+{% block content %}
 <style>
-  /* --- General Page Enhancements --- */
-  .form-select {
-    border: 1px solid #e0e0e0;
-    transition: border-color .3s ease, box-shadow .3s ease;
-  }
-  .form-select:focus {
-    border-color: #3b5d50;
-    box-shadow: 0 0 0 0.25rem rgba(59, 93, 80, 0.2);
-  }
-
-  /* --- Hero Section Styling --- */
-  .hero {
-    background-image: linear-gradient(rgba(43, 58, 52, 0.7), rgba(43, 58, 52, 0.7)), url("{{ url_for('static', filename='user/images/hero-bg.jpg') }}");
-    background-size: cover; background-position: center center; padding: 120px 0;
-  }
-  .hero .intro-excerpt h1 {
-    font-size: 54px; font-weight: 700; color: #ffffff;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  }
-  .hero .intro-excerpt .intro-subtitle {
-    color: rgba(255, 255, 255, 0.85); max-width: 600px;
-    margin: 0 auto 30px auto; font-size: 1.15rem; line-height: 1.7;
-  }
-  .hero .breadcrumb { background: transparent; padding: 0; }
-  .hero .breadcrumb-item a { color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color .3s ease; }
-  .hero .breadcrumb-item a:hover { color: #fff; }
-  .hero .breadcrumb-item.active { color: #ffffff; }
-
-  /* --- Filters Container & Overlap Effect --- */
-  .product-section {
-    padding-top: 0;
-    background-color: #f8f9fa;
-  }
-  .filters-container {
-    background-color: #f4f6f5;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%23d1d9d6' fill-opacity='0.2' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v18.5l-13 7.5L0 33.5V15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    padding: 40px;
-    border-radius: 12px;
-    margin-top: -80px;
-    position: relative;
-    z-index: 2;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    border: 1px solid #e5e5e5;
-  }
-
-  /* --- Top Filter Bar Styling --- */
-  .top-filter-bar {
-    background: #ffffff; padding: 20px 25px; border-radius: 8px;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.05);
-  }
-  .reset-filters-btn {
-    text-decoration: none; color: #6a6a6a; font-size: 14px;
-    transition: all .3s ease; display: inline-flex; align-items: center; gap: 6px;
-    font-weight: 500; border: 1px solid #e0e0e0; padding: 8px 15px; border-radius: 50px;
-  }
-  .reset-filters-btn:hover { color: #3b5d50; background: #f8f9fa; transform: translateY(-2px); }
-  .reset-filters-btn .bi { font-size: 16px; }
-
-  /* --- Sidebar Filter Styling --- */
-  .filter-sidebar {
-    background: #ffffff; padding: 25px; border-radius: 8px;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.05);
-    position: sticky; top: 20px;
-  }
-  .filter-sidebar h4, .top-filter-bar h4 {
-    font-size: 13px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; display: flex; align-items: center;
-    gap: 10px; color: #3b5d50;
-    border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 25px;
-  }
-  .top-filter-bar h4 {
-      border-bottom: none; padding-bottom: 0; margin-bottom: 0;
-  }
-
-  .price-filter-label { font-size: 1rem; font-weight: 600; color: #2f2f2f; margin-bottom: 15px; }
-  #price-display {
-    color: #ffffff; background-color: #3b5d50;
-    padding: 5px 15px; border-radius: 20px;
-    font-weight: 700; font-size: 1rem; display: inline-block;
-  }
-  .form-range { margin-top: 15px; }
-  .form-range::-webkit-slider-runnable-track { height: 6px; background: #e9ecef; border-radius: 3px; }
-  .form-range::-moz-range-track { height: 6px; background: #e9ecef; border-radius: 3px; }
-  .form-range::-webkit-slider-thumb {
-    width: 20px; height: 20px; background: #3b5d50;
-    border-radius: 50%; border: 3px solid #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2); margin-top: -7px;
-    cursor: pointer;
-  }
-  .form-range::-moz-range-thumb {
-    width: 20px; height: 20px; background: #3b5d50;
-    border-radius: 50%; border: 3px solid #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    cursor: pointer;
-  }
-
-  /* --- Color Display Styling --- */
-  .color-display {
-    margin-top: 20px;
-  }
-  .color-display h4 {
-    font-size: 13px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; display: flex; align-items: center;
-    gap: 10px; color: #3b5d50;
-    border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;
-  }
-  .color-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .color-circle {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  .color-name {
-    font-size: 14px;
-    color: #2f2f2f;
-    font-weight: 500;
-  }
-
-  /* --- Main Product Area & Toolbar --- */
-  .product-main-area {
-    background: #ffffff; padding: 25px; border-radius: 8px;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.05); min-height: 500px;
-  }
-  .product-toolbar {
-    padding-bottom: 20px; margin-bottom: 25px;
-    border-bottom: 1px solid #eee;
-  }
-
-  /* --- Per Page & View Mode Controls --- */
-  .per-page-controls {
-    font-size: 1rem;
-    color: #6a6a6a;
-  }
-  .per-page-controls a {
-    text-decoration: none;
-    color: #6a6a6a;
-    padding: 0 4px;
-    font-weight: normal;
-    transition: color .2s ease;
-  }
-  .per-page-controls a:hover {
-    color: #3b5d50;
-  }
-  .per-page-controls a.active {
-    font-weight: 700;
-    color: #2f2f2f;
-  }
-
-  .view-mode-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .view-mode-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #adb5bd;
-    text-decoration: none;
-    font-size: 1.5rem;
-    transition: all .2s ease;
-    padding: 4px;
-    border-radius: 4px;
-    border: 2px solid transparent;
-  }
-  .view-mode-btn:hover {
-    color: #3b5d50;
-  }
-  .view-mode-btn.active {
-    color: #2f2f2f;
-    border-color: #2f2f2f;
-  }
-
-  /* --- Product Card Styling --- */
-  .product-grid .col-12 { display: flex; flex-direction: column; }
-  .product-item {
-    display: flex; flex-direction: column; height: 100%;
-    text-decoration: none; background: #ffffff;
-    border: 1px solid #e9e9e9; border-radius: 12px;
-    overflow: hidden; transition: box-shadow .3s ease, transform .3s ease; position: relative;
-  }
-  .product-item:hover { transform: translateY(-8px); box-shadow: 0 12px 35px rgba(0,0,0,0.1); }
-  .sale-badge {
-    position: absolute; top: 15px; left: 15px;
-    background-color: #e74c3c; color: #fff;
-    padding: 4px 12px; font-size: 12px; font-weight: 700;
-    border-radius: 20px; z-index: 3; text-transform: uppercase;
-  }
-  .product-thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background-color: #f9f9f9; }
-  .product-item .product-thumbnail { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-  .product-item:hover .product-thumbnail { transform: scale(1.08); }
-  .product-actions {
-    position: absolute; bottom: 15px; right: 15px; z-index: 4;
-    display: flex; flex-direction: column; gap: 8px;
-    opacity: 0; transform: translateX(20px);
-    transition: opacity .4s ease, transform .4s ease;
-  }
-  .product-item:hover .product-actions { opacity: 1; transform: translateX(0); }
-  .action-btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: #fff; color: #2f2f2f; text-decoration: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: all .3s ease;
-  }
-  .action-btn:hover { background: #3b5d50; color: #fff; transform: scale(1.1); }
-  .product-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
-  .product-item .product-title {
-    font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #2f2f2f;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden; text-overflow: ellipsis; min-height: 48px;
-    line-height: 1.5;
-  }
-  .product-item .product-price {
-    font-size: 18px; font-weight: 700; color: #3b5d50;
-    margin-top: auto; padding-top: 10px; display: flex; align-items: center; gap: 10px;
-  }
-  .product-price .old-price {
-      font-size: 14px; color: #999;
-      text-decoration: line-through; font-weight: 400;
+  /* ---
+  * FONT & THEME STYLING
+  --- */
+  .shop-hero .intro-excerpt h1,
+  .product-item .product-title,
+  .no-products-found h4 {
+    font-family: 'Cormorant Garamond', serif;
   }
   
-  /* --- List View Styling --- */
-  .product-item.list-view {
-    flex-direction: row;
-    align-items: center;
-  }
-  .product-item.list-view .product-thumbnail-wrapper {
-    width: 200px;
-    flex-shrink: 0;
-  }
-  .product-item.list-view .product-content {
-    text-align: left;
-    flex-grow: 1;
-  }
-  .product-item.list-view .product-actions {
-    flex-direction: row;
+  /* --- MODIFIED: Hero Section Styling with Background Image --- */
+  .shop-hero {
+    /* Increased padding for better visual impact */
+    padding: 8rem 0; 
     position: relative;
-    opacity: 1;
-    transform: none;
-    bottom: auto; right: auto;
-    margin-left: auto;
-    padding-right: 20px;
+    background-color: #0F172A; /* Fallback color if image doesn't load */
+    
+    /* 
+      IMPORTANT: Replace the URL below with your own image.
+      The first part creates a dark overlay for text readability.
+    */
+    background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url("https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=2071");
+    
+    /* Best practices for full-page background images */
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed; /* Creates a cool parallax effect on scroll */
   }
+  /* --- END OF MODIFICATION --- */
 
-  /* --- No Products Found & Pagination --- */
-  .no-products-found-wrapper { display: flex; justify-content: center; align-items: center; min-height: 400px; flex-direction: column; }
-  .no-products-found {
-    text-align: center; padding: 40px; background: #fff;
-    border-radius: 12px; width: 100%;
+  .shop-hero .intro-excerpt h1 { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; color: #ffffff; }
+  .shop-hero .intro-excerpt .intro-subtitle { color: #94A3B8; max-width: 600px; margin: 0 auto 30px auto; font-size: 1.1rem; line-height: 1.7; }
+  
+  .filters-and-products-section { padding: 3rem 0; background-color: #1E293B; }
+  
+  .top-filter-bar {
+    background: #0F172A; padding: 20px 25px; border-radius: 12px;
+    border: 1px solid #334155; margin-bottom: 2.5rem;
   }
-  .no-products-found .icon-wrapper {
-      width: 90px; height: 90px; background: #f8f9fa;
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 25px auto; color: #3b5d50;
+  
+  .filter-sidebar {
+    background: #0F172A; padding: 25px; border-radius: 12px;
+    border: 1px solid #334155; position: sticky; top: 20px;
   }
-  .no-products-found h4 { font-weight: 600; margin-bottom: 10px; color: #2f2f2f;}
-  .no-products-found p { font-size: 1.1rem; color: #6a6a6a; margin-top: 15px; margin-bottom: 25px; }
-  .pagination { justify-content: center; margin-top: 40px; }
-  .pagination .page-link {
-    color: #3b5d50; border-radius: 50px !important; margin: 0 5px;
-    border: 1px solid #dee2e6; min-width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 500; transition: all .3s ease;
+  .filter-sidebar h4 {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; display: flex; align-items: center;
+    gap: 10px; color: #9D4EDD;
+    border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 25px;
   }
-  .pagination .page-link:hover { background-color: #eff3f1; border-color: #d1d9d6; }
-  .pagination .page-item.active .page-link { background-color: #3b5d50; border-color: #3b5d50; color: #fff; box-shadow: 0 4px 10px rgba(59, 93, 80, 0.3); }
-  .pagination .page-item.disabled .page-link { background-color: #f8f9fa; color: #adb5bd; }
+  .master-display-section { margin-top: 2rem; }
+  .master-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .color-circle { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #475569; }
+  .item-name { font-size: 14px; color: #E2E8F0; font-weight: 500; }
+  
+  .product-toolbar { padding-bottom: 20px; margin-bottom: 25px; border-bottom: 1px solid #334155; color: #94A3B8; }
+  .toolbar-item { display: flex; align-items: center; gap: 10px; }
+  .per-page-link { color: #94A3B8; text-decoration: none; font-weight: 500; transition: color 0.2s ease; padding: 0 5px; }
+  .per-page-link:hover { color: #ffffff; }
+  .per-page-link.active { color: #00D9C0; font-weight: 700; }
+  .view-mode-btn { color: #94A3B8; font-size: 1.5rem; cursor: pointer; transition: color 0.2s ease; }
+  .view-mode-btn:hover { color: #ffffff; }
+  .view-mode-btn.active { color: #00D9C0; }
+
+  .product-grid > .product-col { display: flex; flex-direction: column; }
+  .product-item { display: flex; flex-direction: column; height: 100%; text-decoration: none; background: #0F172A; border: 1px solid #334155; border-radius: 12px; overflow: hidden; transition: all .3s ease; }
+  .product-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 217, 192, 0.1); border-color: #00D9C0; }
+  .product-thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background-color: #1E293B; flex-shrink: 0; }
+  .product-item .product-thumbnail { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .product-item:hover .product-thumbnail { transform: scale(1.08); }
+  .product-content { padding: 15px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; }
+  .product-item .product-title { font-size: 1rem; font-weight: 700; line-height: 1.4; color: #F1F5F9; }
+  .product-item .product-price { font-size: 1rem; font-weight: 700; color: #00D9C0; margin-top: auto; padding-top: 8px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  .product-price .old-price { font-size: 0.85rem; color: #94A3B8; text-decoration: line-through; font-weight: 400; }
+
+  .product-item.list-view { flex-direction: row; text-align: left; }
+  .product-item.list-view .product-thumbnail-wrapper { width: 150px; height: 150px; aspect-ratio: auto; }
+  .product-item.list-view .product-content { text-align: left; }
+
+  .pagination .page-item .page-link { background-color: #334155; border-color: #475569; color: #E2E8F0; }
+  .pagination .page-item .page-link:hover { background-color: #475569; }
+  .pagination .page-item.active .page-link { background-color: #00D9C0; border-color: #00D9C0; color: #0F172A; }
+  .pagination .page-item.disabled .page-link { background-color: #1E293B; border-color: #334155; color: #475569; }
 </style>
-{% endblock %}
 
-{% block content %}
-<!-- Hero Section -->
-<div class="hero">
+<div class="shop-hero">
   <div class="container">
     <div class="row justify-content-center text-center">
       <div class="col-lg-8">
-        <div class="intro-excerpt" style="padding-top: 30px;">
+        <div class="intro-excerpt">
           <h1>Discover Your Perfect Piece</h1>
-          <p class="intro-subtitle">Explore our curated selection of high-quality items, designed to bring comfort and style to your home.</p>
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center">
-              <li class="breadcrumb-item"><a href="{{ url_for('user.user_home') }}">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Shop</li>
-            </ol>
-          </nav>
+          <p class="intro-subtitle">Explore our curated selection of high-quality gemstones, each with a unique story and energy.</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- All filters and products are now inside this attractive container -->
-<div class="untree_co-section product-section">
+<div class="filters-and-products-section">
   <div class="container">
-    <div class="filters-container">
-      <form method="GET" action="{{ url_for('user.products') }}" id="filterForm">
+    <form method="GET" action="{{ url_for('user.products') }}" id="filterForm">
+        
+      <!-- Top Filter Bar -->
+      <div class="top-filter-bar">
+        <div class="row align-items-center gy-3 gy-lg-0">
+            <div class="col-lg-auto"><h4><i class="fas fa-filter"></i><span>Filters</span></h4></div>
+            <div class="col-lg col-md-3 col-6"><select name="category_id" class="form-select" onchange="this.form.submit()"><option value="">All Categories</option>{% for c in categories %}<option value="{{ c.id }}" {% if selected_category == c.id|string %}selected{% endif %}>{{ c.category_name }}</option>{% endfor %}</select></div>
+            <div class="col-lg col-md-3 col-6"><select name="subcategory_id" class="form-select" onchange="this.form.submit()"><option value="">All Subcategories</option>{% for s in subcategories %}<option value="{{ s.id }}" {% if selected_subcategory == s.id|string %}selected{% endif %}>{{ s.sub_category_name }}</option>{% endfor %}</select></div>
+            <div class="col-lg col-md-3 col-6"><select name="color_id" class="form-select" onchange="this.form.submit()"><option value="">All Colors</option>{% for c in colors %}<option value="{{ c.id }}" {% if selected_color == c.id|string %}selected{% endif %}>{{ c.color_name }}</option>{% endfor %}</select></div>
+            <div class="col-lg col-md-3 col-6"><select name="shape_id" class="form-select" onchange="this.form.submit()"><option value="">All Shapes</option>{% for s in shapes %}<option value="{{ s.id }}" {% if selected_shape == s.id|string %}selected{% endif %}>{{ s.shape_name }}</option>{% endfor %}</select></div>
+        </div>
+      </div>
+      
+      <!-- Main Content Area with Sidebar -->
+      <div class="row mt-4">
+        
+        <!-- Sidebar Column -->
+        <div class="col-lg-3 mb-5 mb-lg-0">
+          <div class="filter-sidebar">
+            <h4><i class="fas fa-tags"></i><span>Filter by Price</span></h4>
+            <div class="mb-4">
+                <label for="max_price" class="form-label">Up to: <span id="price-display">${{ selected_max_price|int|abs if selected_max_price is not none else slider_max_price|int|abs }}</span></label>
+                <input type="range" class="form-range" min="10" max="{{ slider_max_price }}" step="10" id="price_slider" value="{{ selected_max_price if selected_max_price is not none else slider_max_price }}">
+                <input type="hidden" name="max_price" id="max_price_input" value="{{ selected_max_price if selected_max_price is not none else slider_max_price }}">
+            </div>
+            
+            <h4><i class="fas fa-weight-hanging"></i><span>Filter by Weight</span></h4>
+            <div class="mb-4"><select name="weight_range" class="form-select" onchange="this.form.submit()"><option value="">All Weights (CT)</option>{% for wr in weight_ranges %}<option value="{{ wr.value }}" {% if selected_weight_range == wr.value %}selected{% endif %}>{{ wr.label }}</option>{% endfor %}</select></div>
+            
+            <div class="master-display-section">
+              <h4><i class="fas fa-palette"></i><span>Available Colors</span></h4>
+              {% for color in colors %}<div class="master-item"><span class="color-circle" style="background-color: {{ color.color_hex_code }};"></span><span class="item-name">{{ color.color_name }}</span></div>{% else %}<p class="text-muted small">No colors available.</p>{% endfor %}
+            </div>
 
-        <!-- Top Filter Bar Section -->
-        <div class="row mb-5">
-          <div class="col-12">
-            <div class="top-filter-bar">
-              <div class="row align-items-center gy-3 gy-lg-0">
-                  <div class="col-lg-auto">
-                    <h4>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/></svg>
-                      <span>Filters</span>
-                    </h4>
-                  </div>
-                  <div class="col-lg col-md-3 col-6">
-                      <select name="category_id" class="form-select filter-control" onchange="this.form.submit()">
-                          <option value="">All Categories</option>
-                          {% for c in categories %}<option value="{{ c.id }}" {% if selected_category == c.id|string %}selected{% endif %}>{{ c.category_name }}</option>{% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-lg col-md-3 col-6">
-                      <select name="subcategory_id" class="form-select filter-control" onchange="this.form.submit()">
-                          <option value="">All Subcategories</option>
-                          {% for s in subcategories %}<option value="{{ s.id }}" {% if selected_subcategory == s.id|string %}selected{% endif %}>{{ s.sub_category_name }}</option>{% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-lg col-md-3 col-6">
-                      <select name="color_id" class="form-select filter-control" onchange="this.form.submit()">
-                          <option value="">All Colors</option>
-                          {% for c in colors %}<option value="{{ c.id }}" {% if selected_color == c.id|string %}selected{% endif %}>{{ c.color_name }}</option>{% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-lg col-md-3 col-6">
-                      <select name="shape_id" class="form-select filter-control" onchange="this.form.submit()">
-                          <option value="">All Shapes</option>
-                          {% for s in shapes %}<option value="{{ s.id }}" {% if selected_shape == s.id|string %}selected{% endif %}>{{ s.shape_name }}</option>{% endfor %}
-                      </select>
-                  </div>
-                  <div class="col-lg-auto mt-3 mt-lg-0 ms-lg-auto text-lg-end"><a href="{{ url_for('user.products') }}" class="reset-filters-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>Reset All</a></div>
-              </div>
+            <div class="master-display-section">
+              <h4><i class="fas fa-shapes"></i><span>Available Shapes</span></h4>
+              {% for shape in shapes %}<div class="master-item"><span class="item-name">{{ shape.shape_name }}</span></div>{% else %}<p class="text-muted small">No shapes available.</p>{% endfor %}
             </div>
           </div>
         </div>
 
-        <!-- Main Content: Sidebar + Products -->
-        <div class="row">
-
-          <!-- Sidebar Column (Price Filter + Color Display) -->
-          <div class="col-lg-3 mb-5 mb-lg-0">
-            <div class="filter-sidebar">
-              <h4>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-tags-fill" viewBox="0 0 16 16"><path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/><path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043-7.457-7.457z"/></svg>
-                <span>Filter by Price</span>
-              </h4>
-              <div class="mb-4">
-                  <label for="max_price" class="form-label price-filter-label">Up to: <span id="price-display">${{ request.args.get('max_price', '3000')|int|abs }}</span></label>
-                  <input type="range" class="form-range filter-control" min="10" max="{{ slider_max_price }}" step="10" id="price_slider" value="{{ request.args.get('max_price', '3000') }}">
-                  <input type="hidden" name="max_price" id="max_price_input" value="{{ request.args.get('max_price', '3000') }}">
-              </div>
-
-              <!-- Color Display Section -->
-              <div class="color-display">
-                <h4>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0z"/></svg>
-                  <span>Available Colors</span>
-                </h4>
-                {% for color in colors %}
-                  <div class="color-item">
-                    <div class="color-circle" style="background-color: {{ color.color_hex_code|safe }};"></div>
-                    <span class="color-name">{{ color.color_name }}</span>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-
-          <!-- Products Column -->
-          <div class="col-lg-9">
-            <div class="product-main-area">
-              <!-- Product Toolbar -->
-              <div class="row product-toolbar align-items-center">
-                <div class="col-md-5"><p class="mb-0 text-muted">Showing <strong>{{ products|length }}</strong> of <strong>{{ pagination.total if pagination else total_products }}</strong> results</p></div>
-                <div class="col-md-7 d-flex justify-content-end align-items-center flex-wrap gap-3">
-                    <div class="per-page-controls">
-                        <span class="text-muted">Show :</span>
-                        <a href="#" data-value="9" class="per-page-link {% if request.args.get('per_page', '18')|string == '9' %}active{% endif %}">9</a> /
-                        <a href="#" data-value="12" class="per-page-link {% if request.args.get('per_page', '18')|string == '12' %}active{% endif %}">12</a> /
-                        <a href="#" data-value="18" class="per-page-link {% if request.args.get('per_page', '18')|string == '18' %}active{% endif %}">18</a> /
-                        <a href="#" data-value="24" class="per-page-link {% if request.args.get('per_page', '18')|string == '24' %}active{% endif %}">24</a>
-                    </div>
-                    <input type="hidden" name="per_page" id="per_page_input" value="{{ request.args.get('per_page', '18') }}">
-
-                    <div class="view-mode-controls">
-                        <a href="#" class="view-mode-btn" data-view="list" title="List View"><i class="bi bi-list"></i></a>
-                        <a href="#" class="view-mode-btn" data-view="grid-2" title="2-Column Grid"><i class="bi bi-grid-fill"></i></a>
-                        <a href="#" class="view-mode-btn active" data-view="grid-3" title="3-Column Grid"><i class="bi bi-grid-3x3-gap-fill"></i></a>
-                        <a href="#" class="view-mode-btn" data-view="grid-4" title="4-Column Grid"><i class="bi bi-grid-3x3-fill"></i></a>
-                    </div>
-
-                    <select name="sort" id="sort" class="form-select filter-control" style="width: auto;" onchange="this.form.submit()">
-                        <option value="default" {% if request.args.get('sort', 'default') == 'default' %}selected{% endif %}>Default</option>
-                        <option value="price_asc" {% if request.args.get('sort') == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                        <option value="price_desc" {% if request.args.get('sort') == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    </select>
+        <!-- Products Column -->
+        <div class="col-lg-9">
+          <!-- Product Toolbar -->
+          <div class="row product-toolbar align-items-center gy-3">
+            <div class="col-lg-4 col-md-12">Showing {{ pagination.first }}-{{ pagination.last }} of {{ pagination.total_count }} results</div>
+            <div class="col-lg-8 col-md-12 d-flex justify-content-lg-end justify-content-start align-items-center flex-wrap" style="gap: 1.5rem;">
+                <div class="toolbar-item">
+                    <strong>Show:</strong>
+                    {% for option in per_page_options %}{% set params = request.args.to_dict() %}{% set _ = params.update({'per_page': option, 'page': 1}) %}<a href="{{ url_for('user.products', **params) }}" class="per-page-link {% if selected_per_page == option %}active{% endif %}">{{ option }}</a>{% if not loop.last %}<span class="text-muted">/</span>{% endif %}{% endfor %}
                 </div>
-              </div>
-
-              <!-- Product Grid -->
-              <div class="row product-grid mt-4">
-                {% for product in products %}
-                  <div class="col-md-6 col-lg-4 mb-4">
-                    <a class="product-item" href="{{ url_for('user.product_detail', id=product.id) }}">
-                      {% if product.offer_prize and product.offer_prize < product.prize %}<span class="sale-badge">Sale</span>{% endif %}
-                      <div class="product-thumbnail-wrapper">
-                          <img src="{{ url_for('static', filename=product.images_list[0]) if product.images_list else url_for('static', filename='user/images/product-1.png') }}" class="img-fluid product-thumbnail" alt="{{ product.name }}">
-                          <div class="product-actions">
-                              <span class="action-btn" title="View Details"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg></span>
-                              <span class="action-btn" title="Add to Cart (Visual only)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg></span>
-                          </div>
-                      </div>
-                      <div class="product-content">
-                          <h3 class="product-title">{{ product.name }}</h3>
-                          <strong class="product-price">
-                              ${{ '%.2f'|format(product.offer_prize or product.prize or 0) }}
-                              {% if product.offer_prize and product.offer_prize < product.prize %}<span class="old-price"><del>${{ '%.2f'|format(product.prize or 0) }}</del></span>{% endif %}
-                          </strong>
-                      </div>
-                    </a>
-                  </div>
-                {% else %}
-                  <div class="col-12">
-                    <div class="no-products-found-wrapper">
-                      <div class="no-products-found">
-                        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg></div>
-                        <h4>No Products Found</h4>
-                        <p>We couldn't find any products matching your filters. <br>Try clearing some to see more results.</p>
-                        <a href="{{ url_for('user.products') }}" class="btn btn-primary">Clear All Filters</a>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-              
-              <!-- Pagination -->
-              {% if pagination and pagination.pages > 1 %}<nav aria-label="Page navigation"><ul class="pagination">
-                <li class="page-item {{ 'disabled' if not pagination.has_prev else '' }}"><a class="page-link" href="{{ url_for('user.products', page=pagination.prev_num, **request.args.to_dict(flat=False)) }}" aria-label="Previous"><span aria-hidden="true">«</span></a></li>
-                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}{% if page_num %}<li class="page-item {{ 'active' if page_num == pagination.page else '' }}"><a class="page-link" href="{{ url_for('user.products', page=page_num, **request.args.to_dict(flat=False)) }}">{{ page_num }}</a></li>{% else %}<li class="page-item disabled"><span class="page-link">…</span></li>{% endif %}{% endfor %}
-                <li class="page-item {{ 'disabled' if not pagination.has_next else '' }}"><a class="page-link" href="{{ url_for('user.products', page=pagination.next_num, **request.args.to_dict(flat=False)) }}" aria-label="Next"><span aria-hidden="true">»</span></a></li>
-              </ul></nav>{% endif %}
+                <div class="toolbar-item" id="viewModeControls">
+                    <a class="view-mode-btn" data-view="list" title="List View"><i class="fas fa-bars"></i></a>
+                    <a class="view-mode-btn" data-view="grid-2" title="2-column View"><i class="fas fa-th-large"></i></a>
+                    <a class="view-mode-btn active" data-view="grid-3" title="3-column View"><i class="fas fa-th"></i></a>
+                    <a class="view-mode-btn" data-view="grid-4" title="4-column View"><i class="fas fa-grip-horizontal"></i></a>
+                </div>
             </div>
           </div>
+          
+          <div class="row product-grid gy-4 mt-3">
+            {% if products %}{% for product in products %}<div class="product-col col-md-6 col-lg-4"><a class="product-item" href="{{ url_for('user.product_detail', id=product.id) }}"><div class="product-thumbnail-wrapper"><img src="{{ url_for('static', filename=product.images_list[0]) if product.images_list else url_for('static', filename='user/images/product-1.png') }}" class="img-fluid product-thumbnail" alt="{{ product.name }}"></div><div class="product-content"><h3 class="product-title">{{ product.name }}</h3><strong class="product-price">${{ '%.2f'|format(product.effective_price or 0) }}{% if product.offer_prize and product.offer_prize < product.prize %}<span class="old-price"><del>${{ '%.2f'|format(product.prize or 0) }}</del></span>{% endif %}</strong></div></a></div>{% endfor %}{% else %}<div class="col-12"><p class="text-center text-muted py-5">No products found matching your criteria.</p></div>{% endif %}
+          </div>
+          
+          <nav aria-label="Page navigation" class="mt-5">
+            {% if pagination and pagination.pages > 1 %}
+            <ul class="pagination justify-content-center">
+              <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">{% set params = request.args.to_dict() %}{% set _ = params.update({'page': pagination.prev_num}) %}<a class="page-link" href="{{ url_for('user.products', **params) if pagination.has_prev else '#' }}">«</a></li>
+              {% for page_num in pagination.iter_pages() %}{% if page_num %}<li class="page-item {% if pagination.page == page_num %}active{% endif %}">{% set params = request.args.to_dict() %}{% set _ = params.update({'page': page_num}) %}<a class="page-link" href="{{ url_for('user.products', **params) }}">{{ page_num }}</a></li>{% else %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}{% endfor %}
+              <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">{% set params = request.args.to_dict() %}{% set _ = params.update({'page': pagination.next_num}) %}<a class="page-link" href="{{ url_for('user.products', **params) if pagination.has_next else '#' }}">»</a></li>
+            </ul>
+            {% endif %}
+          </nav>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const filterForm = document.getElementById('filterForm');
     const priceSlider = document.getElementById('price_slider');
     const priceDisplay = document.getElementById('price-display');
     const maxPriceInput = document.getElementById('max_price_input');
 
-    // Price Slider Logic
     if (priceSlider && priceDisplay && maxPriceInput) {
-      const updatePriceDisplay = (value) => {
-        const formattedValue = parseInt(value, 10).toLocaleString('en-US');
-        priceDisplay.textContent = '$' + formattedValue;
-      };
-
       priceSlider.addEventListener('input', function() {
-        updatePriceDisplay(this.value);
+        priceDisplay.textContent = '$' + parseInt(this.value, 10).toLocaleString('en-US');
         maxPriceInput.value = this.value;
       });
-
-      priceSlider.addEventListener('change', function() {
-        filterForm.submit();
-      });
-
-      updatePriceDisplay(priceSlider.value);
-    }
-    
-    // Per Page Controls Logic
-    const perPageInput = document.getElementById('per_page_input');
-    if (perPageInput) {
-        document.querySelectorAll('.per-page-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (perPageInput.value !== this.dataset.value) {
-                    perPageInput.value = this.dataset.value;
-                    filterForm.submit();
-                }
-            });
-        });
+      priceSlider.addEventListener('change', () => filterForm.submit());
     }
 
-    // View Mode Controls Logic
-    const viewModeControls = document.querySelector('.view-mode-controls');
+    const viewModeControls = document.getElementById('viewModeControls');
     const productGrid = document.querySelector('.product-grid');
     if (viewModeControls && productGrid) {
-        const productWrappers = productGrid.querySelectorAll('.product-grid > div[class*="col-"]');
-
-        viewModeControls.addEventListener('click', function(e) {
-            const button = e.target.closest('.view-mode-btn');
-            if (!button || button.classList.contains('active')) return;
-            e.preventDefault();
-
+        const productCols = productGrid.querySelectorAll('.product-col');
+        viewModeControls.addEventListener('click', function (event) {
+            const button = event.target.closest('.view-mode-btn');
+            if (!button) return;
+            event.preventDefault();
             viewModeControls.querySelector('.active')?.classList.remove('active');
             button.classList.add('active');
-
             const view = button.dataset.view;
-            
-            productWrappers.forEach(wrapper => {
-                const item = wrapper.querySelector('.product-item');
-                wrapper.className = 'mb-4';
+            productCols.forEach(col => {
+                const item = col.querySelector('.product-item');
+                col.className = 'product-col';
                 item.classList.remove('list-view');
-
-                switch(view) {
-                    case 'list':
-                        wrapper.classList.add('col-12');
-                        item.classList.add('list-view');
-                        break;
-                    case 'grid-2':
-                        wrapper.classList.add('col-md-6', 'col-lg-6');
-                        break;
-                    case 'grid-4':
-                        wrapper.classList.add('col-md-4', 'col-lg-3');
-                        break;
-                    case 'grid-3':
-                    default:
-                        wrapper.classList.add('col-md-6', 'col-lg-4');
-                        break;
+                switch (view) {
+                    case 'list': col.classList.add('col-12', 'mb-4'); item.classList.add('list-view'); break;
+                    case 'grid-2': col.classList.add('col-6', 'mb-4'); break;
+                    case 'grid-3': col.classList.add('col-md-6', 'col-lg-4', 'mb-4'); break;
+                    case 'grid-4': col.classList.add('col-md-4', 'col-lg-3', 'mb-4'); break;
                 }
             });
         });
     }
-  });
+});
 </script>
 {% endblock %}
